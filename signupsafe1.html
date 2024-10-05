@@ -106,18 +106,18 @@
     .hero {
       padding: 100px 50px;
       padding-top: 150px;
-      display: flex;
-      justify-content: space-between;
+      justify-content: center; /* Center the logo horizontally */
       align-items: center;
       position: relative;
       z-index: 1;
+      text-align: center;
     }
 
     /* Logo Container with dotted background */
     .hero .logo {
       position: relative;
-      width: 40%;
-      text-align: center;
+      width: 200px; /* Width reduced for logo */
+      margin: 0 auto; /* Centering the logo */
     }
 
     /* Dotted background behind the logo */
@@ -137,14 +137,14 @@
 
     /* Logo image */
     .hero .logo img {
-      width: 200px;
+      width: 100%;
       position: relative;
       z-index: 1;
       transition: transform 0.6s ease;
     }
 
     .hero .logo img:hover {
-      transform: rotate(360deg); /* Rotate the logo on hover */
+      transform: rotate(30deg); /* Rotate the logo on hover */
     }
 
     .hero .content {
@@ -158,100 +158,78 @@
       margin: 0 auto 40px;
     }
 
-    /* Research Section with Wave Shape */
-    .research {
-      background-color: #f1f1f1;
-      padding: 70px;
-      position: relative;
-      clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+    .designer-form {
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 40px;
+      height: 100%;
+      border-radius: 0% 10%;
+      margin-bottom: 10%;
+      margin-top: 25px;
+      margin: 0 auto; /* Centering the form container */
+      width: 40%; /* Reduced width to make the box smaller */
+      line-height: 50%;
+      color: black;
+      font-size: 1.1rem;
+      background-color: #ffffffd8;
     }
 
-    .research h2 {
-      text-align: center;
-      font-size: 50px;
-      margin-bottom: 30px;
-      color: #26367B;
-    }
+    /* Styling for labels */
+    label {
+        margin-left: 35px;
 
-    .research .section {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 40px;
-    }
-
-    .research .section div {
-      width: 30%;
-      text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .research .section div:hover {
-      transform: scale(1.05); /* Slight lift */
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-    }
-
-    .research .section div img {
-      width: 50%;
-      border-radius: 10px;
-      transition: transform 0.6s ease;
-    }
-
-    .research .section div img:hover {
-      transform: rotate(5deg) scale(1.05); /* Slight rotation and scale on hover */
-    }
-
-    /* Publications Section */
-    .publications {
-      padding: 80px;
-      background-color: #f4b94200;
-    }
-
-    .publications h2 {
-      text-align: center;
-      font-size: 40px;
-      margin-bottom: 20px;
-      color: #26367B;
-    }
-
-    .publications .pub-section {
-      display: flex;
-      justify-content: space-between;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .publications .pub-section div {
-      width: 30%;
-    }
-
-    .publications .pub-section div h4 {
-      font-size: 20px;
-      color: #26367B;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #26367b;
+      display: block;
       margin-bottom: 10px;
     }
 
-    .publications .pub-section div p {
-      font-size: 16px;
-      color: #666;
+    /* Input styles */
+    input {
+        margin-left: 35px;
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      border: 1px solid #c3c3c3;
+      border-radius: 15px;
+      transition: border-color 0.3s ease;
+      background-color: #e9e8e848;
+    }
+
+    input:focus {
+      border-color: #f4b942dc;
+      outline: none;
+    }
+
+    /* Button styles */
+    .btn-solid {
+        margin-left: 250px;
+      padding: 10px 20px;
+      background-color: #26367B;
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-solid:hover {
+      background-color: #f4b942dc;
     }
 
     /* Footer Section */
     footer {
       background-color: #F7F7F7;
+      margin-top: 300px;
       padding: 30px 50px;
       display: flex;
       justify-content: space-between;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
-
-    
-
-
-    
-    
-
-    
-
   </style>
 </head>
 <body>
@@ -270,7 +248,7 @@
     <div class="logo">ConsealSafe</div>
     <nav>
       <a href="#">Home</a>
-      <a href="#">Sing up</a>
+      <a href="#">Sign up</a>
       <a href="#">Sign in</a>
     </nav>
   </header>
@@ -278,53 +256,33 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="logo">
-        <img src="GpImg/safelogo.png" alt="ConsealSafe Logo">
+      <img src="GpImg/safelogo.png" alt="ConsealSafe Logo">
     </div>
     <div class="content">
-      <p>Welcome to ConsealSafe, your gateway to cutting-edge cybersecurity solutions. We specialize in steganography, PKI, encryption, and MFA, providing top-tier protection strategies and the latest security techniques to safeguard your digital assets.</p>
+      <!-- Add any additional content here -->
     </div>
   </section>
 
-  <!-- Research Section with Wave Shape -->
-  <section class="research">
-    <h2>Termenology</h2>
-    <div class="section">
-      <div>
-        <h4>Steganography <i class="fas fa-lock"></i></h4>
-        <img src="GpImg/steg.png" alt="Steganography Image">
-        <p>Explore the world of covert communication with steganography. Our experts reveal the secrets behind concealing data.</p>
-      </div>
-      <div>
-        <h4>PKI <i class="fas fa-lock"></i></h4>
-        <img src="GpImg/pki.png" alt="PKI Image">
-        <p>Unravel the power of PKI in establishing trust and enhancing security with digital certificates and key pairs.</p>
-      </div>
-      <div>
-        <h4>Encryption <i class="fas fa-lock"></i></h4>
-        <img src="GpImg/enc.png" alt="Encryption Image">
-        <p>Discover encryption and how it transforms plain text into indecipherable code to keep your data private.</p>
-      </div>
-    </div>
-  </section>
+  <!-- Form Section -->
+<div class="container">
+  <div class="form-container designer-form">
+    <!-- Add a form element with action and method -->
+    <form action="/signupsafe1" method="POST">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Username" required>
 
-  <!-- Publications Section -->
-  <section class="publications">
-    <h2>Publications</h2>
-    <div class="pub-section">
-      <div>
-        <h4>Cyber Threats</h4>
-        <p>Learn about the evolving landscape of cyber threats and how to defend against malicious activities.</p>
-      </div>
-      <div>
-        <h4>Data Privacy</h4>
-        <p>Explore the nuances of data privacy and the importance of safeguarding your personal information.</p>
-      </div>
-      <div>
-        <h4>Security Measures</h4>
-        <p>Discover effective security measures to fortify your digital assets against cyber attacks.</p>
-      </div>
-    </div>
-  </section>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Password" required>
+
+      <br><br>
+      <!-- Submit button inside the form -->
+      <button type="submit" class="btn-solid">Sign up</button>
+    </form>
+  </div>
+</div>
 
   <!-- Footer Section -->
   <footer>
@@ -332,7 +290,7 @@
       <p>ConsealSafe</p>
       <p>123-456-7890</p>
       <p>info@mysite.com</p>
-
+    </div>
   </footer>
 
 </body>
