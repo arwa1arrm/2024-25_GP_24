@@ -177,8 +177,7 @@
 
     /* Styling for labels */
     label {
-        margin-left: 35px;
-
+      margin-left: 35px;
       font-weight: 600;
       font-size: 1rem;
       color: #26367b;
@@ -188,7 +187,7 @@
 
     /* Input styles */
     input {
-        margin-left: 35px;
+      margin-left: 35px;
       width: 80%;
       padding: 10px;
       margin-bottom: 20px;
@@ -204,9 +203,35 @@
       outline: none;
     }
 
+    /* Password container for eye icon */
+    .password-container {
+      position: relative;
+      margin-left: 0px;
+      width: 75%;
+    }
+
+    .password-container input {
+      width: 100%;
+      padding-right: 40px; /* Add space for the icon */
+      font-size: 1rem;
+      border: 1px solid #c3c3c3;
+      border-radius: 15px;
+      background-color: #e9e8e848;
+    }
+
+    /* Eye Icon Styling */
+    .eye-icon {
+      position: absolute;
+      top: 38%;
+      right: -60px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #26367b;
+    }
+
     /* Button styles */
     .btn-solid {
-        margin-left: 250px;
+      margin-left: 250px;
       padding: 10px 20px;
       background-color: #26367B;
       color: #fff;
@@ -223,18 +248,20 @@
 
     /* Footer Section */
     footer {
-      background-color: #F7F7F7;
+      background-color: #26367B;
+      color: white;
       margin-top: 300px;
-      padding: 30px 50px;
+      padding: 40px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
+    
+    
   </style>
 </head>
 <body>
-
-  
 
   <!-- Floating lock icons background -->
   <div class="moving-background">
@@ -249,9 +276,9 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="homepage.html">Home</a>
-      <a href="signupsafe1.html">Sign up</a>
-      <a href="loginsafe.html">Sign in</a>
+      <a href="/homepage.html">Home</a>
+      <a href="/templates/signupsafe1.html">Sign up</a>
+      <a href="/loginsafe.html">Sign in</a>
     </nav>
   </header>
 
@@ -276,23 +303,28 @@
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="Email" required>
 
-  
-<form action="/signupsafe1" method="POST">
-  <label for="password">Password</label>
-  <input type="password" id="password" name="password" placeholder="Password" required>
+      <!-- Password Section with Eye Icon -->
+      <label for="password">Password</label>
+      <div class="password-container">
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+      </div>
 
-  <label for="confirmPassword">Confirm Password</label>
-  <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-
-  <button type="submit" class="btn-solid">Sign up</button>
-</form>
+      <!-- Confirm Password Section with Eye Icon -->
+      <label for="confirmPassword">Confirm Password</label>
+      <div class="password-container">
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+        <i class="fas fa-eye eye-icon" id="toggleConfirmPassword"></i>
+      </div>
 
       <br><br>
-      
+      <a href="/homepage.html"><button type="submit" class="btn-solid">Sign up</button></a>
+    </form>
+
+    <!-- Link to Login Page -->
+    <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">Already have an account? <a href="/loginsafe.html">Log in here</a>.</p>
+
   </div>
-
-
-  
 </div>
 
   <!-- Footer Section -->
@@ -305,8 +337,8 @@
     </div>
     <div class="footer-section">
       <h3>Quick Link</h3>
-      <p><a href="homepage.html" style="color: white;">Home</a></p>
-      <p><a href="login.html" style="color: white;">login</a></p>
+      <p><a href="/homepage.html" style="color: white;">Home</a></p>
+      <p><a href="/login.html" style="color: white;">login</a></p>
 
       <br>
     </div>
@@ -321,8 +353,28 @@
         <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
       </div>
     </div>
-    
   </footer>
+
+  <!-- JavaScript for toggling password visibility -->
+  <script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+    const confirmPassword = document.querySelector('#confirmPassword');
+
+    togglePassword.addEventListener('click', function () {
+      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+      password.setAttribute('type', type);
+      this.classList.toggle('fa-eye-slash');
+    });
+
+    toggleConfirmPassword.addEventListener('click', function () {
+      const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmPassword.setAttribute('type', type);
+      this.classList.toggle('fa-eye-slash');
+    });
+  </script>
 
 </body>
 </html>

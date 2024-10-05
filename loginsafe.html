@@ -177,8 +177,7 @@
 
     /* Styling for labels */
     label {
-        margin-left: 35px;
-
+      margin-left: 35px;
       font-weight: 600;
       font-size: 1rem;
       color: #26367b;
@@ -188,7 +187,7 @@
 
     /* Input styles */
     input {
-        margin-left: 35px;
+      margin-left: 35px;
       width: 80%;
       padding: 10px;
       margin-bottom: 20px;
@@ -204,9 +203,35 @@
       outline: none;
     }
 
+    /* Password container for eye icon */
+    .password-container {
+      position: relative;
+      margin-left: px;
+      width: 80%;
+    }
+
+    .password-container input {
+      width: 100%;
+      padding:10px;
+      font-size: 1rem;
+      border: 1px solid #c3c3c3;
+      border-radius: 15px;
+      background-color: #e9e8e848;
+    }
+
+    /* Eye Icon Styling */
+    .eye-icon {
+      position: absolute;
+      top: 36%;
+      right: -30px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #26367b;
+    }
+
     /* Button styles */
     .btn-solid {
-        margin-left: 250px;
+      margin-left: 250px;
       padding: 10px 20px;
       background-color: #26367B;
       color: #fff;
@@ -223,13 +248,16 @@
 
     /* Footer Section */
     footer {
-      background-color: #F7F7F7;
+      background-color: #26367B;
+      color: white;
       margin-top: 300px;
-      padding: 30px 50px;
+      padding: 40px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
+    
   </style>
 </head>
 <body>
@@ -247,9 +275,9 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="homepage.html">Home</a>
-      <a href="signupsafe1.html">Sign up</a>
-      <a href="loginsafe.html">Sign in</a>
+      <a href="/homepage.html">Home</a>
+      <a href="templates/signupsafe1.html">Sign up</a>
+      <a href="/loginsafe.html">Sign in</a>
     </nav>
   </header>
 
@@ -259,21 +287,27 @@
       <img src="GpImg/safelogo.png" alt="ConsealSafe Logo">
     </div>
     <div class="content">
-      <!-- Add any additional content here -->
     </div>
   </section>
 
   <!-- Form Section -->
   <div class="container">
     <div class="form-container designer-form">
-      <label for="Username">Username</label>
-      <input type="text" id="Username" name="Username" placeholder="Username" required>
+      <form action="/signinsafe" method="POST">
+        <label for="Username">Username</label>
+        <input type="text" id="Username" name="Username" placeholder="Username" required>
       
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Password" required>
+        <label for="password">Password</label>
+        <div class="password-container">
+          <input type="password" id="password" placeholder="Password" required>
+          <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+        </div>
 
-      <br><br>
-      <a href="homepage.html"><button type="submit" class="btn-solid">Sign up</button></a>
+        <br><br>
+        <a href="homepage.html"><button type="submit" class="btn-solid">Sign in</button></a>
+      </form>
+
+      <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">Don't have an account? <a href="templates/signupsafe1.html">Sign up here</a>.</p>
     </div>
   </div>
 
@@ -302,8 +336,22 @@
         <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
       </div>
     </div>
-    
   </footer>
+
+  <!-- JavaScript for toggling password visibility -->
+  <script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+      // toggle the type attribute
+      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+      password.setAttribute('type', type);
+      
+      // toggle the eye / eye-slash icon
+      this.classList.toggle('fa-eye-slash');
+    });
+  </script>
 
 </body>
 </html>
