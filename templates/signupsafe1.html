@@ -234,6 +234,8 @@
 </head>
 <body>
 
+  
+
   <!-- Floating lock icons background -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -247,9 +249,9 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="#">Home</a>
-      <a href="#">Sign up</a>
-      <a href="#">Sign in</a>
+      <a href="homepage.html">Home</a>
+      <a href="signupsafe1.html">Sign up</a>
+      <a href="loginsafe.html">Sign in</a>
     </nav>
   </header>
 
@@ -274,23 +276,52 @@
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="Email" required>
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Password" required>
+  
+<form action="/signupsafe1" method="POST">
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" placeholder="Password" required>
+
+  <label for="confirmPassword">Confirm Password</label>
+  <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+
+  <button type="submit" class="btn-solid">Sign up</button>
+</form>
 
       <br><br>
-      <!-- Submit button inside the form -->
-      <button type="submit" class="btn-solid">Sign up</button>
-    </form>
+      
   </div>
+
+
+  
 </div>
 
   <!-- Footer Section -->
   <footer>
-    <div class="contact-info">
+    <div class="footer-section">
+      <h3>Contact Us</h3>
       <p>ConsealSafe</p>
       <p>123-456-7890</p>
       <p>info@mysite.com</p>
     </div>
+    <div class="footer-section">
+      <h3>Quick Link</h3>
+      <p><a href="homepage.html" style="color: white;">Home</a></p>
+      <p><a href="login.html" style="color: white;">login</a></p>
+
+      <br>
+    </div>
+    <div class="footer-section social-icons">
+      <div>
+        <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-twitter"></i> Twitter: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+      </div>
+    </div>
+    
   </footer>
 
 </body>
