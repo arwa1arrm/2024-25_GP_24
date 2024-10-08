@@ -1,7 +1,7 @@
-from flask import Flask,render_template,url_for,request,redirect
+from flask import Flask,render_template,url_for,request,redirect # type: ignore
 
 #import flask mysql
-from flaskext.mysql import MySQL
+from flaskext.mysql import MySQL # type: ignore
 
 mysql=MySQL()
 
