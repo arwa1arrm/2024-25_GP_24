@@ -281,7 +281,7 @@
   </style>
 </head>
 <body>
-<form action="" method="POST">
+
   <!-- Floating lock icons background -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -295,11 +295,11 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-        <a href="{{ url_for('home') }}">Home</a>
-        <a href="{{ url_for('signupsafe1') }}">Sign up</a>
-        <a href="{{ url_for('loginsafe') }}">Sign in</a>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('signupsafe1') }}">Sign up</a>
+      <a href="{{ url_for('loginsafe') }}">Sign in</a>
     </nav>
-</header>
+  </header>
 
   <!-- Intro Section -->
   <section class="intro">
@@ -307,7 +307,7 @@
       <img src="{{ url_for('static', filename='safelogo.png') }}" alt="ConsealSafe Logo">
     </div>
     <div class="content">
-      <p>Welcome to ConsealSafe, your gateway to cutting-edge cybersecurity solutions. We specialize in steganography, PKI, encryption, and MFA, providing top-tier protection strategies and the latest security techniques to safeguard your digital assets.</p>
+      <p>Welcome to ConsealSafe, your gateway to cutting-edge cybersecurity solutions. We specialize in steganography, PKI, encryption, and MFA, providing top-tier protection strategies an security techniques to safeguard your digital assets.</p>
     </div>
   </section>
 
@@ -318,39 +318,37 @@
       <div>
         <h4>Steganography <i class="fas fa-lock"></i></h4>
         <img src="{{ url_for('static', filename='steg.png') }}" alt="Steganography Image">
-        <p>Explore the world of covert communication with steganography. Our experts reveal the secrets behind concealing data.</p>
+        <p>The practice of concealing a message within another medium, such as an image or audio file, to prevent detection.</p>
       </div>
       <div>
         <h4>PKI <i class="fas fa-lock"></i></h4>
         <img src="{{ url_for('static', filename='pki.png') }}" alt="PKI Image">
-        <p>Unravel the power of PKI in establishing trust and enhancing security with digital certificates and key pairs.</p>
+        <p> A system using public and private keys to secure communications and manage digital certificates for identity verification.</p>
       </div>
       <div>
         <h4>Encryption <i class="fas fa-lock"></i></h4>
         <img src="{{ url_for('static', filename='enc.png') }}" alt="Encryption Image">
-        <p>Discover encryption and how it transforms plain text into indecipherable code to keep your data private.</p>
+        <p>The process of transforming plaintext into ciphertext using a key, making it unreadable without authorization.</p>
       </div>
     </div>
   </section>
+  
+  <!-- Articles Section -->
+<section class="publications">
+  <h2>Article</h2>
+  <div class="pub-section" style="display: flex; align-items: center;">
+      <div style="width: 50%; text-align: center;">
+          <img src="{{ url_for('static', filename='articles.jpg') }}" alt="Steganography Image" style="width: 30%; border-radius: 2px;">
+      </div>
+      <div style="width: 50%; padding-left: 20px;">
+        <h4>Understanding Steganography Techniques</h4>
+        <p>Discover various steganography techniques, including its different types, applications, and how it contrasts with cryptography. This article explores the advantages of steganography, tools used, and its implications in cybersecurity, including its potential for malicious use and the role of artificial intelligence.</p>
+        <a href="https://www.simplilearn.com/what-is-steganography-article" target="_blank">Read more</a>
+        
+      </div>
+  </div>
+</section>
 
-  <!-- Publications Section -->
-  <section class="publications">
-    <h2>Publications</h2>
-    <div class="pub-section">
-      <div>
-        <h4>Cyber Threats</h4>
-        <p>Learn about the evolving landscape of cyber threats and how to defend against malicious activities.</p>
-      </div>
-      <div>
-        <h4>Data Privacy</h4>
-        <p>Explore the nuances of data privacy and the importance of safeguarding your personal information.</p>
-      </div>
-      <div>
-        <h4>Security Measures</h4>
-        <p>Discover effective security measures to fortify your digital assets against cyber attacks.</p>
-      </div>
-    </div>
-  </section>
 
   <footer>
     <div class="footer-section">
@@ -379,6 +377,6 @@
     </div>
     
   </footer>
-</form>
+
 </body>
 </html>
