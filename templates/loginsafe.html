@@ -261,7 +261,7 @@
   </style>
 </head>
 <body>
-  <form action="" method="POST">
+
   <!-- Floating lock icons background -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -293,20 +293,18 @@
   <!-- Form Section -->
   <div class="container">
     <div class="form-container designer-form">
-      <label for="first-name">First Name</label>
-      <input type="text" id="first-name" name="first_name" placeholder="First name" required>
+      <form action="/signinsafe" method="POST">
+        <label for="Username">Username</label>
+        <input type="text" id="Username" name="Username" placeholder="Username" required>
       
-      <label for="last-name">Last Name</label>
-      <input type="text" id="last-name" name="last_name" placeholder="Last name" required>
-      
-      <label for="email">Email</label>
-      <input type="email" name="email" id="email" placeholder="Email" required>
-      
-      <label for="password">Password</label>
-      <input type="password" name="password" id="password" placeholder="Password" required>
+        <label for="password">Password</label>
+        <div class="password-container">
+          <input type="password" id="password" placeholder="Password" required>
+          <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+        </div>
 
         <br><br>
-        <a href="homepage.html"><button type="submit" class="btn-solid">Sign in</button></a>
+        <a href="{{ url_for('home') }}"><button type="submit" class="btn-solid">Sign in</button></a>
       </form>
 
       <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">Don't have an account? <a href="templates/signupsafe1.html">Sign up here</a>.</p>
@@ -322,8 +320,8 @@
     </div>
     <div class="footer-section">
       <h3>Quick Link</h3>
-      <p><a href="homepage.html" style="color: white;">Home</a></p>
-      <p><a href="login.html" style="color: white;">login</a></p>
+      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
+      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">login</a></p>
 
       <br>
     </div>
@@ -339,6 +337,21 @@
       </div>
     </div>
   </footer>
-</form>
+
+  <!-- JavaScript for toggling password visibility -->
+  <script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+      // toggle the type attribute
+      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+      password.setAttribute('type', type);
+      
+      // toggle the eye / eye-slash icon
+      this.classList.toggle('fa-eye-slash');
+    });
+  </script>
+
 </body>
 </html>
