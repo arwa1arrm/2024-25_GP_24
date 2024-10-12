@@ -298,8 +298,8 @@
   <div class="form-container designer-form">
     <!-- Add a form element with action and method -->
     <form action="/signupsafe1" method="POST">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Username" required>
+      <label for="user_name">Username</label>
+      <input type="text" id="user_name" name="user_name" placeholder="Username" required>
 
       <label for="email">Email</label>
       <input type="email" id="email" name="email" placeholder="Email" required>
@@ -319,7 +319,7 @@
       </div>
 
       <br><br>
-      <a href="{{ url_for('home') }}"><button type="submit" class="btn-solid">Sign up</button></a>
+      <a href="{{ url_for('loginsafe') }}"><button type="submit" class="btn-solid">Sign up</button></a>
     </form>
 
     <!-- Link to Login Page -->
@@ -329,29 +329,21 @@
 </div>
 
   <!-- Footer Section -->
-  <footer>
+   <!-- Footer -->
+   <footer>
+    <div class="footer-section">
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+    </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>ConsealSafe</p>
-      <p>123-456-7890</p>
-      <p>info@mysite.com</p>
+      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
     </div>
     <div class="footer-section">
-      <h3>Quick Link</h3>
-      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
-      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">login</a></p>
-
-      <br>
-    </div>
-    <div class="footer-section social-icons">
-      <div>
-        <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
-      </div>
-      <div>
-        <i class="fab fa-twitter"></i> Twitter: @consealsafe
-      </div>
-      <div>
-        <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+      <h3>Follow Us</h3>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
       </div>
     </div>
   </footer>

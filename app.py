@@ -18,30 +18,51 @@ app.config['MYSQL_DATABASE_HOST']='localhost'
 mysql.init_app(app)
 
 @app.route("/")
-def home():
+def homepage():
     return render_template('homepage.html')
+
+
+@app.route("/userHomePage")
+def userHomePage():
+    return render_template('userHomePage.html')
 
 @app.route("/signupsafe1",methods=['GET','POST'])
 def signupsafe1():
-    
-
-    return render_template('signupsafe1.html')
-
-@app.route("/loginsafe",methods=['GET','POST'])
-def loginsafe():
-    #connection
+     #connection
     con=mysql.connect()
     cur=con.cursor()
     if request.method=="POST":
-        first_name=request.form['first_name']
-        last_name=request.form['last_name']
+        user_name=request.form['user_name']
         email=request.form['email']
         password=request.form['password']
-        cur.execute("INSERT INTO `users`(`first_name`, `last_name`, `email`, `password`) VALUES (%s,%s,%s,%s)",(first_name,last_name,email,password))
+        cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`) VALUES (%s,%s,%s)",(user_name,email,password))
         con.commit()
-        return redirect(url_for('home'))
+        return redirect(url_for('loginsafe'))
     else:
-        return render_template('loginsafe.html')
+         return render_template('signupsafe1.html')
+    
+@app.route("/loginsafe", methods=['GET', 'POST'])
+def loginsafe():
+    # connection
+    con = mysql.connect()
+    cur = con.cursor()
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        # Check if the user exists in the database
+        cur.execute("SELECT * FROM `users` WHERE `email`=%s AND `password`=%s", (email, password))
+        user = cur.fetchone()
+
+        if user:
+            # If user is found, redirect to homepage
+            return redirect(url_for('userHomePage'))
+        else:
+            # If login fails, return to login page with an error message
+            return render_template('loginsafe.html', error="Invalid email or password")
+
+    return render_template('loginsafe.html')
+
 
 if __name__=="__main__":
     app.run(debug=True)

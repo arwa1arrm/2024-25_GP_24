@@ -276,7 +276,7 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('homepage') }}">Home</a>
       <a href="{{ url_for('signupsafe1') }}">Sign up</a>
       <a href="{{ url_for('loginsafe') }}">Sign in</a>
     </nav>
@@ -294,18 +294,18 @@
   <!-- Form Section -->
   <div class="container">
     <div class="form-container designer-form">
-      <form action="/signinsafe" method="POST">
-        <label for="Username">Username</label>
-        <input type="text" id="Username" name="Username" placeholder="Username" required>
+      <form action="/loginsafe" method="POST">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Email" required>
       
         <label for="password">Password</label>
         <div class="password-container">
-          <input type="password" id="password" placeholder="Password" required>
+          <input type="password" id="password" name="password" placeholder="Password" required>
           <i class="fas fa-eye eye-icon" id="togglePassword"></i>
         </div>
 
         <br><br>
-        <a href="{{ url_for('home') }}"><button type="submit" class="btn-solid">Sign in</button></a>
+        <a href="{{ url_for('userHomePage') }}"><button type="submit" class="btn-solid">Sign in</button></a>
       </form>
 
       <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.</p>
@@ -321,7 +321,7 @@
     </div>
     <div class="footer-section">
       <h3>Quick Link</h3>
-      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
+      <p><a href="{{ url_for('homepage') }}" style="color: white;">Home</a></p>
       <p><a href="{{ url_for('loginsafe') }}" style="color: white;">login</a></p>
 
       <br>

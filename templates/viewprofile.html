@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Profile - ConsealSafe</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    /* Reusing previous CSS styles */
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
+      color: #26367B;
+      transition: background 0.5s ease;
+      overflow-x: hidden;
+    }
+
+    /* Floating Locks Animation - the background icons */
+    .moving-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    /* Styling for the floating lock icons */
+    .lock-icon {
+      position: absolute;
+      font-size: 50px;
+      color: rgba(255, 255, 255, 0.1);
+      animation: floatLocks 15s infinite linear;
+    }
+
+    /* Animation for floating locks */
+    @keyframes floatLocks {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+      }
+    }
+
+    /* Different lock icon sizes, durations, and delays for variety */
+    .lock-icon:nth-child(2) {
+      font-size: 70px;
+      animation-duration: 12s;
+      animation-delay: 3s;
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .lock-icon:nth-child(3) {
+      font-size: 90px;
+      animation-duration: 18s;
+      animation-delay: 6s;
+      color: rgba(255, 255, 255, 0.08);
+    }
+
+    .lock-icon:nth-child(4) {
+      font-size: 40px;
+      animation-duration: 10s;
+      animation-delay: 1s;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .lock-icon:nth-child(5) {
+      font-size: 60px;
+      animation-duration: 20s;
+      animation-delay: 5s;
+      color: rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      background-color: #f1f1f1;
+      border-bottom-left-radius: 45px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+    }
+
+    header a {
+      color: #26367B;
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    header a:hover {
+      text-decoration: underline;
+      transform: translateY(-2px);
+    }
+
+    .profile-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 100px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 5px solid #f4b942dc;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-info {
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .user-info h2 {
+      margin-bottom: 10px;
+      color: #26367B;
+    }
+
+    .user-info p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #26367B;
+    }
+
+    .btn-edit {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #f4b942dc;
+      color: #26367B;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-edit:hover {
+      background-color: #26367B;
+      color: white;
+    }
+
+    footer {
+      background-color: #26367B;
+      color: white;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 50px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating lock icons background -->
+  <div class="moving-background">
+    <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 50%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 70%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
+  </div>
+
+  <header>
+    <div class="logo">ConsealSafe</div>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('signupsafe1') }}">Sign up</a>
+      <a href="{{ url_for('loginsafe') }}">Sign in</a>
+    </nav>
+  </header>
+
+  <section class="profile-section">
+    <img src="{{ url_for('static', filename='profile_picture.png') }}" alt="Profile Picture" class="profile-image">
+    <div class="user-info">
+      <h2>User Profile</h2>
+      <p><strong>Username:</strong> username </p>
+      <p><strong>Email:</strong> email </p>
+      <p><strong>Password:</strong> ********* </p>
+    </div>
+    <a href="{{ url_for('edit_profile') }}"><button class="btn-edit">Edit Profile</button></a>
+  </section>
+
+  <footer>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>ConsealSafe</p>
+      <p>123-456-7890</p>
+      <p>info@mysite.com</p>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Link</h3>
+      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
+      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">Login</a></p>
+    </div>
+    <div class="footer-section social-icons">
+      <div>
+        <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-twitter"></i> Twitter: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

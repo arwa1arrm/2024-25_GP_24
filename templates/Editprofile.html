@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - ConsealSafe</title>
+
+  <!-- Font: Montserrat and Font Awesome for icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
+      color: #26367B;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .moving-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .lock-icon {
+      position: absolute;
+      font-size: 50px;
+      color: rgba(255, 255, 255, 0.1);
+      animation: floatLocks 15s infinite linear;
+    }
+
+    @keyframes floatLocks {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+      }
+    }
+
+    .lock-icon:nth-child(2) {
+      font-size: 70px;
+      animation-duration: 12s;
+      animation-delay: 3s;
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .lock-icon:nth-child(3) {
+      font-size: 90px;
+      animation-duration: 18s;
+      animation-delay: 6s;
+      color: rgba(255, 255, 255, 0.08);
+    }
+
+    .lock-icon:nth-child(4) {
+      font-size: 40px;
+      animation-duration: 10s;
+      animation-delay: 1s;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .lock-icon:nth-child(5) {
+      font-size: 60px;
+      animation-duration: 20s;
+      animation-delay: 5s;
+      color: rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-bottom-left-radius: 45px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 10;
+    }
+
+    header a {
+      color: #26367B;
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    header a:hover {
+      text-decoration: underline;
+      transform: translateY(-2px);
+    }
+
+    .edit-form-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 100px 20px;
+      text-align: center;
+      margin-top: 70px; /* Account for fixed header */
+      width: 100%;
+      max-width: 800px;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .profile-picture {
+      border-radius: 50%;
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border: 5px solid #f4b942dc;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-picture:hover {
+      transform: scale(1.1);
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    label {
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #26367b;
+      display: block;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #c3c3c3;
+      border-radius: 15px;
+      background-color: #e9e8e848;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #f4b942dc;
+      outline: none;
+    }
+
+    .btn-save {
+      padding: 10px 20px;
+      background-color: #26367B;
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-save:hover {
+      background-color: #f4b942dc;
+      transform: translateY(-2px);
+    }
+
+    .btn-discard {
+      padding: 10px 20px;
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-discard:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    /* Footer Section */
+    footer {
+      background-color: #26367B;
+      color: white;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 50px;
+      width: 100%;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Floating lock icons background -->
+  <div class="moving-background">
+    <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 50%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 70%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">ConsealSafe</div>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('view_profile') }}">View Profile</a>
+    </nav>
+  </header>
+
+  <!-- Edit Form Section -->
+  <section class="edit-form-section">
+    <img src="{{ url_for('static', filename='old_profile_picture.png') }}" alt="Profile Picture" class="profile-picture">
+    <div class="form-container">
+      <h2>Edit Profile</h2>
+      <form action="/update_profile" method="POST" enctype="multipart/form-data">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Username" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="New Password">
+
+        <label for="profile_picture">Profile Picture</label>
+        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+
+        <button type="submit" class="btn-save">Save Changes</button>
+        <button type="button" class="btn-discard" onclick="window.location.href='{{ url_for('view_profile') }}'">Discard Changes</button>
+      </form>
+      <p style="margin-top: 20px;"><a href="{{ url_for('view_profile') }}" style="color: #26367B;">Return to View Profile</a></p>
+    </div>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>ConsealSafe</p>
+      <p>123-456-7890</p>
+      <p>info@mysite.com</p>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Link</h3>
+      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
+      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">Login</a></p>
+    </div>
+    <div class="footer-section social-icons">
+      <div>
+        <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-twitter"></i> Twitter: @consealsafe
+      </div>
+      <div>
+        <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

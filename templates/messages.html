@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - ConsealSafe</title>
+
+  <!-- Font and Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    /* Background styling similar to the homepage */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
+      color: #26367B;
+      overflow-x: hidden;
+    }
+
+    /* Floating lock icons background */
+    .moving-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    /* Lock icon floating animation */
+    .lock-icon {
+      position: absolute;
+      font-size: 50px;
+      color: rgba(255, 255, 255, 0.1);
+      animation: floatLocks 15s infinite linear;
+    }
+
+    @keyframes floatLocks {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+      }
+    }
+
+    /* Different lock icon sizes and animations */
+    .lock-icon:nth-child(2) { font-size: 70px; animation-duration: 12s; }
+    .lock-icon:nth-child(3) { font-size: 90px; animation-duration: 18s; }
+    .lock-icon:nth-child(4) { font-size: 40px; animation-duration: 10s; }
+    .lock-icon:nth-child(5) { font-size: 60px; animation-duration: 20s; }
+
+    /* Messages container */
+    .messages-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .messages-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* Individual message item */
+    .message-item {
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .message-item:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Hidden content of the message */
+    .message-content {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .message-content p {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    /* Button for decryption */
+    .decrypt-btn {
+      background-color: #f4b942;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .decrypt-btn:hover {
+      background-color: #e7a832;
+    }
+  </style>
+
+  <script>
+    // Toggle the visibility of the message content
+    function toggleMessageContent(element) {
+      const content = element.querySelector('.message-content');
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+      } else {
+        content.style.display = 'block';
+      }
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Floating lock icons background -->
+  <div class="moving-background">
+    <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 50%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 70%;"></i>
+    <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">ConsealSafe</div>
+    <nav>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('signupsafe1') }}">Sign up</a>
+      <a href="{{ url_for('loginsafe') }}">Sign in</a>
+    </nav>
+  </header>
+
+  <!-- Messages Container -->
+  <div class="messages-container">
+    <h2>Your Messages</h2>
+
+    <!-- Message 1 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title">Security Alert: Unusual login activity detected.</div>
+      <div class="message-content">
+        <p>This message is to inform you that we detected unusual login activity from an unrecognized device. If this wasn't you, please secure your account immediately.</p>
+        <button class="decrypt-btn">Extract & Decrypt</button>
+      </div>
+    </div>
+
+    <!-- Message 2 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title">New steganography method has been released.</div>
+      <div class="message-content">
+        <p>A new steganography method has been developed, which enhances the security of hiding sensitive data within images. Explore this latest innovation in the cybersecurity domain.</p>
+        <button class="decrypt-btn">Extract & Decrypt</button>
+      </div>
+    </div>
+
+    <!-- Message 3 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title">Software update available for encryption tool.</div>
+      <div class="message-content">
+        <p>We are excited to announce a new update for our encryption tool, providing improved performance and new features for enhanced data security.</p>
+        <button class="decrypt-btn">Extract & Decrypt</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>ConsealSafe</p>
+      <p>123-456-7890</p>
+      <p>info@mysite.com</p>
+    </div>
+    <div class="footer-section">
+      <h3>Quick Link</h3>
+      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
+      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">Login</a></p>
+    </div>
+    <div class="footer-section social-icons">
+      <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
+      <i class="fab fa-twitter"></i> Twitter: @consealsafe
+      <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+    </div>
+  </footer>
+
+</body>
+</html>
