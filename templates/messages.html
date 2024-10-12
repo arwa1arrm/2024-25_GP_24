@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Messages - ConsealSafe</title>
 
-  <!-- Font and Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <style>
-    /* Background styling similar to the homepage */
+    
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
@@ -20,7 +19,6 @@
       transition: background 0.5s ease;
     }
 
-    /* Lock animation background */
     .moving-background {
       position: fixed;
       top: 0;
@@ -163,7 +161,7 @@
     }
 
     .bell-icon::after {
-      content: '1'; /* This is the notification number */
+      content: '1'; 
       position: absolute;
       top: -5px;
       right: -10px;
@@ -244,7 +242,7 @@
       color: white;
       padding: 40px;
       display: flex;
-      justify-content: space-between;
+      margin-top: 10%;
       flex-wrap: wrap;
     }
 
@@ -427,7 +425,7 @@
     <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
     <div class="message-content">
       <p>You have received a new file: <strong>Project_Documents.zip</strong>. Click the button below to extract and decrypt the file.</p>
-      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
+      <a href="{{ url_for('decrypt') }}"><button class="decrypt-btn">Extract & Decrypt</button></a>
     </div>
   </div>
 

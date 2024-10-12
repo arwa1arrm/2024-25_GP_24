@@ -6,22 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConsealSafe</title>
 
-  <!-- Font: Montserrat and Font Awesome for icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <style>
-    /* Background and overall styling */
     body {
       margin: 0;
       font-family: 'Montserrat', sans-serif;
       background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
       color: #26367B;
       transition: background 0.5s ease;
-      overflow-x: hidden; /* Hide horizontal scroll caused by animations */
+      overflow-x: hidden; 
     }
 
-    /* Floating Locks Animation - the background icons */
+  
     .moving-background {
       position: fixed;
       top: 0;
@@ -32,7 +30,6 @@
       overflow: hidden;
     }
 
-    /* Styling for the floating lock icons */
     .lock-icon {
       position: absolute;
       font-size: 50px;
@@ -303,7 +300,7 @@
           <input type="password" id="password" name="password" placeholder="Password" required>
           <i class="fas fa-eye eye-icon" id="togglePassword"></i>
         </div>
-        <p style="text-align: center; margin-top: 10px; margin-left: -395px; font-size: 0.9rem;"> <a href="{{ url_for('Forgotpassword') }}">Forgot password</a></p>
+        <p style="text-align: center; margin-top: 10px; margin-left: -395px; font-size: 0.9rem;"> <a href="{{ url_for('ForgotPassword') }}">Forgot password</a></p>
 
 
         <br><br>

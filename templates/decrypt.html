@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypt and Hide Messages</title>
+    <title>Extract and Decrypt Messages</title>
     
-  
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
  
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
     <style>
-      
+       
         * {
             box-sizing: border-box;
         }
@@ -78,7 +78,6 @@
             width: 100%;
             font-size: 16px;
             transition: background-color 0.3s ease;
-            margin-bottom: 10px;
         }
 
         button:hover {
@@ -90,75 +89,22 @@
             margin-top: 20px;
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #ccc;
         }
 
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
-        .btn-group button {
-            width: 48%;
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
-            /* Lock animation background */
-    .moving-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
 
-    .lock-icon {
-      position: absolute;
-      font-size: 50px;
-      color: rgba(255, 255, 255, 0.1);
-      animation: floatLocks 15s infinite linear;
-    }
-
-    @keyframes floatLocks {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-      }
-
-      100% {
-        transform: translateY(-100vh) rotate(360deg);
-      }
-    }
-
-    .lock-icon:nth-child(2) {
-      font-size: 70px;
-      animation-duration: 12s;
-      animation-delay: 3s;
-      color: rgba(255, 255, 255, 0.15);
-    }
-
-    .lock-icon:nth-child(3) {
-      font-size: 90px;
-      animation-duration: 18s;
-      animation-delay: 6s;
-      color: rgba(255, 255, 255, 0.08);
-    }
-
-    .lock-icon:nth-child(4) {
-      font-size: 40px;
-      animation-duration: 10s;
-      animation-delay: 1s;
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    .lock-icon:nth-child(5) {
-      font-size: 60px;
-      animation-duration: 20s;
-      animation-delay: 5s;
-      color: rgba(255, 255, 255, 0.1);
-    }
-
-         /* Header styling */
-    header {
+/* Header styling */
+header {
       display: flex;
       justify-content: space-between;
       padding: 20px;
@@ -233,8 +179,9 @@
       background: #f4b942;
       color: white;
     }
- /* Bell notification icon */
- .bell-icon {
+
+    /* Bell notification icon */
+    .bell-icon {
       font-size: 24px;
       margin-right: 20px;
       color: #26367B;
@@ -243,7 +190,7 @@
     }
 
     .bell-icon::after {
-      content: '1'; 
+      content: '!'; /* This is notification. we must change later with actual NO of notificTIONS OR LEAVE IT LIKE THIS*/
       position: absolute;
       top: -5px;
       right: -10px;
@@ -253,6 +200,7 @@
       padding: 2px 6px;
       border-radius: 50%;
     }
+
         /* Footer styling */
         footer {
             background-color: #26367B;
@@ -295,73 +243,58 @@
     </style>
 </head>
 <body>
-
-
-
-  <!-- Floating Locks -->
-  <div class="moving-background">
-    <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
-    <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
-    <i class="fas fa-lock lock-icon" style="left: 50%;"></i>
-    <i class="fas fa-lock lock-icon" style="left: 70%;"></i>
-    <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
-  </div>
-
+   
   <!-- Header -->
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="{{ url_for('homepage') }}">Encrypt & Hide</a>
-      <div class="bell-icon">
-        <i class="fas fa-bell"></i>
-      </div>
+     <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+
+        
+      <a href="{{ url_for('messages') }}">
+        <div class="bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+      </a>
+
+      
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
+        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon -->
         <div class="dropdown">
-          <a href="{{ url_for('homepage') }}">View Account</a>
+          <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('homepage') }}">Sign out</a>
+        
         </div>
       </div>
+    
     </nav>
   </header>
-
-
     <div class="container">
-        <h2>Encrypt Your Message</h2>
-        <form id="encryptionForm">
-            <label for="message">Enter your message:</label>
-            <textarea id="message" rows="4" required></textarea>
 
-            <button type="button">Encrypt</button>
-            <div id="encryptMessageOutput" class="message" style="display:block;">
-                <!-- Placeholder text for encrypted output -->
-                Encrypted message will be displayed here.
-            </div>
-        </form>
-
-        <h2>Hide Encrypted Message in Media</h2>
+        <h2>Extract Encrypted Message from Media</h2>
         <form id="steganographyForm">
             <label for="mediaFile">Upload media file (image, video, or audio):</label>
             <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
 
-            <label for="cipherText">Cipher text to hide:</label>
+            <button type="button" onclick="hideMessage()">Extract Message from Media</button>
+            <div id="hideMessageOutput" class="message"></div>
+        </form>
+
+        <h2>Decrypt Message</h2>
+        <form id="decryptionForm">
+            <label for="cipherText">Cipher text:</label>
             <textarea id="cipherText" rows="4" required></textarea>
 
-            <button type="button">Hide Message</button>
-            <div id="hideMessageOutput" class="message" style="display:block;">
-                <!-- Placeholder text for hidden message output -->
-                Hidden message information will be displayed here.
-            </div>
+            
+            <button type="button" onclick="decryptMessage()">Decrypt Message</button>
+            <div id="decryptMessageOutput" class="message"></div>
 
-           
-            <div class="btn-group">
-                <button type="button" id="downloadButton">Download File</button>
-                <button type="button" id="shareButton">Share File</button>
-            </div>
+            <label for="PlainText">Plain text:</label>
+            <textarea id="PlainText" rows="4" required></textarea>
+
         </form>
     </div>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-section">
             <h3>About Us</h3>
@@ -369,7 +302,7 @@
         </div>
         <div class="footer-section">
             <h3>Contact Us</h3>
-            <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
+            <p>Email: support@concealsafe.com | Phone: +123 456 789</p>
         </div>
         <div class="footer-section">
             <h3>Follow Us</h3>
@@ -379,5 +312,42 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        function hideMessage() {
+            const mediaFile = document.getElementById('mediaFile').files[0];
+            const cipherText = document.getElementById('cipherText').value;
+            if (mediaFile && cipherText) {
+                // Steganography logic to hide the message (Placeholder)
+                document.getElementById('hideMessageOutput').innerHTML = `
+                    <div class="success">Successfully extracted the encrypted message from ${mediaFile.name}!</div>
+                `;
+            } else {
+                document.getElementById('hideMessageOutput').innerHTML = `
+                    <div class="error">Please upload a media file and enter a cipher text.</div>
+                `;
+            }
+        }
+
+        function decryptMessage() {
+            const cipherText = document.getElementById('cipherText').value; // Use cipherText directly from textarea
+            if (cipherText) {
+                try {
+                    const decryptedMessage = atob(cipherText.trim()); // Assuming the cipher text is Base64 encoded
+                    document.getElementById('decryptMessageOutput').innerHTML = `
+                        <div class="success">Decrypted Message: ${decryptedMessage}</div>
+                    `;
+                } catch (error) {
+                    document.getElementById('decryptMessageOutput').innerHTML = `
+                        <div class="error">Decryption failed. Invalid message.</div>
+                    `;
+                }
+            } else {
+                document.getElementById('decryptMessageOutput').innerHTML = `
+                    <div class="error">Please enter a cipher text to decrypt.</div>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>

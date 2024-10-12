@@ -41,6 +41,36 @@ def signupsafe1():
     else:
          return render_template('signupsafe1.html')
     
+     
+@app.route("/ForgotPassword", methods=['GET', 'POST'])
+def ForgotPassword():
+    return render_template('ForgotPassword.html')
+ 
+    
+@app.route("/viewprofile")
+def viewprofile():
+    return render_template('viewprofile.html')
+
+
+    
+@app.route("/messages")
+def messages():
+    return render_template('messages.html')
+
+
+
+@app.route("/decrypt")
+def decrypt():
+    return render_template('decrypt.html')
+
+
+ 
+   
+@app.route("/encryptionPage")
+def encryptionPage():
+    return render_template('encryptionPage.html')
+ 
+    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
     # connection
