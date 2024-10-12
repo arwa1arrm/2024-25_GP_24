@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt and Hide Messages</title>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* General Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
+      color: #26367B;
+      overflow-x: hidden;
+      transition: background 0.5s ease;
+    }
+
+    /* Lock animation background */
+    .moving-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 45px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #26367B;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #26367B;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="file"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #f4b942;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #26367B;
+            color: #f4b942;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+         /* Footer styling */
+    footer {
+      background-color: #26367B;
+      color: white;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    footer .footer-section {
+      width: 30%;
+      text-align: center;
+    }
+
+    footer .footer-section h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    footer .footer-section p {
+      font-size: 14px;
+    }
+
+    footer .social-icons {
+      display: flex;
+      justify-content: center;
+    }
+
+    footer .social-icons a {
+      margin: 0 10px;
+      color: white;
+      font-size: 20px;
+      transition: color 0.3s ease;
+    }
+
+    footer .social-icons a:hover {
+      color: #f4b942;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Encrypt and Hide Messages</h1>
+    </header>
+    <div class="container">
+        <h2>Encrypt Your Message</h2>
+        <form id="encryptionForm">
+            <label for="message">Enter your message:</label>
+            <textarea id="message" rows="4" required></textarea>
+
+            <button type="button" onclick="encryptMessage()">Encrypt</button>
+            <div id="encryptMessageOutput" class="message"></div>
+        </form>
+
+        <h2>Hide Encrypted Message in Media</h2>
+        <form id="steganographyForm">
+            <label for="mediaFile">Upload media file (image, video, or audio):</label>
+            <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
+
+            <label for="cipherText">Cipher text to hide:</label>
+            <textarea id="cipherText" rows="4" required></textarea>
+
+            <button type="button" onclick="hideMessage()">Hide Message</button>
+            <div id="hideMessageOutput" class="message"></div>
+        </form>
+    </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-section">
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+    </div>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
+    </div>
+    <div class="footer-section">
+      <h3>Follow Us</h3>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+    <script>
+        function encryptMessage() {
+            const message = document.getElementById('message').value;
+            if (message) {
+                // Here you can integrate your encryption logic
+                const encryptedMessage = btoa(message); // Simple Base64 encoding for demonstration
+                document.getElementById('encryptMessageOutput').innerHTML = `
+                    <div class="success">Encrypted Message: ${encryptedMessage}</div>
+                `;
+                document.getElementById('cipherText').value = encryptedMessage; // Set the encrypted message for hiding
+            } else {
+                document.getElementById('encryptMessageOutput').innerHTML = `
+                    <div class="error">Please enter a message to encrypt.</div>
+                `;
+            }
+        }
+
+        function hideMessage() {
+            const mediaFile = document.getElementById('mediaFile').files[0];
+            const cipherText = document.getElementById('cipherText').value;
+            if (mediaFile && cipherText) {
+                // Here you can integrate your steganography logic
+                // For demonstration, we're simulating a successful process
+                document.getElementById('hideMessageOutput').innerHTML = `
+                    <div class="success">Successfully hidden the encrypted message in ${mediaFile.name}!</div>
+                `;
+            } else {
+                document.getElementById('hideMessageOutput').innerHTML = `
+                    <div class="error">Please upload a media file and enter a cipher text.</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
