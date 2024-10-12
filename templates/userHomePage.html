@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
  
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <style>
     /* General page styling */
     body {
@@ -326,10 +326,11 @@
   </header>
 
   <!-- Welcome Section -->
-  <div class="welcome">
-    <h1>Welcome to ConsealSafe</h1>
+<div class="welcome">
+    <h1>Welcome back, {{ user_name }}!</h1>
     <p>Your ultimate solution for encrypting and hiding your files!</p>
   </div>
+  
 
   <!-- Features Section -->
   <div class="features-section">
