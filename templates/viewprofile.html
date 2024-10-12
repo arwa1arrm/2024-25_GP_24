@@ -7,6 +7,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
 
   <style>
     /* Reusing previous CSS styles */
@@ -33,7 +34,6 @@
     /* Styling for the floating lock icons */
     .lock-icon {
       position: absolute;
-      font-size: 50px;
       color: rgba(255, 255, 255, 0.1);
       animation: floatLocks 15s infinite linear;
     }
@@ -48,7 +48,12 @@
       }
     }
 
-    /* Different lock icon sizes, durations, and delays for variety */
+    .lock-icon:nth-child(1) {
+      font-size: 50px;
+      animation-duration: 15s;
+      color: rgba(255, 255, 255, 0.1);
+    }
+
     .lock-icon:nth-child(2) {
       font-size: 70px;
       animation-duration: 12s;
@@ -77,14 +82,26 @@
       color: rgba(255, 255, 255, 0.1);
     }
 
+    /* Header styling */
     header {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 20px;
       background-color: #f1f1f1;
       border-bottom-left-radius: 45px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 2;
+    }
+
+    header .logo {
+      font-size: 24px;
+      font-weight: 600;
+      color: #26367B;
+    }
+
+    header nav {
+      display: flex;
+      align-items: center;
     }
 
     header a {
@@ -100,6 +117,54 @@
       transform: translateY(-2px);
     }
 
+    .bell-icon {
+      font-size: 24px;
+      margin-right: 20px;
+      color: #26367B;
+      cursor: pointer;
+    }
+
+    .profile {
+      position: relative;
+      margin-right: 20px;
+    }
+
+    /* Profile icon in header */
+    .profile-icon {
+      font-size: 24px;
+      color: #26367B;
+      cursor: pointer;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .profile:hover .dropdown {
+      display: block;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #26367B;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .dropdown a:hover {
+      background: #f4b942;
+      color: white;
+    }
+
+    /* Profile section styling */
     .profile-section {
       display: flex;
       justify-content: center;
@@ -111,13 +176,11 @@
       z-index: 1;
     }
 
-    .profile-image {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-      border: 5px solid #f4b942dc;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    /* Larger profile icon */
+    .profile_image {
+      font-size: 100px; /* Make icon larger */
+      color: #26367B; /* Match the theme color */
+      margin-bottom: 20px; /* Space below the icon */
     }
 
     .user-info {
@@ -157,16 +220,94 @@
       color: white;
     }
 
+    #saveBtn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #f4b942dc;
+      color: #26367B;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease; 
+    }
+
+    #usernameInput {
+      width: 50%;
+      padding: 10px;
+      border: 1px solid #c3c3c3;
+      border-radius: 15px;
+      background-color: #e9e8e848;
+      transition: border-color 0.3s ease;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      padding-top: 60px;
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Footer section */
     footer {
+      display: flex;
+      justify-content: space-around;
+      padding: 50px 0;
       background-color: #26367B;
       color: white;
-      padding: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 50px;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
+    
+    footer h3 {
+      margin-bottom: 10px;
+    }
+    
+    footer p {
+      font-size: 16px;
+    }
+    
+    footer .social-icons {
+      margin-top: 10px;
+    }
+    
+    footer .social-icons a {
+      color: white;
+      font-size: 24px;
+      margin-right: 10px;
+    }
+    
   </style>
 </head>
 <body>
@@ -180,50 +321,107 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
+  <!-- Header -->
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="{{ url_for('home') }}">Home</a>
-      <a href="{{ url_for('signupsafe1') }}">Sign up</a>
-      <a href="{{ url_for('loginsafe') }}">Sign in</a>
+      <a href="{{ url_for('homepage') }}">Encrypt & Hide</a>
+      <div class="bell-icon">
+        <i class="fas fa-bell"></i>
+      </div>
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <div class="dropdown">
+          <a href="{{ url_for('viewprofilepage') }}">View Account</a>
+          <a href="{{ url_for('homepage') }}">Sign out</a>
+        </div>
+      </div>
     </nav>
   </header>
 
   <section class="profile-section">
-    <img src="{{ url_for('static', filename='profile_picture.png') }}" alt="Profile Picture" class="profile-image">
+    <div class="profile_image">
+      <i class="fas fa-user-circle"></i> <!-- Large profile icon -->
+    </div>
     <div class="user-info">
       <h2>User Profile</h2>
       <p><strong>Username:</strong> username </p>
       <p><strong>Email:</strong> email </p>
       <p><strong>Password:</strong> ********* </p>
     </div>
-    <a href="{{ url_for('edit_profile') }}"><button class="btn-edit">Edit Profile</button></a>
+    
+    <button class="btn-edit" id="editProfileBtn">Edit Usermame</button>
   </section>
 
+  <!-- The Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Edit Username</h2>
+      <label for="usernameInput">New Username</label>
+      <input type="text" id="usernameInput" placeholder="Enter new username" />
+      <button id="saveBtn">Save</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
   <footer>
     <div class="footer-section">
-      <h3>Contact Us</h3>
-      <p>ConsealSafe</p>
-      <p>123-456-7890</p>
-      <p>info@mysite.com</p>
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
     </div>
     <div class="footer-section">
-      <h3>Quick Link</h3>
-      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
-      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">Login</a></p>
+      <h3>Contact Us</h3>
+      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
     </div>
-    <div class="footer-section social-icons">
-      <div>
-        <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
-      </div>
-      <div>
-        <i class="fab fa-twitter"></i> Twitter: @consealsafe
-      </div>
-      <div>
-        <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+    <div class="footer-section">
+      <h3>Follow Us</h3>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
       </div>
     </div>
   </footer>
+
+  <script>
+    // Get the modal
+    var modal = document.getElementById("editModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("editProfileBtn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Save button functionality
+    document.getElementById("saveBtn").onclick = function() {
+      var newUsername = document.getElementById("usernameInput").value;
+      // Here you would normally send the new username to the server via an AJAX call or form submission
+      console.log("New Username:", newUsername);
+      // Close the modal
+      modal.style.display = "none";
+      // Update the displayed username (this is just for demonstration)
+      document.querySelector(".user-info p strong:contains('Username:')").nextSibling.textContent = newUsername;
+    }
+  </script>
 
 </body>
 </html>
