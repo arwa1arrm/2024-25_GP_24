@@ -12,14 +12,271 @@
   <style>
     /* Background styling similar to the homepage */
     body {
-      font-family: 'Montserrat', sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: 'Montserrat', sans-serif;
       background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
       color: #26367B;
       overflow-x: hidden;
+      transition: background 0.5s ease;
     }
 
+    /* Lock animation background */
+    .moving-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .lock-icon {
+      position: absolute;
+      font-size: 50px;
+      color: rgba(255, 255, 255, 0.1);
+      animation: floatLocks 15s infinite linear;
+    }
+
+    @keyframes floatLocks {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+      }
+
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+      }
+    }
+
+    .lock-icon:nth-child(2) {
+      font-size: 70px;
+      animation-duration: 12s;
+      animation-delay: 3s;
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .lock-icon:nth-child(3) {
+      font-size: 90px;
+      animation-duration: 18s;
+      animation-delay: 6s;
+      color: rgba(255, 255, 255, 0.08);
+    }
+
+    .lock-icon:nth-child(4) {
+      font-size: 40px;
+      animation-duration: 10s;
+      animation-delay: 1s;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .lock-icon:nth-child(5) {
+      font-size: 60px;
+      animation-duration: 20s;
+      animation-delay: 5s;
+      color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Header styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      background-color: #f1f1f1;
+      border-bottom-left-radius: 45px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header .logo {
+      font-size: 24px;
+      font-weight: 600;
+      color: #26367B;
+    }
+
+    header nav {
+      display: flex;
+      align-items: center;
+    }
+
+    header a {
+      color: #26367B;
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    header a:hover {
+      text-decoration: underline;
+      transform: translateY(-2px);
+    }
+
+    /* Profile section */
+    .profile {
+      position: relative;
+      margin-right: 20px;
+    }
+
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #f4b942;
+    }
+
+    /* Dropdown menu for profile */
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .profile:hover .dropdown {
+      display: block;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #26367B;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .dropdown a:hover {
+      background: #f4b942;
+      color: white;
+    }
+
+    /* Bell notification icon */
+    .bell-icon {
+      font-size: 24px;
+      margin-right: 20px;
+      color: #26367B;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .bell-icon::after {
+      content: '1'; /* This is the notification number */
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background: red;
+      color: white;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 50%;
+    }
+
+    /* Welcome section */
+    .welcome {
+      padding: 100px 50px;
+      text-align: center;
+    }
+
+    .welcome h1 {
+      font-size: 50px;
+      color: #26367B;
+      margin-bottom: 20px;
+    }
+
+    .welcome p {
+      font-size: 22px;
+      color: #26367B;
+    }
+
+    .welcome button {
+      background-color: #f4b942;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .welcome button:hover {
+      background-color: #26367B;
+      color: #f4b942;
+    }
+
+    
+
+    .features-section h2 {
+      font-size: 40px;
+      color: #26367B;
+      margin-bottom: 20px;
+    }
+
+    .features-section p {
+      font-size: 18px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .features-section button {
+      background-color: #26367B;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .features-section button:hover {
+      background-color: #f4b942;
+      color: #26367B;
+    }
+
+    /* Footer styling */
+    footer {
+      background-color: #26367B;
+      color: white;
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    footer .footer-section {
+      width: 30%;
+      text-align: center;
+    }
+
+    footer .footer-section h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    footer .footer-section p {
+      font-size: 14px;
+    }
+
+    footer .social-icons {
+      display: flex;
+      justify-content: center;
+    }
+
+    footer .social-icons a {
+      margin: 0 10px;
+      color: white;
+      font-size: 20px;
+      transition: color 0.3s ease;
+    }
+
+    footer .social-icons a:hover {
+      color: #f4b942;
+    }
     /* Floating lock icons background */
     .moving-background {
       position: fixed;
@@ -139,62 +396,78 @@
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
-      <a href="{{ url_for('home') }}">Home</a>
-      <a href="{{ url_for('signupsafe1') }}">Sign up</a>
-      <a href="{{ url_for('loginsafe') }}">Sign in</a>
+     <a href="{{ url_for('homepage') }}">Encrypt & Hide</a>
+
+      <a href="{{ url_for('messages') }}">
+        <div class="bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+      </a>
+    
+
+      
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
+        <div class="dropdown">
+          <a href="{{ url_for('homepage') }}">View Account</a>
+          <a href="{{ url_for('homepage') }}">Sign out</a>
+        
+        </div>
+      </div>
+    
     </nav>
   </header>
 
   <!-- Messages Container -->
-  <div class="messages-container">
-    <h2>Your Messages</h2>
+<div class="messages-container">
+  <h2>Messages</h2>
 
-    <!-- Message 1 -->
-    <div class="message-item" onclick="toggleMessageContent(this)">
-      <div class="message-title">Security Alert: Unusual login activity detected.</div>
-      <div class="message-content">
-        <p>This message is to inform you that we detected unusual login activity from an unrecognized device. If this wasn't you, please secure your account immediately.</p>
-        <button class="decrypt-btn">Extract & Decrypt</button>
-      </div>
+  <!-- File Message 1 -->
+  <div class="message-item" onclick="toggleMessageContent(this)">
+    <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
+    <div class="message-content">
+      <p>You have received a new file: <strong>Project_Documents.zip</strong>. Click the button below to extract and decrypt the file.</p>
+      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
     </div>
-
-    <!-- Message 2 -->
-    <div class="message-item" onclick="toggleMessageContent(this)">
-      <div class="message-title">New steganography method has been released.</div>
-      <div class="message-content">
-        <p>A new steganography method has been developed, which enhances the security of hiding sensitive data within images. Explore this latest innovation in the cybersecurity domain.</p>
-        <button class="decrypt-btn">Extract & Decrypt</button>
-      </div>
-    </div>
-
-    <!-- Message 3 -->
-    <div class="message-item" onclick="toggleMessageContent(this)">
-      <div class="message-title">Software update available for encryption tool.</div>
-      <div class="message-content">
-        <p>We are excited to announce a new update for our encryption tool, providing improved performance and new features for enhanced data security.</p>
-        <button class="decrypt-btn">Extract & Decrypt</button>
-      </div>
-    </div>
-
   </div>
+
+  <!-- File Message 2 -->
+  <div class="message-item" onclick="toggleMessageContent(this)">
+    <div class="message-title"><i class="fas fa-image"></i> confidential_diagram.png</div>
+    <div class="message-content">
+      <p>A new image file has been sent to you: <strong>confidential_diagram.png</strong>. You can decrypt and view the image below.</p>
+      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
+    </div>
+  </div>
+
+  <!-- File Message 3 -->
+  <div class="message-item" onclick="toggleMessageContent(this)">
+    <div class="message-title"><i class="fas fa-file-archive"></i> Secure_Backup.rar</div>
+    <div class="message-content">
+      <p>An encrypted archive <strong>Secure_Backup.rar</strong> is available. Decrypt the archive to access the secured files.</p>
+      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
+    </div>
+  </div>
+
+</div>
+
 
   <!-- Footer -->
   <footer>
     <div class="footer-section">
-      <h3>Contact Us</h3>
-      <p>ConsealSafe</p>
-      <p>123-456-7890</p>
-      <p>info@mysite.com</p>
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
     </div>
     <div class="footer-section">
-      <h3>Quick Link</h3>
-      <p><a href="{{ url_for('home') }}" style="color: white;">Home</a></p>
-      <p><a href="{{ url_for('loginsafe') }}" style="color: white;">Login</a></p>
+      <h3>Contact Us</h3>
+      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
     </div>
-    <div class="footer-section social-icons">
-      <i class="fab fa-facebook-f"></i> Facebook: @consealsafe
-      <i class="fab fa-twitter"></i> Twitter: @consealsafe
-      <i class="fab fa-linkedin-in"></i> LinkedIn: @consealsafe
+    <div class="footer-section">
+      <h3>Follow Us</h3>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
     </div>
   </footer>
 
