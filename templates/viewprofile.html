@@ -94,9 +94,9 @@
     }
 
     header .logo {
-      font-size: 24px;
       font-weight: 600;
       color: #26367B;
+      margin-left: 10%;
     }
 
     header nav {
@@ -129,6 +129,7 @@
       margin-right: 20px;
     }
 
+    
     /* Profile icon in header */
     .profile-icon {
       font-size: 24px;
@@ -157,6 +158,7 @@
       color: #26367B;
       text-decoration: none;
       transition: background 0.3s ease;
+      width: 75%;
     }
 
     .dropdown a:hover {
@@ -283,11 +285,17 @@
 
     /* Footer section */
     footer {
-      display: flex;
-      justify-content: space-around;
-      padding: 50px 0;
       background-color: #26367B;
       color: white;
+      padding: 40px;
+      padding-left: 80px;
+      display: flex;
+      margin-top: 10%;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
     
     footer h3 {
@@ -323,12 +331,17 @@
 
   <!-- Header -->
   <header>
-    <div class="logo">ConsealSafe</div>
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
-      <a href="{{ url_for('homepage') }}">Encrypt & Hide</a>
-      <div class="bell-icon">
-        <i class="fas fa-bell"></i>
-      </div>
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+
+
+      <a href="{{ url_for('messages') }}">
+        <div class="bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+      </a>
+
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
@@ -377,7 +390,6 @@
     <div class="footer-section">
       <h3>Follow Us</h3>
       <div class="social-icons">
-        <a href="#"><i class="fab fa-facebook"></i></a>
         <a href="#"><i class="fab fa-twitter"></i></a>
         <a href="#"><i class="fab fa-instagram"></i></a>
       </div>

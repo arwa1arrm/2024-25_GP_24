@@ -34,6 +34,14 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        header .logo {
+      font-weight: 600;
+      color: #26367B;
+      margin-left: 10%;
+    }
+
+
+
         header h1 {
             font-size: 24px;
             font-weight: 600;
@@ -196,7 +204,6 @@
       position: relative;
       margin-right: 20px;
     }
-
     .profile img {
       width: 40px;
       height: 40px;
@@ -227,6 +234,7 @@
       color: #26367B;
       text-decoration: none;
       transition: background 0.3s ease;
+      width: 75%;
     }
 
     .dropdown a:hover {
@@ -255,13 +263,18 @@
     }
         /* Footer styling */
         footer {
-            background-color: #26367B;
-            color: white;
-            padding: 40px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
+      background-color: #26367B;
+      color: white;
+      padding: 40px;
+      padding-left: 80px;
+      display: flex;
+      margin-top: 10%;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
 
         footer .footer-section {
             width: 30%;
@@ -309,16 +322,20 @@
 
   <!-- Header -->
   <header>
-    <div class="logo">ConsealSafe</div>
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
-      <a href="{{ url_for('homepage') }}">Encrypt & Hide</a>
-      <div class="bell-icon">
-        <i class="fas fa-bell"></i>
-      </div>
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+
+      <a href="{{ url_for('messages') }}">
+        <div class="bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+      </a>
+
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
         <div class="dropdown">
-          <a href="{{ url_for('homepage') }}">View Account</a>
+          <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('homepage') }}">Sign out</a>
         </div>
       </div>

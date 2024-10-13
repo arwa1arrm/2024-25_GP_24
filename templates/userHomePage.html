@@ -87,13 +87,21 @@
       background-color: #f1f1f1;
       border-bottom-left-radius: 45px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding-left: 30px;
+      text-decoration: none;
+
     }
+     
 
     header .logo {
-      font-size: 24px;
       font-weight: 600;
       color: #26367B;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+      text-decoration: none;
     }
+
+
 
     header nav {
       display: flex;
@@ -106,11 +114,13 @@
       font-weight: 600;
       margin-right: 15px;
       transition: transform 0.3s ease;
+
     }
 
     header a:hover {
       text-decoration: underline;
       transform: translateY(-2px);
+
     }
 
     /* Profile section */
@@ -119,6 +129,14 @@
       margin-right: 20px;
     }
 
+    header .logo {
+      font-weight: 600;
+      color: #26367B;
+      margin-left: 10%;
+    }
+    
+
+    
     .profile img {
       width: 40px;
       height: 40px;
@@ -126,7 +144,7 @@
       cursor: pointer;
       border: 2px solid #f4b942;
     }
-
+    
     /* Dropdown menu for profile */
     .dropdown {
       display: none;
@@ -149,6 +167,7 @@
       color: #26367B;
       text-decoration: none;
       transition: background 0.3s ease;
+      width: 75%;
     }
 
     .dropdown a:hover {
@@ -255,11 +274,15 @@
       background-color: #26367B;
       color: white;
       padding: 40px;
+      padding-left: 80px;
       display: flex;
+      margin-top: 10%;
+      flex-wrap: wrap;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
-
     footer .footer-section {
       width: 30%;
       text-align: center;
@@ -305,7 +328,7 @@
 
   <!-- Header -->
   <header>
-    <div class="logo">ConsealSafe</div>
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
 
