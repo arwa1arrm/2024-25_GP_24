@@ -336,7 +336,7 @@
         <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
-          <a href="{{ url_for('homepage') }}">Sign out</a>
+          <a href="{{ url_for('homepage') }}" id="logoutlink">Sign out</a>
         </div>
       </div>
     </nav>
@@ -396,5 +396,15 @@
             </div>
         </div>
     </footer>
+    <script>
+      //confirmation windows when user clicks on logout
+    document.getElementById("logoutlink").addEventListener("click", function(event) {
+      var confirmation = confirm("Are you sure you want to sign out?");
+      if (!confirmation) {
+        // If the user cancels, prevent the default action (navigation)
+        event.preventDefault();
+      }
+    });
+    </script>
 </body>
 </html>

@@ -201,6 +201,12 @@
       outline: none;
     }
 
+    .errorlogin{
+      font-family: 'Montserrat', sans-serif;
+      font-size: 90%;
+      margin-left: -5%;
+    }
+
     /* Password container for eye icon */
     .password-container {
       position: relative;
@@ -321,27 +327,39 @@
   </section>
 
   <!-- Form Section -->
-  <div class="container">
-    <div class="form-container designer-form">
-      <form action="/loginsafe" method="POST">
-        <label for="email">Email</label>
-        <input type="text" id="email" name="email" placeholder="Email" required>
-      
-        <label for="password">Password</label>
-        <div class="password-container">
-          <input type="password" id="password" name="password" placeholder="Password" required>
-          <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+<div class="container">
+  <div class="form-container designer-form">
+    <form action="/loginsafe" method="POST">
+      <label for="email">Email</label>
+      <input type="text" id="email" name="email" placeholder="Email" required>
+
+      <label for="password">Password</label>
+      <div class="password-container">
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+      </div>
+
+      <p style="text-align: center; margin-top: 10px; margin-left: -395px; font-size: 0.9rem;">
+        <a href="{{ url_for('ForgotPassword') }}">Forgot password</a>
+      </p>
+
+      <!-- Display error message if login fails -->
+      {% if error %}
+        <div class="errorlogin" style="text-align: center; color: red; margin-top: 20px;">
+          {{ error }}
         </div>
-        <p style="text-align: center; margin-top: 10px; margin-left: -395px; font-size: 0.9rem;"> <a href="{{ url_for('ForgotPassword') }}">Forgot password</a></p>
+      {% endif %}
 
+      <br><br>
+      <button type="submit" class="btn-solid">Sign in</button>
+    </form>
 
-        <br><br>
-        <a href="{{ url_for('userHomePage') }}"><button type="submit" class="btn-solid">Sign in</button></a>
-      </form>
-
-      <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.</p>
-    </div>
+    <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">
+      Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.
+    </p>
   </div>
+</div>
+
 
   <!-- Footer -->
   <footer>

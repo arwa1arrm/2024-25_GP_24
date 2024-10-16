@@ -82,22 +82,29 @@
       color: rgba(255, 255, 255, 0.1);
     }
 
-    /* Header styling */
-    header {
+   /* Header styling */
+   header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       padding: 20px;
       background-color: #f1f1f1;
       border-bottom-left-radius: 45px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding-left: 30px;
+      text-decoration: none;
+
     }
+     
 
     header .logo {
       font-weight: 600;
       color: #26367B;
-      margin-left: 10%;
+      margin-right: 15px;
+      transition: transform 0.3s ease;
+      text-decoration: none;
     }
+
+
 
     header nav {
       display: flex;
@@ -110,33 +117,38 @@
       font-weight: 600;
       margin-right: 15px;
       transition: transform 0.3s ease;
+
     }
 
     header a:hover {
       text-decoration: underline;
       transform: translateY(-2px);
+
     }
 
-    .bell-icon {
-      font-size: 24px;
-      margin-right: 20px;
-      color: #26367B;
-      cursor: pointer;
-    }
-
+    /* Profile section */
     .profile {
       position: relative;
       margin-right: 20px;
     }
 
-    
-    /* Profile icon in header */
-    .profile-icon {
-      font-size: 24px;
+    header .logo {
+      font-weight: 600;
       color: #26367B;
-      cursor: pointer;
+      margin-left: 10%;
     }
+    
 
+    
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #f4b942;
+    }
+    
+    /* Dropdown menu for profile */
     .dropdown {
       display: none;
       position: absolute;
@@ -166,6 +178,26 @@
       color: white;
     }
 
+    /* Bell notification icon */
+    .bell-icon {
+      font-size: 24px;
+      margin-right: 20px;
+      color: #26367B;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .bell-icon::after {
+      content: '!'; /* This is notification. we must change later with actual NO of notificTIONS OR LEAVE IT LIKE THIS*/
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background: red;
+      color: white;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 50%;
+    }
     /* Profile section styling */
     .profile-section {
       display: flex;
@@ -346,7 +378,7 @@
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
-          <a href="{{ url_for('homepage') }}">Sign out</a>
+          <a href="{{ url_for('homepage') }}" id="logoutlink">Sign out</a>
         </div>
       </div>
     </nav>
@@ -433,6 +465,15 @@
       // Update the displayed username (this is just for demonstration)
       document.querySelector(".user-info p strong:contains('Username:')").nextSibling.textContent = newUsername;
     }
+
+//confirmation windows when user clicks on logout
+  document.getElementById("logoutlink").addEventListener("click", function(event) {
+    var confirmation = confirm("Are you sure you want to sign out?");
+    if (!confirmation) {
+      // If the user cancels, prevent the default action (navigation)
+      event.preventDefault();
+    }
+  });
   </script>
 
 </body>

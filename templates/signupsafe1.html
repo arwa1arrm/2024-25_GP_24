@@ -232,7 +232,7 @@
 
     /* Button styles */
     .btn-solid {
-      margin-left: 250px;
+      margin-left: 215px;
       padding: 10px 20px;
       background-color: #26367B;
       color: #fff;
@@ -295,6 +295,8 @@
 </head>
 <body>
 
+
+
   <!-- Floating lock icons background -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -317,7 +319,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="logo">
-      <img src="{{ url_for('static', filename='safelogo.png') }}" alt="ConsealSafe Logo">
+      <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
     </div>
     <div class="content">
       <!-- Add any additional content here -->
@@ -350,12 +352,29 @@
       </div>
 
       <br><br>
-      <a href="{{ url_for('loginsafe') }}"><button type="submit" class="btn-solid">Sign up</button></a>
+      <button type="submit" class="btn-solid" id="toggleAcount">Create Account</button>
     </form>
+
+    <!-- Error message handling -->
+    {% if error %}
+    <div style="color: red; text-align: center; padding-top: 7%; font-size: 80%;" >{{ error }}</div>
+    {% endif %}
+
+    {% if alert %}
+    <div style="color: green; text-align: center; padding-top: 7%">{{ alert }}</div>
+    <script>
+     // Redirect to login page after 3 seconds
+     setTimeout(function() {
+     window.location.href = "{{ url_for('loginsafe') }}";
+     }, 3000); // 3000 milliseconds = 3 seconds
+     </script>
+     {% endif %}
 
     <!-- Link to Login Page -->
     <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
 
+   
+     </div>
   </div>
 </div>
 
@@ -392,12 +411,16 @@
       password.setAttribute('type', type);
       this.classList.toggle('fa-eye-slash');
     });
+    
 
     toggleConfirmPassword.addEventListener('click', function () {
       const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
       confirmPassword.setAttribute('type', type);
       this.classList.toggle('fa-eye-slash');
     });
+
+  
+
   </script>
 
 </body>
