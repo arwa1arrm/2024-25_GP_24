@@ -88,10 +88,22 @@ def signupsafe1():
         if not re.match(email_pattern, email):
             return render_template('signupsafe1.html', error="Invalid email format. Please enter a valid email (e.g., user@domain.com).")
 
-        # Password length validation
+     # Password length validation
         if len(password) < 8:
             return render_template('signupsafe1.html', error="Password must be at least 8 characters long.")
+
+        # Password complexity validation (at least one uppercase letter)
+        if not re.search(r'[A-Z]', password):
+            return render_template('signupsafe1.html', error="Password must contain at least one uppercase letter.")
         
+        # Password complexity validation (at least one lowercase letter)
+        if not re.search(r'[a-z]', password):
+            return render_template('signupsafe1.html', error="Password must contain at least one lowercase letter.")
+
+        # Password complexity validation (at least one digit)
+        if not re.search(r'[0-9]', password):
+            return render_template('signupsafe1.html', error="Password must contain at least one digit.")
+
         # Password matching validation
         if password != confirmPassword:
             return render_template('signupsafe1.html', error="Confirm passwords do not match the entered password.")
@@ -125,6 +137,7 @@ def signupsafe1():
     con.close()
 
     return render_template('signupsafe1.html')
+
 
 @app.route("/download_private_key")
 def download_private_key():
