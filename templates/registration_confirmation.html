@@ -1,0 +1,46 @@
+<!-- registration_confirmation.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmation</title>
+    <style>
+           body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
+            color: #26367B;
+            text-align: center;
+            padding: 50px;
+        }
+        .button {
+            background-color: #f4b942;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #26367B;
+        }
+    </style>
+    <script>
+        // Automatically trigger the download of the private key after the page loads
+        window.onload = function() {
+            window.location.href = "{{ url_for('download_private_key') }}";
+        }
+    </script>
+</head>
+<body>
+    <h2>Thank You for Registering, {{ user_name }}!</h2>
+    <p>Your registration was successful.</p>
+    <p>Your private key has been downloaded automatically. Please make sure to store it in a secure place.</p>
+    <p>You can now log in to your account.</p>
+    <a href="{{ url_for('loginsafe') }}">
+        <button>Go to Login Page</button>
+    </a>
+</body>
+</html>
