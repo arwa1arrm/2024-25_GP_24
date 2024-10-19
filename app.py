@@ -1,3 +1,5 @@
+#this is app.py
+
 import re
 from flask import Flask, render_template, session, url_for, request, redirect, send_file
 from flaskext.mysql import MySQL
@@ -82,7 +84,7 @@ def signupsafe1():
         confirmPassword = request.form['confirmPassword']  # Confirm password
 
         # Email format validation
-        email_pattern = r'^[\w._%+-]+@[a-zA-Z0-9.-]+\.[cC][oO][mM]$'
+        email_pattern = r'^[\w._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]'
         if not re.match(email_pattern, email):
             return render_template('signupsafe1.html', error="Invalid email format. Please enter a valid email (e.g., user@domain.com).")
 
