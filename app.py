@@ -17,7 +17,7 @@ mysql = MySQL()
 app = Flask(__name__)
 
 # Configure the secret key for session management
-app.secret_key = 'your_secret_key_here'  # Change this to a strong secret key!
+app.secret_key = 'g5$8^bG*dfK4&2e3yH!Q6j@z'  # currintly we are hard coding the key, when we host we will change this key be programatically generated
 
 # Configure MySQL with Flask app 
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -205,26 +205,6 @@ def loginsafe():
             return render_template('loginsafe.html', error="Invalid email or password")
     
     return render_template('loginsafe.html')  # default page load
-
-@app.route("/send_message", methods=['POST'])
-def send_message():
-    sender_email = request.form['sender_email']
-    recipient_email = request.form['recipient_email']
-    message = request.form['message']
-
-    # Check if recipient email is provided
-    if not recipient_email:
-        return "Recipient email is required.", 400
-
-    # Retrieve recipient's certificate
-    recipient_certificate = get_user_certificate(recipient_email)
-
-    if not recipient_certificate:
-        return "Recipient not found.", 404
-
-    # Implement your encryption logic here using the retrieved certificate
-
-    return "Message sent successfully."
 
 if __name__ == "__main__":
     app.run(debug=True)

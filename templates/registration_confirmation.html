@@ -1,32 +1,198 @@
-<!-- registration_confirmation.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Confirmation</title>
+    <!-- Font: Montserrat and Font Awesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
-           body {
+        body {
+            margin: 0;
             font-family: 'Montserrat', sans-serif;
             background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
             color: #26367B;
-            text-align: center;
-            padding: 50px;
+            transition: background 0.5s ease;
+            overflow-x: hidden; /* Hide horizontal scroll caused by animations */
         }
+
+        /* Floating Locks Animation - the background icons */
+        .moving-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Styling for the floating lock icons */
+        .lock-icon {
+            position: absolute;
+            font-size: 50px;
+            color: rgba(255, 255, 255, 0.1);
+            animation: floatLocks 15s infinite linear;
+        }
+
+        /* Animation for floating locks */
+        @keyframes floatLocks {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+            }
+        }
+
+        /* Different lock icon sizes, durations, and delays for variety */
+        .lock-icon:nth-child(2) {
+            font-size: 70px;
+            animation-duration: 12s;
+            animation-delay: 3s;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .lock-icon:nth-child(3) {
+            font-size: 90px;
+            animation-duration: 18s;
+            animation-delay: 6s;
+            color: rgba(255, 255, 255, 0.08);
+        }
+
+        .lock-icon:nth-child(4) {
+            font-size: 40px;
+            animation-duration: 10s;
+            animation-delay: 1s;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .lock-icon:nth-child(5) {
+            font-size: 60px;
+            animation-duration: 20s;
+            animation-delay: 5s;
+            color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Header styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 45px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            padding-left: 30px;
+        }
+
+        header .logo {
+            text-decoration: none;
+            font-weight: 600;
+            color: #26367B;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        header a {
+            color: #26367B;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+
+        
+
+        /* Container box */
+        .container-box {
+        background-color: white;
+        padding: 30px;
+        margin: 180px auto; 
+        max-width: 600px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+       }
+        .container-box h2 {
+            margin-bottom: 20px; 
+        }
+
+        .container-box p {
+            margin-bottom: 15px; 
+        }
+
+        /* Button*/
         .button {
-            background-color: #f4b942;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            background-color: #f4b942; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
             text-decoration: none;
             margin-top: 20px;
+            font-size: 16px; 
+            transition: background-color 0.3s ease; 
         }
+
         .button:hover {
+            background-color: #26367B; 
+        }
+
+        /* Footer Section */
+        footer {
             background-color: #26367B;
+            color: white;
+            padding: 40px;
+            padding-left: 80px;
+            display: flex;
+            margin-top: 10%;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer .footer-section {
+            width: 30%;
+            text-align: center;
+        }
+
+        footer .footer-section h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        footer .footer-section p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        footer .social-icons {
+            display: flex;
+            justify-content: center;
+        }
+
+        footer .social-icons a {
+            margin: 0 10px;
+            color: white;
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+
+        footer .social-icons a:hover {
+            color: #f4b942;
         }
     </style>
+
     <script>
         // Automatically trigger the download of the private key after the page loads
         window.onload = function() {
@@ -34,13 +200,55 @@
         }
     </script>
 </head>
+
 <body>
-    <h2>Thank You for Registering, {{ user_name }}!</h2>
-    <p>Your registration was successful.</p>
-    <p>Your private key has been downloaded automatically. Please make sure to store it in a secure place.</p>
-    <p>You can now log in to your account.</p>
-    <a href="{{ url_for('loginsafe') }}">
-        <button>Go to Login Page</button>
-    </a>
+
+    <!-- Floating lock icons background -->
+    <div class="moving-background">
+        <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
+        <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
+        <i class="fas fa-lock lock-icon" style="left: 50%;"></i>
+        <i class="fas fa-lock lock-icon" style="left: 70%;"></i>
+        <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">ConsealSafe</div>
+        <nav>
+            <a href="{{ url_for('homepage') }}">Home</a>
+            <a href="{{ url_for('signupsafe1') }}">Sign up</a>
+            <a href="{{ url_for('loginsafe') }}">Sign in</a>
+        </nav>
+    </header>
+
+    <!-- Container Box -->
+    <div class="container-box">
+        <h2>Thank You for Registering, {{ user_name }}!</h2>
+        <p>Your registration was successful.</p>
+        <p>Your private key has been downloaded automatically. Please make sure to store it in a secure place.</p>
+        <p>You can now log in to your account.</p>
+        <a href="{{ url_for('loginsafe') }}" class="button">Go to Login Page</a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-section">
+            <h3>About Us</h3>
+            <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
+        </div>
+        <div class="footer-section">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>

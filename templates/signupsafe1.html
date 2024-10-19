@@ -348,9 +348,9 @@
 
   <!-- Form Section -->
 <div class="container">
-  <div class="form-container designer-form">
+  <div class="form-container designer-form"> <!-- noote !! we should edit -->
     <!-- Add a form element with action and method -->
-    <form action="/signupsafe1" method="POST">
+    <form action="/signupsafe1" method="POST"  onsubmit="validateForm(event)">
       <label for="user_name">Username</label>
       <input type="text" id="user_name" name="user_name" placeholder="Username" required>
 
@@ -450,24 +450,46 @@ function checkConfirmPassword() {
   }
 
   // Validate the form before submission
-  function validateForm() {
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/; // Password pattern
+function validateForm(event) {
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirmPassword');
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
+  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/; // Password pattern with digit
 
-    if (!emailPattern.test(emailInput.value)) {
-      return false; // Prevent form submission
-    }
-    if (!passwordPattern.test(passwordInput.value)) {
-      return false; // Prevent form submission
-    }
-    if (confirmPasswordInput.value !== passwordInput.value) {
-      return false; // Prevent form submission
-    }
-    return true; // Allow form submission
+  // Clear previous error messages
+  const errorMessages = document.getElementById('errorMessages');
+  errorMessages.innerHTML = '';
+
+  let valid = true; // Track if the form is valid
+
+  // Validate email
+  if (!emailPattern.test(emailInput.value)) {
+    errorMessages.innerHTML += "<p>Invalid email format.</p>";
+    valid = false; // Set valid to false
   }
+  
+  // Validate password
+  if (!passwordPattern.test(passwordInput.value)) {
+    errorMessages.innerHTML += "<p>Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a digit.</p>";
+    valid = false; // Set valid to false
+  }
+  
+  // Validate confirm password
+  if (confirmPasswordInput.value !== passwordInput.value) {
+    errorMessages.innerHTML += "<p>Passwords do not match.</p>";
+    valid = false; // Set valid to false
+  }
+
+  // Prevent form submission if any validation fails
+  if (!valid) {
+    event.preventDefault(); // Prevent the default form submission
+    return false; // Optionally return false to indicate validation failure
+  }
+  
+  return true; // Allow form submission
+}
+
 
 </script>
 
