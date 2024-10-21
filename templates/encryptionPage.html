@@ -261,6 +261,42 @@
       padding: 2px 6px;
       border-radius: 50%;
     }
+
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); 
+      background-color: rgba(0,0,0,0.4); 
+      padding-top: 60px;
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto; 
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; 
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    #confirmLogoutBtn, #cancelLogoutBtn{
+      background-color: #f4b942dc;
+      border: none;
+      padding: 3%;
+      margin-left: 2%;
+      border-radius: 15px;
+      cursor: pointer;
+      color: #26367B;
+      transition: background-color 0.3s ease; 
+
+    }
         /* Footer styling */
         footer {
       background-color: #26367B;
@@ -340,6 +376,16 @@
         </div>
       </div>
     </nav>
+    <!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+  <div class="modal-content">
+    <span class="closeLogout">&times;</span>
+    <h2>Confirm Logout</h2>
+    <p>Are you sure you want to sign out?</p>
+    <button id="confirmLogoutBtn">Yes</button>
+    <button id="cancelLogoutBtn">No</button>
+  </div>
+</div>
   </header>
 
 
@@ -397,14 +443,42 @@
         </div>
     </footer>
     <script>
-      //confirmation windows when user clicks on logout
-    document.getElementById("logoutlink").addEventListener("click", function(event) {
-      var confirmation = confirm("Are you sure you want to sign out?");
-      if (!confirmation) {
-        // If the user cancels, prevent the default action (navigation)
-        event.preventDefault();
-      }
-    });
+     
+    // Get the logout modal and logout link
+var logoutModal = document.getElementById("logoutModal");
+var logoutLink = document.getElementById("logoutlink");
+
+// Get the buttons inside the logout modal
+var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+
+var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+
+logoutLink.onclick = function(event) {
+  event.preventDefault(); 
+  logoutModal.style.display = "block";
+}
+
+//  clicks  "Yes" 
+confirmLogoutBtn.onclick = function() {
+  window.location.href = logoutLink.href; 
+}
+
+// clicks "No" modal
+cancelLogoutBtn.onclick = function() {
+  logoutModal.style.display = "none"; 
+}
+
+// clicks "No" span
+closeLogoutSpan.onclick = function() {
+  logoutModal.style.display = "none"; 
+}
+
+window.onclick = function(event) {
+  if (event.target == logoutModal) {
+    logoutModal.style.display = "none"; 
+  }
+}
     </script>
 </body>
 </html>
