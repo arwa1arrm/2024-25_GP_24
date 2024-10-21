@@ -14,7 +14,6 @@
 </head>
 <body>
    
-  <!-- Header -->
   <header>
     <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
@@ -28,7 +27,8 @@
       </a>
       
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon -->
+        <!-- Profile icon -->
+        <i class="fas fa-user-circle profile-icon"></i> 
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
@@ -37,7 +37,7 @@
       </div>
     
     </nav>
-    <!-- Logout Confirmation Modal -->
+    <!-- Logout Confirmation -->
 <div id="logoutModal" class="modal">
   <div class="modal-content">
     <span class="closeLogout">&times;</span>
@@ -101,7 +101,6 @@
             const mediaFile = document.getElementById('mediaFile').files[0];
             const cipherText = document.getElementById('cipherText').value;
             if (mediaFile && cipherText) {
-                // Steganography logic to hide the message (Placeholder)
                 document.getElementById('hideMessageOutput').innerHTML = `
                     <div class="success">Successfully extracted the encrypted message from ${mediaFile.name}!</div>
                 `;
@@ -116,7 +115,7 @@
             const cipherText = document.getElementById('cipherText').value; // Use cipherText directly from textarea
             if (cipherText) {
                 try {
-                    const decryptedMessage = atob(cipherText.trim()); // Assuming the cipher text is Base64 encoded
+                    const decryptedMessage = atob(cipherText.trim()); 
                     document.getElementById('decryptMessageOutput').innerHTML = `
                         <div class="success">Decrypted Message: ${decryptedMessage}</div>
                     `;
@@ -135,7 +134,7 @@
 var logoutModal = document.getElementById("logoutModal");
 var logoutLink = document.getElementById("logoutlink");
 
-// Get the buttons inside the logout modal
+//buttons inside the logout modal
 var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
 var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
@@ -146,12 +145,12 @@ logoutLink.onclick = function(event) {
   logoutModal.style.display = "block";
 }
 
-//  clicks  "Yes" 
+//  click "Yes" 
 confirmLogoutBtn.onclick = function() {
   window.location.href = logoutLink.href; 
 }
 
-// clicks "No" modal
+// click "No" 
 cancelLogoutBtn.onclick = function() {
   logoutModal.style.display = "none"; 
 }

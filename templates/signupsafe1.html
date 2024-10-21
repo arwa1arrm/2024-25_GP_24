@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConsealSafe</title>
 
-  <!-- Font: Montserrat and Font Awesome for icons -->
+  
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -26,7 +26,7 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-  <!-- Header -->
+  
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
@@ -36,13 +36,10 @@
     </nav>
   </header>
 
-  <!-- Hero Section -->
+  
   <section class="hero">
     <div class="logo">
       <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
-    </div>
-    <div class="content">
-      <!-- Add any additional content here -->
     </div>
   </section>
 
@@ -64,7 +61,7 @@
 </div>
 <span id="passwordError" style="color: red; display: none;"></span>
 
-<!-- Password Validation Rules -->
+<!-- Password Validation constraints -->
 <div class="password-rules" style="display: none;">
     <ul>
         <li id="ruleLength" class="invalid">At least 8 characters</li> <br>
@@ -84,7 +81,7 @@
 
       <button type="submit" id="submitBtn" class="btn-solid" disabled>Create Account</button>
 
-       <!-- Link to Login Page -->
+       
     <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
 
    
@@ -92,7 +89,7 @@
     </form>
   </div>
 
-  <!-- Footer Section -->
+  
    <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -123,7 +120,7 @@
     const confirmPasswordError = document.getElementById('confirmPasswordError');
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Password must be at least 8 characters, one uppercase, one lowercase, and one number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Password must be at least 8 characters, 1 uppercase, 1 lowercase
 
     const validateForm = () => {
         const usernameValid = usernameInput.value.trim() !== '';
@@ -161,7 +158,7 @@
         toggleSubmitButton();
     });
 
-    // For confirmPassword input, show error on focus and validate on input
+    // For confirmPassword , show error on focus and validate on input
     confirmPasswordInput.addEventListener('focus', () => {
         confirmPasswordError.style.display = confirmPasswordInput.value && (passwordInput.value !== confirmPasswordInput.value) ? 'block' : 'none';
     });
@@ -191,14 +188,14 @@
 
 const passwordRulesContainer = document.querySelector('.password-rules');
 
-// Show rules when password input is focused
+// Show constarints when password input is focused
 passwordInput.addEventListener('focus', () => {
     passwordRulesContainer.style.display = 'block'; // Show rules on focus
 });
 
-// Hide rules when input loses focus
+// Hide constarints when input loses focus
 passwordInput.addEventListener('blur', () => {
-    // Check if all rules are satisfied before hiding
+    // Check if all constarints are satisfied before hiding
     if (!passwordInput.value || 
         (!passwordRules.length || !passwordRules.uppercase || !passwordRules.lowercase || !passwordRules.number)) {
         passwordRulesContainer.style.display = 'none';
@@ -227,10 +224,10 @@ const validatePasswordRules = () => {
     ruleNumber.classList.toggle('valid', passwordRules.number);
 };
 
-// Update event listener for password input to check rules
+// Update password input to check rules
 passwordInput.addEventListener('input', () => {
     toggleSubmitButton();
-    validatePasswordRules(); // Check password rules on input
+    validatePasswordRules(); 
 });
 
     const toggleConfirmPassword = () => {

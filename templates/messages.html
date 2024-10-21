@@ -13,7 +13,7 @@
   
 
   <script>
-    // Toggle the visibility of the message content
+    // visibility of the message content
     function toggleMessageContent(element) {
       const content = element.querySelector('.message-content');
       if (content.style.display === 'block') {
@@ -35,8 +35,7 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-  <!-- Header -->
-  <!-- Header -->
+ 
 <header>
   <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
   <nav>
@@ -57,7 +56,7 @@
     </div>
   </nav>
   
-  <!-- Logout Confirmation Modal -->
+  <!-- Logout Confirmation  -->
 <div id="logoutModal" class="modal">
   <div class="modal-content">
     <span class="closeLogout">&times;</span>
@@ -70,11 +69,11 @@
 </header>
 
 
-  <!-- Messages Container -->
+  
 <div class="messages-container">
   <h2>Messages</h2>
 
-  <!-- File Message 1 -->
+  
   <div class="message-item" onclick="toggleMessageContent(this)">
     <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
     <div class="message-content">
@@ -83,7 +82,7 @@
     </div>
   </div>
 
-  <!-- File Message 2 -->
+  
   <div class="message-item" onclick="toggleMessageContent(this)">
     <div class="message-title"><i class="fas fa-image"></i> confidential_diagram.png</div>
     <div class="message-content">
@@ -92,7 +91,7 @@
     </div>
   </div>
 
-  <!-- File Message 3 -->
+  
   <div class="message-item" onclick="toggleMessageContent(this)">
     <div class="message-title"><i class="fas fa-file-archive"></i> Secure_Backup.rar</div>
     <div class="message-content">
@@ -104,7 +103,7 @@
 </div>
 
 
-  <!-- Footer -->
+  
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -128,7 +127,7 @@
 var logoutModal = document.getElementById("logoutModal");
 var logoutLink = document.getElementById("logoutlink");
 
-// Get the buttons inside the logout modal
+//buttons inside the logout modal
 var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
 var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
@@ -139,12 +138,12 @@ logoutLink.onclick = function(event) {
   logoutModal.style.display = "block";
 }
 
-//  clicks  "Yes" 
+//  click "Yes" 
 confirmLogoutBtn.onclick = function() {
   window.location.href = logoutLink.href; 
 }
 
-// clicks "No" modal
+// click "No" 
 cancelLogoutBtn.onclick = function() {
   logoutModal.style.display = "none"; 
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Confirmation</title>
-    <!-- Font: Montserrat and Font Awesome for icons -->
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -12,7 +12,7 @@
 
 
     <script>
-        // Automatically trigger the download of the private key after the page loads
+        // Automatically download of the private key after the page loads
         window.onload = function() {
             window.location.href = "{{ url_for('download_private_key') }}";
         }
@@ -30,7 +30,7 @@
         <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
     </div>
 
-    <!-- Header -->
+    
     <header>
         <div class="logo">ConsealSafe</div>
         <nav>
@@ -40,7 +40,7 @@
         </nav>
     </header>
 
-    <!-- Container Box -->
+    
     <div class="container-box">
         <h2>Thank You for Registering, {{ user_name }}!</h2>
         <p>Your registration was successful.</p>
@@ -49,7 +49,7 @@
         <a href="{{ url_for('loginsafe') }}" class="button">Go to Login Page</a>
     </div>
 
-    <!-- Footer -->
+    
     <footer>
         <div class="footer-section">
             <h3>About Us</h3>

@@ -25,7 +25,7 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-  <!-- Header -->
+  
   <header>
     <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
@@ -40,7 +40,7 @@
 
       
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon -->
+        <i class="fas fa-user-circle profile-icon"></i> 
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
@@ -50,7 +50,7 @@
     
     </nav>
 
-    <!-- Logout Confirmation Modal -->
+    <!-- Logout Confirmation  -->
 <div id="logoutModal" class="modal">
   <div class="modal-content">
     <span class="closeLogout">&times;</span>
@@ -62,14 +62,14 @@
 </div>
   </header>
 
-  <!-- Welcome Section -->
+  
 <div class="welcome">
     <h1>Welcome Back {{ user_name }}!</h1>
     <p>Your ultimate solution for encrypting and hiding your files!</p>
   </div>
   
 
-  <!-- Features Section -->
+
   <div class="features-section">
     <h2>What You Can Do</h2>
     <p>
@@ -79,7 +79,7 @@
     <button onclick= location.href="{{ url_for('encryptionPage') }}">Start Encrypting</button>
   </div>
 
-  <!-- Footer -->
+ 
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -105,7 +105,7 @@
 var logoutModal = document.getElementById("logoutModal");
 var logoutLink = document.getElementById("logoutlink");
 
-// Get the buttons inside the logout modal
+//buttons inside the logout modal
 var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
 var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
@@ -116,12 +116,12 @@ logoutLink.onclick = function(event) {
   logoutModal.style.display = "block";
 }
 
-//  clicks  "Yes" 
+//  click "Yes" 
 confirmLogoutBtn.onclick = function() {
   window.location.href = logoutLink.href; 
 }
 
-// clicks "No" modal
+// click "No" 
 cancelLogoutBtn.onclick = function() {
   logoutModal.style.display = "none"; 
 }
