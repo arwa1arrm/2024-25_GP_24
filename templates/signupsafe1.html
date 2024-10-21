@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,309 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-  <style>
-    /* Background and overall styling */
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
-      color: #26367B;
-      transition: background 0.5s ease;
-      overflow-x: hidden; /* Hide horizontal scroll caused by animations */
-    }
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
 
-    /* Floating Locks Animation - the background icons */
-    .moving-background {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-
-    /* Styling for the floating lock icons */
-    .lock-icon {
-      position: absolute;
-      font-size: 50px;
-      color: rgba(255, 255, 255, 0.1);
-      animation: floatLocks 15s infinite linear;
-    }
-
-    /* Animation for floating locks */
-    @keyframes floatLocks {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-      }
-      100% {
-        transform: translateY(-100vh) rotate(360deg);
-      }
-    }
-
-    /* Different lock icon sizes, durations, and delays for variety */
-    .lock-icon:nth-child(2) {
-      font-size: 70px;
-      animation-duration: 12s;
-      animation-delay: 3s;
-      color: rgba(255, 255, 255, 0.15);
-    }
-
-    .lock-icon:nth-child(3) {
-      font-size: 90px;
-      animation-duration: 18s;
-      animation-delay: 6s;
-      color: rgba(255, 255, 255, 0.08);
-    }
-
-    .lock-icon:nth-child(4) {
-      font-size: 40px;
-      animation-duration: 10s;
-      animation-delay: 1s;
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    .lock-icon:nth-child(5) {
-      font-size: 60px;
-      animation-duration: 20s;
-      animation-delay: 5s;
-      color: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Header styles */
-    header {
-      display: flex;
-      justify-content: space-between;
-      padding: 20px;
-      background-color: #f1f1f1;
-      border-bottom-left-radius: 45px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 2;
-    }
-
-    header a {
-      color: #26367B;
-      text-decoration: none;
-      font-weight: 600;
-      margin-right: 15px;
-      transition: transform 0.3s ease;
-    }
-
-    header a:hover {
-      text-decoration: underline;
-      transform: translateY(-2px); /* Slight lift on hover */
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 100px 50px;
-      padding-top: 150px;
-      justify-content: center; /* Center the logo horizontally */
-      align-items: center;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-    }
-
-    /* Logo Container with dotted background */
-    .hero .logo {
-      position: relative;
-      width: 200px; /* Width reduced for logo */
-      margin: 0 auto; /* Centering the logo */
-    }
-
-    /* Dotted background behind the logo */
-    .hero .logo::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      left: -20px;
-      width: 240px;
-      height: 240px;
-      background: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-      opacity: 0.2;
-      z-index: 0;
-      border-radius: 50%;
-    }
-
-    /* Logo image */
-    .hero .logo img {
-      width: 100%;
-      position: relative;
-      z-index: 1;
-      transition: transform 0.6s ease;
-    }
-
-    .hero .logo img:hover {
-      transform: rotate(30deg); /* Rotate the logo on hover */
-    }
-
-    .hero .content {
-      width: 55%;
-    }
-
-    .hero .content p {
-      font-size: 20px;
-      line-height: 1.6;
-      max-width: 800px;
-      margin: 0 auto 40px;
-    }
-
-    .designer-form {
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
-      padding: 50px 40px;
-      height: 100%;
-      border-radius: 0% 10%;
-      margin-bottom: 10%;
-      margin-top: 25px;
-      margin: 0 auto; /* Centering the form container */
-      width: 40%; /* Reduced width to make the box smaller */
-      line-height: 50%;
-      color: black;
-      font-size: 1.1rem;
-      background-color: #ffffffd8;
-    }
-
-    /* Styling for labels */
-    label {
-      margin-left: 35px;
-      font-weight: 600;
-      font-size: 1rem;
-      color: #26367b;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    /* Input styles */
-    input {
-      margin-left: 35px;
-      width: 80%;
-      padding: 10px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      border: 1px solid #c3c3c3;
-      border-radius: 15px;
-      transition: border-color 0.3s ease;
-      background-color: #e9e8e848;
-    }
-
-    input:focus {
-      border-color: #f4b942dc;
-      outline: none;
-    }
-
-    /* Password container for eye icon */
-    .password-container {
-      position: relative;
-      margin-left: 0px;
-      width: 75%;
-    }
-
-    .password-container input {
-      width: 100%;
-      padding-right: 40px; /* Add space for the icon */
-      font-size: 1rem;
-      border: 1px solid #c3c3c3;
-      border-radius: 15px;
-      background-color: #e9e8e848;
-    }
-
-    /* Eye Icon Styling */
-    .eye-icon {
-      position: absolute;
-      top: 38%;
-      right: -60px;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #26367b;
-    }
-
-    /* Button styles */
-    .btn-solid {
-      margin-left: 215px;
-      padding: 10px 20px;
-      background-color: #26367B;
-      color: #fff;
-      border: none;
-      border-radius: 15px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
-    }
-
-    .btn-solid:hover {
-      background-color: #f4b942dc;
-    }
-
-    footer {
-      background-color: #26367B;
-      color: white;
-      padding: 40px;
-      padding-left: 80px;
-      display: flex;
-      margin-top: 10%;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    footer .footer-section {
-      width: 30%;
-      text-align: center;
-    }
-
-    footer .footer-section h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    footer .footer-section p {
-      font-size: 14px;
-    }
-
-    footer .social-icons {
-      display: flex;
-      justify-content: center;
-    }
-
-    footer .social-icons a {
-      margin: 0 10px;
-      color: white;
-      font-size: 20px;
-      transition: color 0.3s ease;
-    }
-
-    footer .social-icons a:hover {
-      color: #f4b942;
-    }
-    
-
-
-    /*----------------------------------------------------------------*/
-/* Error message styling */
-.error-message {
-      color: red;
-      font-size: 0.9rem;
-      margin-top: -10px;
-      margin-bottom: 20px;
-    }
-
-    .valid-message {
-      color: green;
-      font-size: 0.9rem;
-      margin-top: -10px;
-      margin-bottom: 20px;
-    }
-    
-
-
-
-  </style>
 </head>
 <body>
 
@@ -346,155 +46,53 @@
     </div>
   </section>
 
-  <!-- Form Section -->
-<div class="container">
-  <div class="form-container designer-form"> <!-- noote !! we should edit -->
-    <!-- Add a form element with action and method -->
-    <form action="/signupsafe1" method="POST"  onsubmit="validateForm(event)">
+  <div class="form-container designer-form">
+    <form id="accountForm" action="{{ url_for('signupsafe1') }}" method="POST">
+      
       <label for="user_name">Username</label>
-      <input type="text" id="user_name" name="user_name" placeholder="Username" required>
+      <input type="text" id="user_name" name="user_name" required>
+
 
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Email" required oninput="checkEmailFormat()">
-      <div id="emailFeedback" class="error-message"></div>
+      <input type="email" id="email" name="email" required>
+      <span id="emailError" style="color: red; display: none;">Invalid email format</span>
 
-
-      <!-- Password Section with Eye Icon -->
       <label for="password">Password</label>
-      <div class="password-container">
-        <input type="password" id="password" name="password" placeholder="Password" required oninput="checkPasswordFormat()">
-        <i class="fas fa-eye eye-icon" id="togglePassword"></i>
-      </div>
-      <div id="passwordFeedback" class="error-message"></div>
+<div class="password-container">
+    <input type="password" id="password" name="password" required>
+    <i class="fas fa-eye eye-icon" onclick="togglePassword()"></i>
+</div>
+<span id="passwordError" style="color: red; display: none;"></span>
 
-      <!-- Confirm Password Section with Eye Icon -->
+<!-- Password Validation Rules -->
+<div class="password-rules" style="display: none;">
+    <ul>
+        <li id="ruleLength" class="invalid">At least 8 characters</li> <br>
+        <li id="ruleUppercase" class="invalid">At least one uppercase letter</li><br>
+        <li id="ruleLowercase" class="invalid">At least one lowercase letter</li><br>
+        <li id="ruleNumber" class="invalid">At least one number</li>
+    </ul>
+</div>
+
       <label for="confirmPassword">Confirm Password</label>
       <div class="password-container">
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required oninput="checkConfirmPassword()">
-        <i class="fas fa-eye eye-icon" id="toggleConfirmPassword"></i>
+          <input type="password" id="confirmPassword" name="confirmPassword" required>
+          <i class="fas fa-eye eye-icon" onclick="toggleConfirmPassword()"></i> <!-- Updated icon -->
       </div>
-      <div id="confirmPasswordFeedback" class="error-message"></div>
+      <span id="confirmPasswordError" style="color: red; display: none;">Passwords do not match</span>
+      
 
-      <br><br>
-      <button type="submit" class="btn-solid" id="toggleAcount">Create Account</button>
-    </form>
+      <button type="submit" id="submitBtn" class="btn-solid" disabled>Create Account</button>
 
-    <!-- Error message handling -->
-    {% if error %}
-    <div style="color: red; text-align: center; padding-top: 7%; font-size: 80%;" >{{ error }}</div>
-    {% endif %}
-
-    {% if alert %}
-    <div style="color: green; text-align: center; padding-top: 7%">{{ alert }}</div>
-    <script>
-     // Redirect to login page after 3 seconds
-     setTimeout(function() {
-     window.location.href = "{{ url_for('loginsafe') }}";
-     }, 3000); // 3000 milliseconds = 3 seconds
-     </script>
-     {% endif %}
-
-    <!-- Link to Login Page -->
+       <!-- Link to Login Page -->
     <p style="text-align: center; margin-top: 20px; font-size: 0.9rem;">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
 
    
-     </div>
+
+    </form>
   </div>
-</div>
-
-
-<script>
-  // Function to check email format
-  function checkEmailFormat() {
-    const emailInput = document.getElementById('email');
-    const feedback = document.getElementById('emailFeedback');
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-
-    if (emailPattern.test(emailInput.value)) {
-      feedback.textContent = "Valid email format.";
-      feedback.className = "valid-message";
-    } else {
-      feedback.textContent = "Invalid email format.";
-      feedback.className = "error-message";
-    }
-  }
-
-
-  // Function to check password format
-  function checkPasswordFormat() {
-    const passwordInput = document.getElementById('password');
-    const feedback = document.getElementById('passwordFeedback');
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/; // At least 8 characters, 1 uppercase, 1 lowercase
-
-    if (passwordPattern.test(passwordInput.value)) {
-      feedback.textContent = "Valid password format.";
-      feedback.className = "valid-message";
-    } else {
-      feedback.textContent = "Password must be at least 8 characters long, with at least one uppercase and one lowercase letter.";
-      feedback.className = "error-message";
-    }
-  }
-// Function to check if the confirm password matches the original password
-function checkConfirmPassword() {
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const feedback = document.getElementById('confirmPasswordFeedback');
-
-    if (confirmPasswordInput.value === passwordInput.value) {
-      feedback.textContent = "Passwords match.";
-      feedback.className = "valid-message";
-    } else {
-      feedback.textContent = "Passwords do not match.";
-      feedback.className = "error-message";
-    }
-  }
-
-  // Validate the form before submission
-function validateForm(event) {
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const confirmPasswordInput = document.getElementById('confirmPassword');
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/; // Password pattern with digit
-
-  // Clear previous error messages
-  const errorMessages = document.getElementById('errorMessages');
-  errorMessages.innerHTML = '';
-
-  let valid = true; // Track if the form is valid
-
-  // Validate email
-  if (!emailPattern.test(emailInput.value)) {
-    errorMessages.innerHTML += "<p>Invalid email format.</p>";
-    valid = false; // Set valid to false
-  }
-  
-  // Validate password
-  if (!passwordPattern.test(passwordInput.value)) {
-    errorMessages.innerHTML += "<p>Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a digit.</p>";
-    valid = false; // Set valid to false
-  }
-  
-  // Validate confirm password
-  if (confirmPasswordInput.value !== passwordInput.value) {
-    errorMessages.innerHTML += "<p>Passwords do not match.</p>";
-    valid = false; // Set valid to false
-  }
-
-  // Prevent form submission if any validation fails
-  if (!valid) {
-    event.preventDefault(); // Prevent the default form submission
-    return false; // Optionally return false to indicate validation failure
-  }
-  
-  return true; // Allow form submission
-}
-
-
-</script>
 
   <!-- Footer Section -->
-   <!-- Footer -->
    <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -513,30 +111,148 @@ function validateForm(event) {
     </div>
   </footer>
 
-  <!-- JavaScript for toggling password visibility -->
   <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
+    const usernameInput = document.getElementById('user_name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const submitBtn = document.getElementById('submitBtn');
 
-    const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
-    const confirmPassword = document.querySelector('#confirmPassword');
-
-    togglePassword.addEventListener('click', function () {
-      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-      password.setAttribute('type', type);
-      this.classList.toggle('fa-eye-slash');
-    });
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
     
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Password must be at least 8 characters, one uppercase, one lowercase, and one number
 
-    toggleConfirmPassword.addEventListener('click', function () {
-      const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-      confirmPassword.setAttribute('type', type);
-      this.classList.toggle('fa-eye-slash');
+    const validateForm = () => {
+        const usernameValid = usernameInput.value.trim() !== '';
+        const emailValid = emailRegex.test(emailInput.value);
+        const passwordValid = passwordRegex.test(passwordInput.value);
+        const passwordsMatch = passwordInput.value === confirmPasswordInput.value;
+
+        // Show error messages based on validation results
+        emailError.style.display = emailInput.value ? (emailValid ? 'none' : 'block') : 'none';
+        passwordError.style.display = passwordInput.value ? (passwordValid ? 'none' : 'block') : 'none';
+        confirmPasswordError.style.display = confirmPasswordInput.value ? (passwordsMatch ? 'none' : 'block') : 'none';
+
+        return usernameValid && emailValid && passwordValid && passwordsMatch;
+    };
+
+    const toggleSubmitButton = () => {
+        submitBtn.disabled = !validateForm();
+    };
+
+    usernameInput.addEventListener('input', toggleSubmitButton);
+    
+    // For email input, show error on focus and validate on input
+    emailInput.addEventListener('focus', () => {
+        emailError.style.display = emailInput.value && !emailRegex.test(emailInput.value) ? 'block' : 'none';
+    });
+    emailInput.addEventListener('input', () => {
+        toggleSubmitButton();
     });
 
-  
+    // For password input, show error on focus and validate on input
+    passwordInput.addEventListener('focus', () => {
+        passwordError.style.display = passwordInput.value && !passwordRegex.test(passwordInput.value) ? 'block' : 'none';
+    });
+    passwordInput.addEventListener('input', () => {
+        toggleSubmitButton();
+    });
 
-  </script>
+    // For confirmPassword input, show error on focus and validate on input
+    confirmPasswordInput.addEventListener('focus', () => {
+        confirmPasswordError.style.display = confirmPasswordInput.value && (passwordInput.value !== confirmPasswordInput.value) ? 'block' : 'none';
+    });
+    confirmPasswordInput.addEventListener('input', () => {
+        toggleSubmitButton();
+    });
+
+    const togglePassword = () => {
+        const passwordField = document.getElementById('password');
+        const icon = document.querySelector('.password-container .eye-icon');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+        }
+    };
+
+    const passwordRules = {
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+};
+
+const passwordRulesContainer = document.querySelector('.password-rules');
+
+// Show rules when password input is focused
+passwordInput.addEventListener('focus', () => {
+    passwordRulesContainer.style.display = 'block'; // Show rules on focus
+});
+
+// Hide rules when input loses focus
+passwordInput.addEventListener('blur', () => {
+    // Check if all rules are satisfied before hiding
+    if (!passwordInput.value || 
+        (!passwordRules.length || !passwordRules.uppercase || !passwordRules.lowercase || !passwordRules.number)) {
+        passwordRulesContainer.style.display = 'none';
+    }
+});
+
+
+const ruleLength = document.getElementById('ruleLength');
+const ruleUppercase = document.getElementById('ruleUppercase');
+const ruleLowercase = document.getElementById('ruleLowercase');
+const ruleNumber = document.getElementById('ruleNumber');
+
+const validatePasswordRules = () => {
+    const passwordValue = passwordInput.value;
+
+    // Check each rule
+    passwordRules.length = passwordValue.length >= 8;
+    passwordRules.uppercase = /[A-Z]/.test(passwordValue);
+    passwordRules.lowercase = /[a-z]/.test(passwordValue);
+    passwordRules.number = /\d/.test(passwordValue);
+
+    // Update the UI based on rule validation
+    ruleLength.classList.toggle('valid', passwordRules.length);
+    ruleUppercase.classList.toggle('valid', passwordRules.uppercase);
+    ruleLowercase.classList.toggle('valid', passwordRules.lowercase);
+    ruleNumber.classList.toggle('valid', passwordRules.number);
+};
+
+// Update event listener for password input to check rules
+passwordInput.addEventListener('input', () => {
+    toggleSubmitButton();
+    validatePasswordRules(); // Check password rules on input
+});
+
+    const toggleConfirmPassword = () => {
+        const confirmPasswordField = document.getElementById('confirmPassword');
+        const icon = document.querySelectorAll('.password-container .eye-icon')[1]; // Selects the second eye icon
+
+        if (confirmPasswordField.type === 'password') {
+            confirmPasswordField.type = 'text';
+            icon.classList.add('fa-eye-slash');
+        } else {
+            confirmPasswordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+        }
+    };
+
+    // Prevent form submission if inputs are invalid
+    document.getElementById('accountForm').addEventListener('submit', (event) => {
+        if (!validateForm()) {
+            event.preventDefault(); // Prevent form submission if form is invalid
+        }
+    });
+</script>
 
 </body>
 </html>
