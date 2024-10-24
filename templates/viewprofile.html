@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>View Profile - ConsealSafe</title>
 
+  <!-- External fonts and icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  
+  <!-- Linking the CSS files -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/view.css') }}">
- 
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+
 <body>
 
-  <!-- Floating lock icons background -->
+  <!-- Floating lock icons for the moving background -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
     <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
@@ -22,19 +26,24 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
- 
+  <!-- Header section -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+    <!-- Logo and links in the navigation bar -->
+    <a href="{{ url_for('userHomePage') }}">
+      <div class="logo">ConsealSafe</div>
+    </a>
     <nav>
-      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+      <!-- Link to encryption page -->
+      <a href="{{ url_for('encryptionPage') }}"> Encrypt & Hide </a>
 
-
+      <!-- Bell icon for notifications/messages -->
       <a href="{{ url_for('messages') }}">
         <div class="bell-icon">
           <i class="fas fa-bell"></i>
         </div>
       </a>
 
+      <!-- Profile icon and dropdown links -->
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
@@ -45,20 +54,21 @@
     </nav>
   </header>
 
-  <!-- Logout Confirmation  -->
-<div id="logoutModal" class="modal">
-  <div class="modal-content">
-    <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
-    <p>Are you sure you want to sign out?</p>
-    <button id="confirmLogoutBtn">Yes</button>
-    <button id="cancelLogoutBtn">No</button>
+  <!-- Logout confirmation modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <span class="closeLogout">&times;</span>
+      <h2>Confirm Logout</h2>
+      <p>Are you sure you want to sign out?</p>
+      <button id="confirmLogoutBtn">Yes</button>
+      <button id="cancelLogoutBtn">No</button>
+    </div>
   </div>
-</div>
 
+  <!-- Profile section with user information -->
   <section class="profile-section">
     <div class="profile_image">
-      <i class="fas fa-user-circle"></i> 
+      <i class="fas fa-user-circle"></i> <!-- Profile icon -->
     </div>
     <div class="user-info">
       <h2>User Profile</h2>
@@ -66,11 +76,12 @@
       <p><strong>Email:</strong> email </p>
       <p><strong>Password:</strong> ********* </p>
     </div>
-    
-    <button class="btn-edit" id="editProfileBtn">Edit Usermame</button>
+
+    <!-- Button to open edit modal -->
+    <button class="btn-edit" id="editProfileBtn">Edit Username</button>
   </section>
 
-  
+  <!-- Edit username modal -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -81,7 +92,7 @@
     </div>
   </div>
 
-  
+  <!-- Footer section -->
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -100,63 +111,66 @@
     </div>
   </footer>
 
+  <!-- JavaScript for modal functionality -->
   <script>
-    // Get the modal and button that opens the modal
-    var modal = document.getElementById("editModal");
-    var btn = document.getElementById("editProfileBtn");
-    var span = document.getElementsByClassName("close")[0];
+    // Edit modal functionality
+    var modal = document.getElementById("editModal"); // Get edit modal
+    var btn = document.getElementById("editProfileBtn"); // Get the button to open modal
+    var span = document.getElementsByClassName("close")[0]; // Get close button
 
-    btn.onclick = function() {
+    // Open modal when 'Edit Username' is clicked
+    btn.onclick = function () {
       modal.style.display = "block";
     }
 
-    span.onclick = function() {
+    // Close modal when 'x' is clicked
+    span.onclick = function () {
       modal.style.display = "none";
     }
 
-    // When the user clicks outside the modal close it
-    window.onclick = function(event) {
+    // Close modal if user clicks outside of it
+    window.onclick = function (event) {
       if (event.target == modal) {
         modal.style.display = "none";
       }
     }
 
-// Get the logout modal and logout link
-var logoutModal = document.getElementById("logoutModal");
-var logoutLink = document.getElementById("logoutlink");
+    // Logout modal functionality
+    var logoutModal = document.getElementById("logoutModal");
+    var logoutLink = document.getElementById("logoutlink");
+    var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
 
-//buttons inside the logout modal
-var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    // Open logout modal when 'Sign out' is clicked
+    logoutLink.onclick = function (event) {
+      event.preventDefault(); // Prevent the default action
+      logoutModal.style.display = "block"; // Show logout modal
+    }
 
-var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+    // Redirect to logout when 'Yes' is clicked
+    confirmLogoutBtn.onclick = function () {
+      window.location.href = logoutLink.href;
+    }
 
-logoutLink.onclick = function(event) {
-  event.preventDefault(); 
-  logoutModal.style.display = "block";
-}
+    // Close logout modal when 'No' is clicked
+    cancelLogoutBtn.onclick = function () {
+      logoutModal.style.display = "none";
+    }
 
-//  click "Yes" 
-confirmLogoutBtn.onclick = function() {
-  window.location.href = logoutLink.href; 
-}
+    // Close logout modal when 'x' is clicked
+    closeLogoutSpan.onclick = function () {
+      logoutModal.style.display = "none";
+    }
 
-// click "No" 
-cancelLogoutBtn.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
-
-// clicks "No" span
-closeLogoutSpan.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
-
-window.onclick = function(event) {
-  if (event.target == logoutModal) {
-    logoutModal.style.display = "none"; 
-  }
-}
+    // Close logout modal if user clicks outside of it
+    window.onclick = function (event) {
+      if (event.target == logoutModal) {
+        logoutModal.style.display = "none";
+      }
+    }
   </script>
 
 </body>
+
 </html>

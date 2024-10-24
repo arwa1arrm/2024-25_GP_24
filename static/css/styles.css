@@ -1,4 +1,3 @@
-/* General page styling */
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
@@ -28,11 +27,11 @@ body {
 
 @keyframes floatLocks {
   0% {
-      transform: translateY(100vh) rotate(0deg);
+    transform: translateY(100vh) rotate(0deg);
   }
 
   100% {
-      transform: translateY(-100vh) rotate(360deg);
+    transform: translateY(-100vh) rotate(360deg);
   }
 }
 
@@ -72,13 +71,21 @@ header {
   background-color: #f1f1f1;
   border-bottom-left-radius: 45px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding-left: 30px;
+  text-decoration: none;
+
 }
+ 
 
 header .logo {
-  font-size: 24px;
   font-weight: 600;
   color: #26367B;
+  margin-right: 15px;
+  transition: transform 0.3s ease;
+  text-decoration: none;
 }
+
+
 
 header nav {
   display: flex;
@@ -91,11 +98,13 @@ header a {
   font-weight: 600;
   margin-right: 15px;
   transition: transform 0.3s ease;
+
 }
 
 header a:hover {
   text-decoration: underline;
   transform: translateY(-2px);
+
 }
 
 /* Profile section */
@@ -104,12 +113,30 @@ header a:hover {
   margin-right: 20px;
 }
 
-.profile-icon {
-  font-size: 40px;
+header .logo {
+  font-weight: 600;
   color: #26367B;
-  cursor: pointer;
+  margin-left: 10%;
 }
 
+.profile-icon{
+ font-size: 25px;
+}
+
+.bell-icon{
+  left: 6px;
+}
+
+
+.profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #f4b942;
+}
+
+/* Dropdown menu for profile */
 .dropdown {
   display: none;
   position: absolute;
@@ -131,11 +158,49 @@ header a:hover {
   color: #26367B;
   text-decoration: none;
   transition: background 0.3s ease;
+  width: 75%;
 }
+
 
 .dropdown a:hover {
   background: #f4b942;
   color: white;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
+  padding-top: 60px;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto; 
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; 
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+#confirmLogoutBtn, #cancelLogoutBtn{
+  background-color: #f4b942dc;
+  border: none;
+  padding: 3%;
+  margin-left: 2%;
+  border-radius: 15px;
+  cursor: pointer;
+  color: #26367B;
+  transition: background-color 0.3s ease; 
+
 }
 
 /* Bell notification icon */
@@ -148,7 +213,7 @@ header a:hover {
 }
 
 .bell-icon::after {
-  content: '1'; /* Notification number */
+  content: '!'; /* This is notification. we must change later with actual NO of notificTIONS OR LEAVE IT LIKE THIS*/
   position: absolute;
   top: -5px;
   right: -10px;
@@ -159,159 +224,117 @@ header a:hover {
   border-radius: 50%;
 }
 
-/* Welcome section */
-.welcome {
-  padding: 100px 50px;
-  text-align: center;
-}
-
-.welcome h1 {
-  font-size: 50px;
-  color: #26367B;
-  margin-bottom: 20px;
-}
-
-.welcome p {
-  font-size: 22px;
-  color: #26367B;
-}
-
-.welcome button {
-  background-color: #f4b942;
-  color: white;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 25px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.welcome button:hover {
-  background-color: #26367B;
-  color: #f4b942;
-}
-
-/* Features section */
-.features-section {
-  padding: 50px;
-  background-color: #f9f9f9;
-  border-radius: 25px;
-  margin: 50px auto;
-  width: 80%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.features-section h2 {
-  font-size: 40px;
-  color: #26367B;
-  margin-bottom: 20px;
-}
-
-.features-section p {
-  font-size: 18px;
-  color: #555;
-  margin-bottom: 30px;
-}
-
-/* Footer section */
 footer {
-  display: flex;
-  justify-content: space-around;
-  padding: 50px 0;
   background-color: #26367B;
   color: white;
+  padding: 40px;
+  padding-left: 80px;
+  display: flex;
+  margin-top: 10%;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-footer h3 {
+footer .footer-section {
+  width: 30%;
+  text-align: center;
+}
+
+footer .footer-section h3 {
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
-footer p {
-  font-size: 16px;
+footer .footer-section p {
+  font-size: 14px;
 }
 
 footer .social-icons {
-  margin-top: 10px;
+  display: flex;
+  justify-content: center;
 }
 
 footer .social-icons a {
+  margin: 0 10px;
   color: white;
-  font-size: 24px;
-  margin-right: 10px;
+  font-size: 20px;
+  transition: color 0.3s ease;
 }
 
-/* Responsive styles */
+footer .social-icons a:hover {
+  color: #f4b942;
+}
+
 @media (max-width: 768px) {
-  header {
-      flex-direction: column;
-      align-items: flex-start;
+  .hero {
+    padding: 20% 10%;
   }
-
-  header .logo {
-      margin-bottom: 10px;
+  
+  .hero .logo {
+    width: 190px;
   }
-
-  .welcome {
-      padding: 60px 20px; /* Adjust padding for smaller screens */
+  
+  .hero .content {
+    width: 80%;
   }
+  
+  
 
-  .welcome h1 {
-      font-size: 36px; /* Smaller heading */
+  label {
+    margin-left: 5%;
+    font-size: 0.9rem;
   }
-
-  .welcome p {
-      font-size: 18px; /* Smaller paragraph */
+  
+  input {
+    margin-left: 5%;
+    width: 90%;
   }
-
-  .welcome button {
-      padding: 12px 24px; /* Smaller button */
-      font-size: 16px; /* Smaller button text */
-  }
-
-  .features-section {
-      padding: 30px;
-      width: 90%; /* Adjust width for smaller screens */
-  }
-
-  .features-section h2 {
-      font-size: 32px; /* Smaller section heading */
-  }
-
-  .features-section p {
-      font-size: 16px; /* Smaller paragraph */
-  }
-
-  footer {
-      flex-direction: column; /* Stack footer elements on small screens */
-      align-items: center; /* Center align footer items */
-  }
-
-  footer h3 {
-      font-size: 18px; /* Smaller footer heading */
-  }
-
-  footer p {
-      font-size: 14px; /* Smaller footer text */
-  }
-
-  footer .social-icons a {
-      font-size: 20px; /* Smaller social icon size */
-  }
-}
-
-@media (max-width: 480px) {
-  header a {
-      font-size: 14px; /* Smaller header links */
-      margin-right: 10px; /* Less margin for links */
+  
+  .password-container {
+    width: 83%;
+  
   }
 
   .bell-icon {
-      font-size: 20px; /* Smaller bell icon */
+    top: 2px;
+    font-size: 130%;
+    left: 10px;
   }
 
-  .profile-icon {
-      font-size: 30px; /* Smaller profile icon */
+  
+  body{
+    background-color: #7b4e26;
   }
-}
+  
+  
+  .profile-icon{
+    font-size: 120%;
+  }
+
+  .btn-solid {
+    margin-left: 10%;
+    padding: 10px 30px;
+    width: 80%;
+    text-align: center;
+  }
+  
+  footer .footer-section {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-right: 25%;
+    margin-left: 10%;
+  }
+  
+  footer .social-icons a {
+    font-size: 18px;
+  }
+  .already-account-text {
+    font-size: 0.75rem; 
+  }
+  
+  }
+
+  

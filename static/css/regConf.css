@@ -1,182 +1,60 @@
-body {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
-    color: #26367B;
-    transition: background 0.5s ease;
-    overflow-x: hidden; /* Hide horizontal scroll caused by animations */
-}
-
-/* Floating Locks Animation - the background icons */
-.moving-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-}
-
-/* Styling for the floating lock icons */
-.lock-icon {
-    position: absolute;
-    font-size: 50px;
-    color: rgba(255, 255, 255, 0.1);
-    animation: floatLocks 15s infinite linear;
-}
-
-/* Animation for floating locks */
-@keyframes floatLocks {
-    0% {
-        transform: translateY(100vh) rotate(0deg);
-    }
-    100% {
-        transform: translateY(-100vh) rotate(360deg);
-    }
-}
-
-/* Different lock icon sizes, durations, and delays for variety */
-.lock-icon:nth-child(2) {
-    font-size: 70px;
-    animation-duration: 12s;
-    animation-delay: 3s;
-    color: rgba(255, 255, 255, 0.15);
-}
-
-.lock-icon:nth-child(3) {
-    font-size: 90px;
-    animation-duration: 18s;
-    animation-delay: 6s;
-    color: rgba(255, 255, 255, 0.08);
-}
-
-.lock-icon:nth-child(4) {
-    font-size: 40px;
-    animation-duration: 10s;
-    animation-delay: 1s;
-    color: rgba(255, 255, 255, 0.2);
-}
-
-.lock-icon:nth-child(5) {
-    font-size: 60px;
-    animation-duration: 20s;
-    animation-delay: 5s;
-    color: rgba(255, 255, 255, 0.1);
-}
-
-/* Header styles */
-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background-color: #f1f1f1;
-    border-bottom-left-radius: 45px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 2;
-    padding-left: 30px;
-}
-
-header .logo {
-    text-decoration: none;
-    font-weight: 600;
-    color: #26367B;
-    margin-right: 15px;
-    transition: transform 0.3s ease;
-}
-
-header a {
-    color: #26367B;
-    text-decoration: none;
-    font-weight: 600;
-    margin-right: 15px;
-    transition: transform 0.3s ease;
-}
-
-header a:hover {
-    text-decoration: underline;
-    transform: translateY(-2px); /* Slight lift on hover */
-}
-
-
-
 /* Container box */
 .container-box {
-background-color: white;
-padding: 30px;
-margin: 180px auto; 
-max-width: 600px;
-border-radius: 15px;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-text-align: center;
-}
-.container-box h2 {
-    margin-bottom: 20px; 
-}
-
-.container-box p {
-    margin-bottom: 15px; 
-}
-
-/* Button*/
-.button {
-    background-color: #f4b942; 
-    color: white; 
-    padding: 10px 20px; 
-    border: none; 
-    border-radius: 10px; 
-    cursor: pointer; 
+    background-color: white;
+    padding: 30px;
+    margin: 180px auto;
+    max-width: 600px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .container-box h2 {
+    margin-bottom: 20px;
+    font-size: 24px; /* Default font size */
+  }
+  
+  .container-box p {
+    margin-bottom: 15px;
+    font-size: 16px; /* Default font size */
+  }
+  
+  /* Button */
+  .button {
+    background-color: #f4b942;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
     text-decoration: none;
     margin-top: 20px;
-    font-size: 16px; 
-    transition: background-color 0.3s ease; 
-}
-
-.button:hover {
-    background-color: #26367B; 
-}
-
-/* Footer Section */
-footer {
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
     background-color: #26367B;
-    color: white;
-    padding: 40px;
-    padding-left: 80px;
-    display: flex;
-    margin-top: 10%;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-footer .footer-section {
-    width: 30%;
-    text-align: center;
-}
-
-footer .footer-section h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-footer .footer-section p {
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-footer .social-icons {
-    display: flex;
-    justify-content: center;
-}
-
-footer .social-icons a {
-    margin: 0 10px;
-    color: white;
-    font-size: 20px;
-    transition: color 0.3s ease;
-}
-
-footer .social-icons a:hover {
-    color: #f4b942;
-}
+  }
+  
+  @media (max-width: 768px) {
+      .container-box {
+        width: 80%;
+        padding: 20px;
+      }
+    
+      .container-box h2 {
+        font-size: 20px; 
+      }
+    
+      .container-box p {
+        font-size: 14px;
+      }
+    
+      .button {
+        font-size: 14px; 
+        padding: 8px 15px; 
+      }
+    }
+  
+  

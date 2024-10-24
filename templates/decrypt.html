@@ -1,170 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extract and Decrypt Messages</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
- 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extract and Decrypt Messages</title>
+
+  <!-- Importing a Google Font for styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Linking custom CSS files for additional styling -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/decrypt.css') }}">
-
 </head>
-<body>
-   
-  <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
-    <nav>
-     <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
 
-        
-     <a href="{{ url_for('messages') }}">
+<body>
+  <header>
+    <!-- Logo and navigation links -->
+    <a href="{{ url_for('userHomePage') }}">
+      <div class="logo">ConsealSafe</div>
+    </a>
+    <nav>
+      <!-- Link to the encryption page -->
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+
+      <!-- Notification bell icon -->
+      <a href="{{ url_for('messages') }}">
         <div class="bell-icon">
           <i class="fas fa-bell"></i>
         </div>
       </a>
-      
+
+      <!-- User profile with a dropdown menu -->
       <div class="profile">
-        <!-- Profile icon -->
-        <i class="fas fa-user-circle profile-icon"></i> 
+        <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
-        
         </div>
       </div>
-    
     </nav>
-    <!-- Logout Confirmation -->
-<div id="logoutModal" class="modal">
-  <div class="modal-content">
-    <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
-    <p>Are you sure you want to sign out?</p>
-    <button id="confirmLogoutBtn">Yes</button>
-    <button id="cancelLogoutBtn">No</button>
-  </div>
-</div>
-  </header>
-    <div class="container">
 
-        <h2>Extract Encrypted Message from Media</h2>
-        <form id="steganographyForm">
-            <label for="mediaFile">Upload media file (image, video, or audio):</label>
-            <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
-
-            <button type="button" onclick="hideMessage()">Extract Message from Media</button>
-            <div id="hideMessageOutput" class="message"></div>
-        </form>
-
-        <h2>Decrypt Message</h2>
-        <form id="decryptionForm">
-            <label for="cipherText">Cipher text:</label>
-            <textarea id="cipherText" rows="4" required></textarea>
-
-            
-            <button type="button" onclick="decryptMessage()">Decrypt Message</button>
-            <div id="decryptMessageOutput" class="message"></div>
-
-            <label for="PlainText">Plain text:</label>
-            <textarea id="PlainText" rows="4" required></textarea>
-            
-            <button type="button" id="downloadButton">Download File</button>
-
-
-        </form>
+    <!-- Logout Confirmation Modal (hidden by default, shown when user clicks 'Sign out') -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <span class="closeLogout">&times;</span>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to sign out?</p>
+        <button id="confirmLogoutBtn">Yes</button>
+        <button id="cancelLogoutBtn">No</button>
+      </div>
     </div>
+  </header>
 
-    <footer>
-        <div class="footer-section">
-            <h3>About Us</h3>
-            <p>We are committed to keeping your data safe and ensuring your privacy.</p>
-        </div>
-        <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p>Email: support@concealsafe.com | Phone: +123 456 789</p>
-        </div>
-        <div class="footer-section">
-            <h3>Follow Us</h3>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-    </footer>
-    
+  <div class="container">
+    <!-- Form for extracting encrypted messages from media files -->
+    <h2>Extract Encrypted Message from Media</h2>
+    <form id="steganographyForm">
+      <!-- File input for media files (image, video, audio) -->
+      <label for="mediaFile">Upload media file (image, video, or audio):</label>
+      <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
 
-    <script>
-        function hideMessage() {
-            const mediaFile = document.getElementById('mediaFile').files[0];
-            const cipherText = document.getElementById('cipherText').value;
-            if (mediaFile && cipherText) {
-                document.getElementById('hideMessageOutput').innerHTML = `
-                    <div class="success">Successfully extracted the encrypted message from ${mediaFile.name}!</div>
-                `;
-            } else {
-                document.getElementById('hideMessageOutput').innerHTML = `
-                    <div class="error">Please upload a media file and enter a cipher text.</div>
-                `;
-            }
-        }
+      <!-- Button to trigger message extraction and we will use JavaScript to handle this functionality -->
+      <button type="button" onclick="hideMessage()">Extract Message from Media</button>
 
-        function decryptMessage() {
-            const cipherText = document.getElementById('cipherText').value; // Use cipherText directly from textarea
-            if (cipherText) {
-                try {
-                    const decryptedMessage = atob(cipherText.trim()); 
-                    document.getElementById('decryptMessageOutput').innerHTML = `
-                        <div class="success">Decrypted Message: ${decryptedMessage}</div>
-                    `;
-                } catch (error) {
-                    document.getElementById('decryptMessageOutput').innerHTML = `
-                        <div class="error">Decryption failed. Invalid message.</div>
-                    `;
-                }
-            } else {
-                document.getElementById('decryptMessageOutput').innerHTML = `
-                    <div class="error">Please enter a cipher text to decrypt.</div>
-                `;
-            }
-        }
-        // Get the logout modal and logout link
-var logoutModal = document.getElementById("logoutModal");
-var logoutLink = document.getElementById("logoutlink");
+      <!-- Output container for the extracted message -->
+      <div id="hideMessageOutput" class="message"></div>
+    </form>
 
-//buttons inside the logout modal
-var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    <!-- Form for decrypting a cipher text -->
+    <h2>Decrypt Message</h2>
+    <form id="decryptionForm">
+      <!-- Input for the cipher text to decrypt -->
+      <label for="cipherText">Cipher text:</label>
+      <textarea id="cipherText" rows="4" required></textarea>
 
-var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+      <!-- Button to trigger decryption and we will use JavaScript to handle this functionality -->
+      <button type="button" onclick="decryptMessage()">Decrypt Message</button>
 
-logoutLink.onclick = function(event) {
-  event.preventDefault(); 
-  logoutModal.style.display = "block";
-}
+      <!-- Output container for the decrypted message -->
+      <div id="decryptMessageOutput" class="message"></div>
 
-//  click "Yes" 
-confirmLogoutBtn.onclick = function() {
-  window.location.href = logoutLink.href; 
-}
+      <!-- Input for displaying the plain (decrypted) text -->
+      <label for="PlainText">Plain text:</label>
+      <textarea id="PlainText" rows="4" required></textarea>
 
-// click "No" 
-cancelLogoutBtn.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+      <!-- Button to download the decrypted message as a file -->
+      <button type="button" id="downloadButton">Download File</button>
+    </form>
+  </div>
 
-// clicks "No" span
-closeLogoutSpan.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+  <!-- Footer section with communication information and social media links -->
+  <footer>
+    <div class="footer-section">
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+    </div>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>Email: support@concealsafe.com | Phone: +123 456 789</p>
+    </div>
+    <div class="footer-section">
+      <h3>Follow Us</h3>
+      <!-- Social media icons -->
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
 
-window.onclick = function(event) {
-  if (event.target == logoutModal) {
-    logoutModal.style.display = "none"; 
-  }
-}
-    </script>
+  <!-- JavaScript for handling logout modal -->
+  <script>
+    // Get the logout modal and logout link elements
+    var logoutModal = document.getElementById("logoutModal");
+    var logoutLink = document.getElementById("logoutlink");
+
+    // Get the confirmation and cancellation buttons from the modal
+    var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+
+    // Close button (x) to hide the modal
+    var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+
+    // When the user clicks the "Sign out" link, show the logout confirmation modal
+    logoutLink.onclick = function (event) {
+      event.preventDefault(); // Prevent the default link action
+      logoutModal.style.display = "block"; // Show the modal
+    }
+
+    // If the user clicks "Yes," log them out
+    confirmLogoutBtn.onclick = function () {
+      window.location.href = logoutLink.href; // Redirect to logout url
+    }
+
+    // If the user clicks "No," hide the modal
+    cancelLogoutBtn.onclick = function () {
+      logoutModal.style.display = "none"; // Hide the modal
+    }
+
+    // If the user clicks on the (x) close button, hide the modal
+    closeLogoutSpan.onclick = function () {
+      logoutModal.style.display = "none"; // Hide the modal
+    }
+
+    // If the user clicks outside the modal, hide it
+    window.onclick = function (event) {
+      if (event.target == logoutModal) {
+        logoutModal.style.display = "none"; // Hide the modal
+      }
+    }
+  </script>
 </body>
+
 </html>

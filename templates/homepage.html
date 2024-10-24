@@ -6,10 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConsealSafe</title>
 
+  <!-- Font: Montserrat and Font Awesome for icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+
 </head>
 <body>
 
@@ -22,7 +25,7 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-
+  <!-- Header -->
   <header>
     <div class="logo">ConsealSafe</div>
     <nav>
@@ -32,7 +35,7 @@
     </nav>
   </header>
 
-  
+  <!-- Intro Section -->
   <section class="intro">
     <div class="logo">
       <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
@@ -42,7 +45,7 @@
     </div>
   </section>
 
-  
+  <!-- Sec Section with Wave Shape -->
   <section class="sec">
     <h2>Terminology</h2>
     <div class="section">
@@ -67,7 +70,7 @@
   <!-- Articles Section -->
 <section class="publications">
   <h2>Article</h2>
-  <div class="pub-section">
+  <div class="pub-section" style="display: flex; align-items: center;">
       <div style="width: 50%; text-align: center;">
           <img src="{{ url_for('static', filename='images/articles.jpg') }}" alt="Steganography Image" style="width: 30%; border-radius: 2px;">
       </div>
@@ -81,7 +84,7 @@
 </section>
 
 
- 
+  <!-- Footer -->
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>

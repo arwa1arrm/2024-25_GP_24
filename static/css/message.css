@@ -1,184 +1,4 @@
- 
-    body {
-        margin: 0;
-        font-family: 'Montserrat', sans-serif;
-        background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
-        color: #26367B;
-        overflow-x: hidden;
-        transition: background 0.5s ease;
-      }
-  
-      .moving-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-      }
-  
-      .lock-icon {
-        position: absolute;
-        font-size: 50px;
-        color: rgba(255, 255, 255, 0.1);
-        animation: floatLocks 15s infinite linear;
-      }
-  
-      @keyframes floatLocks {
-        0% {
-          transform: translateY(100vh) rotate(0deg);
-        }
-  
-        100% {
-          transform: translateY(-100vh) rotate(360deg);
-        }
-      }
-  
-      .lock-icon:nth-child(2) {
-        font-size: 70px;
-        animation-duration: 12s;
-        animation-delay: 3s;
-        color: rgba(255, 255, 255, 0.15);
-      }
-  
-      .lock-icon:nth-child(3) {
-        font-size: 90px;
-        animation-duration: 18s;
-        animation-delay: 6s;
-        color: rgba(255, 255, 255, 0.08);
-      }
-  
-      .lock-icon:nth-child(4) {
-        font-size: 40px;
-        animation-duration: 10s;
-        animation-delay: 1s;
-        color: rgba(255, 255, 255, 0.2);
-      }
-  
-      .lock-icon:nth-child(5) {
-        font-size: 60px;
-        animation-duration: 20s;
-        animation-delay: 5s;
-        color: rgba(255, 255, 255, 0.1);
-      }
-  
-      /* Header styling */
-      header {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px;
-        background-color: #f1f1f1;
-        border-bottom-left-radius: 45px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding-left: 30px;
-        text-decoration: none;
-  
-      }
-       
-  
-      header .logo {
-        font-weight: 600;
-        color: #26367B;
-        margin-right: 15px;
-        transition: transform 0.3s ease;
-        text-decoration: none;
-      }
-  
-  
-  
-      header nav {
-        display: flex;
-        align-items: center;
-      }
-  
-      header a {
-        color: #26367B;
-        text-decoration: none;
-        font-weight: 600;
-        margin-right: 15px;
-        transition: transform 0.3s ease;
-  
-      }
-  
-      header a:hover {
-        text-decoration: underline;
-        transform: translateY(-2px);
-  
-      }
-  
-      /* Profile section */
-      .profile {
-        position: relative;
-        margin-right: 20px;
-      }
-  
-      header .logo {
-        font-weight: 600;
-        color: #26367B;
-        margin-left: 10%;
-      }
-      
-  
-      
-      .profile img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 2px solid #f4b942;
-      }
-      
-      /* Dropdown menu for profile */
-      .dropdown {
-        display: none;
-        position: absolute;
-        right: 0;
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-      }
-  
-      .profile:hover .dropdown {
-        display: block;
-      }
-  
-      .dropdown a {
-        display: block;
-        padding: 10px 15px;
-        color: #26367B;
-        text-decoration: none;
-        transition: background 0.3s ease;
-        width: 75%;
-      }
-  
-      .dropdown a:hover {
-        background: #f4b942;
-        color: white;
-      }
-  
-      /* Bell notification icon */
-      .bell-icon {
-        font-size: 24px;
-        margin-right: 20px;
-        color: #26367B;
-        cursor: pointer;
-        position: relative;
-      }
-  
-      .bell-icon::after {
-        content: '!'; /* This is notification. we must change later with actual NO of notificTIONS OR LEAVE IT LIKE THIS*/
-        position: absolute;
-        top: -5px;
-        right: -10px;
-        background: red;
-        color: white;
-        font-size: 14px;
-        padding: 2px 6px;
-        border-radius: 50%;
-      }
+
   
       /* Welcome section */
       .welcome {
@@ -279,89 +99,12 @@
         transition: background-color 0.3s ease; 
   
       }
-  
-      /* Footer styling */
-      footer {
-        background-color: #26367B;
-        color: white;
-        padding: 40px;
-        padding-left: 80px;
-        display: flex;
-        margin-top: 10%;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      }
-  
-      footer .footer-section {
-        width: 30%;
-        text-align: center;
-      }
-  
-      footer .footer-section h3 {
-        font-size: 24px;
-        margin-bottom: 10px;
-      }
-  
-      footer .footer-section p {
-        font-size: 14px;
-      }
-  
-      footer .social-icons {
-        display: flex;
-        justify-content: center;
-      }
-  
-      footer .social-icons a {
-        margin: 0 10px;
-        color: white;
-        font-size: 20px;
-        transition: color 0.3s ease;
-      }
-  
-      footer .social-icons a:hover {
-        color: #f4b942;
-      }
-      /* Floating lock icons background */
-      .moving-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        overflow: hidden;
-      }
-  
-      /* Lock icon floating animation */
-      .lock-icon {
-        position: absolute;
-        font-size: 50px;
-        color: rgba(255, 255, 255, 0.1);
-        animation: floatLocks 15s infinite linear;
-      }
-  
-      @keyframes floatLocks {
-        0% {
-          transform: translateY(100vh) rotate(0deg);
-        }
-        100% {
-          transform: translateY(-100vh) rotate(360deg);
-        }
-      }
-  
-      /* Different lock icon sizes and animations */
-      .lock-icon:nth-child(2) { font-size: 70px; animation-duration: 12s; }
-      .lock-icon:nth-child(3) { font-size: 90px; animation-duration: 18s; }
-      .lock-icon:nth-child(4) { font-size: 40px; animation-duration: 10s; }
-      .lock-icon:nth-child(5) { font-size: 60px; animation-duration: 20s; }
-  
+
+    
       /* Messages container */
       .messages-container {
         max-width: 800px;
-        margin: 50px auto;
+        margin: 10% auto;
         padding: 20px;
         background-color: white;
         border-radius: 10px;
@@ -414,3 +157,14 @@
       .decrypt-btn:hover {
         background-color: #e7a832;
       }
+
+      @media (max-width: 768px) {
+
+        .messages-container  {
+          margin: 40% 10%;
+          padding: 10px;
+       
+    
+    }
+      }
+      

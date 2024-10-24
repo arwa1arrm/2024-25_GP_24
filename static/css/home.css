@@ -67,7 +67,6 @@ body {
   color: rgba(255, 255, 255, 0.1);
 }
 
-/* Header styles */
 header {
   display: flex;
   justify-content: space-between;
@@ -76,16 +75,6 @@ header {
   border-bottom-left-radius: 45px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 2;
-  padding-left: 30px;
-
-}
-header .logo {
-  text-decoration: none;
-  font-weight: 600;
-  color: #26367B;
-  margin-right: 15px;
-  transition: transform 0.3s ease;
-  text-decoration: none;
 }
 
 header a {
@@ -115,7 +104,7 @@ header a:hover {
 /* Logo Container with dotted background */
 .intro .logo {
   position: relative;
-  width: 40%;
+  width: 90%;
   text-align: center;
 }
 
@@ -148,6 +137,7 @@ header a:hover {
 
 .intro .content {
   width: 55%;
+  flex-wrap: wrap;
 }
 
 .intro .content p {
@@ -280,3 +270,34 @@ footer .social-icons a:hover {
   color: #f4b942;
 }
 
+@media (max-width: 768px) {
+  .hero {
+    padding: 20% 10%;
+  }
+  
+  .hero .logo {
+    width: 190px;
+  }
+  
+  .hero .content {
+    width: 80%;
+  }
+
+
+
+body{
+  background-color: #7b4e26;
+}
+
+
+footer .footer-section {
+  width: 100%;
+  margin-bottom: 20px;
+  margin-right: 25%;
+  margin-left: 10%;
+}
+
+footer .social-icons a {
+  font-size: 18px;
+}
+}

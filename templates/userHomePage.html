@@ -6,17 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Home Page</title>
 
- 
+  <!-- Link to external fonts and icon libraries -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
- 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  <!-- Link to CSS files -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/userhomepage.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body>
 
-  <!-- Floating Locks -->
+  <!-- Floating Locks for background decoration -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
     <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
@@ -25,61 +26,61 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-  
+  <!-- Header section with navigation links -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+    <a href="{{ url_for('userHomePage') }}">
+      <div class="logo">ConsealSafe</div>
+    </a>
     <nav>
-     <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+      <!-- Link to encryption page -->
+      <a href="{{ url_for('encryptionPage') }}" class="enchide">Encrypt & Hide</a>
 
-        
+      <!-- Notifications (Messages) -->
       <a href="{{ url_for('messages') }}">
         <div class="bell-icon">
           <i class="fas fa-bell"></i>
         </div>
       </a>
 
-      
+      <!-- Profile dropdown -->
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> 
+        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon -->
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
-        
         </div>
       </div>
-    
     </nav>
 
-    <!-- Logout Confirmation  -->
-<div id="logoutModal" class="modal">
-  <div class="modal-content">
-    <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
-    <p>Are you sure you want to sign out?</p>
-    <button id="confirmLogoutBtn">Yes</button>
-    <button id="cancelLogoutBtn">No</button>
-  </div>
-</div>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <span class="closeLogout">&times;</span>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to sign out?</p>
+        <button id="confirmLogoutBtn">Yes</button>
+        <button id="cancelLogoutBtn">No</button>
+      </div>
+    </div>
   </header>
 
-  
-<div class="welcome">
+  <!-- Welcome message with the user's name -->
+  <div class="welcome">
     <h1>Welcome Back {{ user_name }}!</h1>
     <p>Your ultimate solution for encrypting and hiding your files!</p>
   </div>
-  
 
-
+  <!-- Features section -->
   <div class="features-section">
     <h2>What You Can Do</h2>
     <p>
-      With ConsealSafe, you can easily encrypt your files, keep them hidden, and ensure your privacy and security. 
+      With ConsealSafe, you can easily encrypt your files, keep them hidden, and ensure your privacy and security.
       Explore various features to protect your sensitive data and communicate safely with other users.
     </p>
-    <button onclick= location.href="{{ url_for('encryptionPage') }}">Start Encrypting</button>
+    <button onclick=location.href="{{ url_for('encryptionPage') }}">Start Encrypting</button>
   </div>
 
- 
+  <!-- Footer section -->
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -99,53 +100,55 @@
     </div>
   </footer>
 
+  <!-- JavaScript to control the logout modal -->
   <script>
-   
-// Get the logout modal and logout link
-var logoutModal = document.getElementById("logoutModal");
-var logoutLink = document.getElementById("logoutlink");
+    // Get the logout modal and logout link
+    var logoutModal = document.getElementById("logoutModal");
+    var logoutLink = document.getElementById("logoutlink");
 
-//buttons inside the logout modal
-var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    // Get the buttons inside the logout modal
+    var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
-var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+    // Get the 'x' button to close the modal
+    var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
 
-logoutLink.onclick = function(event) {
-  event.preventDefault(); 
-  logoutModal.style.display = "block";
-}
+    // When the user clicks 'Sign out', show the modal
+    logoutLink.onclick = function (event) {
+      event.preventDefault(); // Prevent the default logout action
+      logoutModal.style.display = "block"; // Show the modal
+    }
 
-//  click "Yes" 
-confirmLogoutBtn.onclick = function() {
-  window.location.href = logoutLink.href; 
-}
+    // When 'Yes' is clicked, log out
+    confirmLogoutBtn.onclick = function () {
+      window.location.href = logoutLink.href; // Redirect to the logout URL
+    }
 
-// click "No" 
-cancelLogoutBtn.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+    // When 'No' is clicked, close the modal
+    cancelLogoutBtn.onclick = function () {
+      logoutModal.style.display = "none"; // Close the modal
+    }
 
-// clicks "No" span
-closeLogoutSpan.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+    // Close the modal when 'x' is clicked
+    closeLogoutSpan.onclick = function () {
+      logoutModal.style.display = "none"; // Close the modal
+    }
 
-window.onclick = function(event) {
-  if (event.target == logoutModal) {
-    logoutModal.style.display = "none"; 
-  }
-}
+    // Close the modal if the user clicks outside of it
+    window.onclick = function (event) {
+      if (event.target == logoutModal) {
+        logoutModal.style.display = "none"; // Close the modal
+      }
+    }
   </script>
 
-<script>
-  // Reload the page if the user tries to go back
-  window.history.pushState(null, '', window.location.href);
-  window.onpopstate = function() {
+  <script>
+    // Prevent users from going back after logging out by disabling back button
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function () {
       window.history.pushState(null, '', window.location.href);
-  };
-</script>
-
+    };
+  </script>
 
 </body>
 

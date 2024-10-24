@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConsealSafe</title>
 
+  <!-- Google Fonts and Font Awesome for icons -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+  <!-- Link to the login page CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-
 </head>
+
 <body>
 
-  <!-- Floating lock icons background -->
+  <!-- Floating lock icons in the background for visual effect -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
     <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
@@ -23,9 +24,9 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
- 
+  <!-- Header with the logo and navigation links -->
   <header>
-    <div class="logo">ConsealSafe</div>
+    <div class="logo">ConsealSafe</div> <!-- Website logo -->
     <nav>
       <a href="{{ url_for('homepage') }}">Home</a>
       <a href="{{ url_for('signupsafe1') }}">Sign up</a>
@@ -33,51 +34,59 @@
     </nav>
   </header>
 
-
+  <!-- Hero section with logo display -->
   <section class="hero">
     <div class="logo">
-      <img src="{{ url_for('static', filename='safelogo.png') }}" alt="ConsealSafe Logo">
+      <!-- Image logo of the website -->
+      <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
     </div>
     <div class="content">
+      <!-- Additional hero content can be placed here -->
     </div>
   </section>
 
-  
-<div class="container">
-  <div class="form-container designer-form">
-    <form action="/loginsafe" method="POST">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Email" required>
+  <!-- Form Section for login -->
+  <div class="container">
+    <div class="form-container loginn-form">
+      <!-- Login form starts here -->
+      <form action="/loginsafe" method="POST">
+        <!-- Input for email address -->
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Email" required>
 
-      <label for="password">Password</label>
-      <div class="password-container">
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <i class="fas fa-eye eye-icon" id="togglePassword"></i>
-      </div>
-
-      <p style="text-align: center; margin-top: 10px; margin-left: -395px; font-size: 0.9rem;">
-        <a href="{{ url_for('ForgotPassword') }}">Forgot password</a>
-      </p>
-
-      <!-- Display error message if login fails -->
-      {% if error %}
-        <div class="errorlogin" style="text-align: center; color: red; margin-top: 20px;">
-          {{ error }}
+        <!-- Input for password -->
+        <label for="password">Password</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Password" required>
+          <!-- Eye icon to toggle password visibility -->
+          <i class="fas fa-eye eye-icon" id="togglePassword"></i>
         </div>
-      {% endif %}
 
-      <br><br>
-      <button type="submit" class="btn-solid">Sign in</button>
-    </form>
+        <!-- Link to reset the password -->
+        <p class="forgot-password-text">
+          <a href="{{ url_for('ForgotPassword') }}">Forgot password</a>
+        </p>
 
-    <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">
-      Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.
-    </p>
+        <!-- Error message displayed if login fails -->
+        {% if error %}
+          <div class="errorlogin" style="text-align: center; color: red; margin-top: 20px;">
+            {{ error }}
+          </div>
+        {% endif %}
+
+        <br><br>
+        <!-- Submit button for the login form -->
+        <button type="submit" class="btn-solid">Sign in</button>
+      </form>
+
+      <!-- Link to the signup page for users without an account -->
+      <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">
+        Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.
+      </p>
+    </div>
   </div>
-</div>
 
-
-  
+  <!-- Footer with About Us, Contact, and Social Media Links -->
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -96,17 +105,17 @@
     </div>
   </footer>
 
-  <!--  toggling password visibility -->
+  <!-- JavaScript to toggle password visibility -->
   <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
+    const togglePassword = document.querySelector('#togglePassword'); // Get the eye icon element
+    const password = document.querySelector('#password'); // Get the password input element
 
-    togglePassword.addEventListener('click', function (e) {
-      // toggle the type attribute
+    togglePassword.addEventListener('click', function () {
+      // Toggle between password and text input types
       const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
       password.setAttribute('type', type);
       
-      // toggle the eye / eye-slash icon
+      // Toggle the eye icon between eye and eye-slash
       this.classList.toggle('fa-eye-slash');
     });
   </script>

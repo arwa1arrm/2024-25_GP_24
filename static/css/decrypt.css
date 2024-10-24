@@ -1,60 +1,46 @@
-    
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(135deg, #26367b72 0%, #f4b942dc 100%);
-    color: #26367B;
-    overflow-x: hidden;
-    transition: background 0.5s ease;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background-color: #f1f1f1;
-    border-bottom-left-radius: 45px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #26367B;
-}
-
+/* Container styles */
 .container {
     max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
+    margin: 10% auto;
+    padding: 15px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Ensures that padding is included within the width */
 }
 
+/* Heading styles */
 h2 {
     text-align: center;
     color: #26367B;
 }
 
+/* Label styles */
 label {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
+/* Input, textarea, and file input styles */
 input[type="text"], input[type="file"], textarea {
-    width: 100%;
+    width: 100%; /* Full width */
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding and border are included in width */
 }
 
+/* Fix for file input to ensure it stays within the container */
+input[type="file"] {
+    display: block; /* Ensures it behaves like a block element */
+    margin: 0; /* Removes any default margins */
+    max-width: 100%; /* Ensures it doesn't exceed the container width */
+    padding: 0; /* Remove any extra padding */
+}
+
+/* Button styling */
 button {
     background-color: #f4b942;
     color: white;
@@ -62,9 +48,12 @@ button {
     border: none;
     border-radius: 25px;
     cursor: pointer;
-    width: 100%;
+    width: 100%; /* Full width for button */
     font-size: 16px;
     transition: background-color 0.3s ease;
+    box-sizing: border-box; /* Ensures padding is included in width */
+    margin-bottom: 10px;
+    margin-top: 2%;
 }
 
 button:hover {
@@ -72,6 +61,7 @@ button:hover {
     color: #f4b942;
 }
 
+/* Message styles */
 .message {
     margin-top: 20px;
     padding: 10px;
@@ -90,181 +80,82 @@ button:hover {
     border: 1px solid #f5c6cb;
 }
 
-/* Header styling */
-header {
-display: flex;
-justify-content: space-between;
-padding: 20px;
-background-color: #f1f1f1;
-border-bottom-left-radius: 45px;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-header .logo {
-font-weight: 600;
-color: #26367B;
-margin-left: 10%;
-}
-
-
-header nav {
-display: flex;
-align-items: center;
-}
-
-header a {
-color: #26367B;
-text-decoration: none;
-font-weight: 600;
-margin-right: 15px;
-transition: transform 0.3s ease;
-}
-
-header a:hover {
-text-decoration: underline;
-transform: translateY(-2px);
-}
-
-/* Profile section */
-.profile {
-position: relative;
-margin-right: 20px;
-}
-
-.profile img {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-cursor: pointer;
-border: 2px solid #f4b942;
-}
-
-/* Dropdown menu for profile */
-.dropdown {
-display: none;
-position: absolute;
-right: 0;
-background-color: white;
-border: 1px solid #ddd;
-border-radius: 5px;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-z-index: 10;
-}
-
-.profile:hover .dropdown {
-display: block;
-}
-
-.dropdown a {
-display: block;
-padding: 10px 15px;
-color: #26367B;
-text-decoration: none;
-transition: background 0.3s ease;
-width: 75%;
-}
-
-.dropdown a:hover {
-background: #f4b942;
-color: white;
-}
-
-/* Bell notification icon */
-.bell-icon {
-font-size: 24px;
-margin-right: 20px;
-color: #26367B;
-cursor: pointer;
-position: relative;
-}
-
-.bell-icon::after {
-content: '!'; /* This is notification. we must change later with actual NO of notificTIONS OR LEAVE IT LIKE THIS*/
-position: absolute;
-top: -5px;
-right: -10px;
-background: red;
-color: white;
-font-size: 14px;
-padding: 2px 6px;
-border-radius: 50%;
-}
+/* Modal styles */
 .modal {
-display: none; /* Hidden by default */
-position: fixed; /* Stay in place */
-z-index: 1000; /* Sit on top */
-left: 0;
-top: 0;
-width: 100%; 
-height: 100%; 
-overflow: auto; /* Enable scroll if needed */
-background-color: rgb(0,0,0); 
-background-color: rgba(0,0,0,0.4); 
-padding-top: 60px;
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 60px;
 }
 
 .modal-content {
-background-color: #fefefe;
-margin: 5% auto; 
-padding: 20px;
-border: 1px solid #888;
-width: 80%; 
-max-width: 400px;
-border-radius: 10px;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-#confirmLogoutBtn, #cancelLogoutBtn{
-background-color: #f4b942dc;
-border: none;
-padding: 3%;
-margin-left: 2%;
-border-radius: 15px;
-cursor: pointer;
-color: #26367B;
-transition: background-color 0.3s ease; 
-
+    background-color: #fefefe;
+    margin: 5% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; 
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
-footer {
-background-color: #26367B;
-color: white;
-padding: 40px;
-padding-left: 80px;
-display: flex;
-margin-top: 10%;
-flex-wrap: wrap;
-justify-content: space-between;
-align-items: center;
-flex-wrap: wrap;
-box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+#confirmLogoutBtn, #cancelLogoutBtn {
+    background-color: #f4b942dc;
+    border: none;
+    padding: 3%;
+    margin-left: 2%;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #26367B;
+    transition: background-color 0.3s ease; 
 }
 
-footer .footer-section {
-    width: 30%;
-    text-align: center;
-}
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+    .container {
+        margin: 5%;
+        padding: 10px;
+        max-width: 100%; 
+    }
 
-footer .footer-section h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
+    label {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
 
-footer .footer-section p {
-    font-size: 14px;
-}
+    input[type="text"], input[type="file"], textarea {
+        padding: 8px;
+        font-size: 0.9rem;
+        width: 100%; 
+        box-sizing: border-box; 
+    }
 
-footer .social-icons {
-    display: flex;
-    justify-content: center;
-}
+    button {
+        margin-top: 2%;
+        padding: 8px 10px;
+        font-size: 14px;
+        width: 100%; 
+        box-sizing: border-box;
+    }
 
-footer .social-icons a {
-    margin: 0 10px;
-    color: white;
-    font-size: 20px;
-    transition: color 0.3s ease;
-}
+    .btn-group button {
+        width: 48%;
+        font-size: 0.9rem;
+    }
 
-footer .social-icons a:hover {
-    color: #f4b942;
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    #hideMessageOutput {
+        margin-bottom: 10%;
+    }
 }

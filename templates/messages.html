@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,11 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/message.css') }}">
 
-  
+
 
   <script>
     // visibility of the message content
@@ -24,6 +26,7 @@
     }
   </script>
 </head>
+
 <body>
 
   <!-- Floating lock icons background -->
@@ -35,75 +38,82 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
- 
-<header>
-  <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
-  <nav>
-    <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
 
-    <a href="{{ url_for('messages') }}">
-      <div class="bell-icon">
-        <i class="fas fa-bell"></i>
-      </div>
+  <header>
+    <a href="{{ url_for('userHomePage') }}">
+      <div class="logo">ConsealSafe</div>
     </a>
+    <nav>
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
 
-    <div class="profile">
-      <i class="fas fa-user-circle profile-icon"></i>
-      <div class="dropdown">
-        <a href="{{ url_for('viewprofile') }}">View Account</a>
-        <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+      <a href="{{ url_for('messages') }}">
+        <div class="bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+      </a>
+
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i>
+        <div class="dropdown">
+          <a href="{{ url_for('viewprofile') }}">View Account</a>
+          <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <span class="closeLogout">&times;</span>
+        <h2>Confirm Logout</h2>
+        <p>Are you sure you want to sign out?</p>
+        <button id="confirmLogoutBtn">Yes</button>
+        <button id="cancelLogoutBtn">No</button>
       </div>
     </div>
-  </nav>
-  
-  <!-- Logout Confirmation  -->
-<div id="logoutModal" class="modal">
-  <div class="modal-content">
-    <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
-    <p>Are you sure you want to sign out?</p>
-    <button id="confirmLogoutBtn">Yes</button>
-    <button id="cancelLogoutBtn">No</button>
-  </div>
-</div>
-</header>
+  </header>
 
 
-  
-<div class="messages-container">
-  <h2>Messages</h2>
+  <!-- Messages Container for static only-->
+  <div class="messages-container">
+    <h2>Messages</h2>
 
-  
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
-    <div class="message-content">
-      <p>You have received a new file: <strong>Project_Documents.zip</strong>. Click the button below to extract and decrypt the file.</p>
-      <a href="{{ url_for('decrypt') }}"><button class="decrypt-btn">Extract & Decrypt</button></a>
+    <!-- Message 1 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
+      <div class="message-content">
+        <p>You have received a new file: <strong>Project_Documents.zip</strong>. Click the button below to extract and
+          decrypt the file.</p>
+        <a href="{{ url_for('decrypt') }}"><button class="decrypt-btn">Extract & Decrypt</button></a>
+      </div>
     </div>
-  </div>
 
-  
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-image"></i> confidential_diagram.png</div>
-    <div class="message-content">
-      <p>A new image file has been sent to you: <strong>confidential_diagram.png</strong>. You can decrypt and view the image below.</p>
-      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
+    <!-- Message 2 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title"><i class="fas fa-image"></i> confidential_diagram.png</div>
+      <div class="message-content">
+        <p>A new image file has been sent to you: <strong>confidential_diagram.png</strong>. You can decrypt and view
+          the image below.</p>
+        <a href="{{ url_for('decrypt') }}"></a><button class="decrypt-btn">Extract &
+          Decrypt</button><!--link for Extract & Decrypt-->
+      </div>
     </div>
-  </div>
 
-  
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-file-archive"></i> Secure_Backup.rar</div>
-    <div class="message-content">
-      <p>An encrypted archive <strong>Secure_Backup.rar</strong> is available. Decrypt the archive to access the secured files.</p>
-      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
+    <!-- Message 3 -->
+    <div class="message-item" onclick="toggleMessageContent(this)">
+      <div class="message-title"><i class="fas fa-file-archive"></i> Secure_Backup.rar</div>
+      <div class="message-content">
+        <p>An encrypted archive <strong>Secure_Backup.rar</strong> is available. Decrypt the archive to access the
+          secured files.</p>
+        <a href="{{ url_for('decrypt') }}"></a><button class="decrypt-btn">Extract &
+          Decrypt</button><!--link for Extract & Decrypt-->
+      </div>
     </div>
+
   </div>
 
-</div>
 
 
-  
   <footer>
     <div class="footer-section">
       <h3>About Us</h3>
@@ -122,42 +132,43 @@
     </div>
   </footer>
   <script>
-    
-  // Get the logout modal and logout link
-var logoutModal = document.getElementById("logoutModal");
-var logoutLink = document.getElementById("logoutlink");
 
-//buttons inside the logout modal
-var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+    // Get the logout modal and logout link
+    var logoutModal = document.getElementById("logoutModal");
+    var logoutLink = document.getElementById("logoutlink");
 
-var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+    // Get the buttons inside the logout modal
+    var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+    var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
-logoutLink.onclick = function(event) {
-  event.preventDefault(); 
-  logoutModal.style.display = "block";
-}
+    var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
 
-//  click "Yes" 
-confirmLogoutBtn.onclick = function() {
-  window.location.href = logoutLink.href; 
-}
+    logoutLink.onclick = function (event) {
+      event.preventDefault();
+      logoutModal.style.display = "block";
+    }
 
-// click "No" 
-cancelLogoutBtn.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+    //  clicks  "Yes" 
+    confirmLogoutBtn.onclick = function () {
+      window.location.href = logoutLink.href;
+    }
 
-// clicks "No" span
-closeLogoutSpan.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
+    // clicks "No" modal
+    cancelLogoutBtn.onclick = function () {
+      logoutModal.style.display = "none";
+    }
 
-window.onclick = function(event) {
-  if (event.target == logoutModal) {
-    logoutModal.style.display = "none"; 
-  }
-}
+    // clicks "No" span
+    closeLogoutSpan.onclick = function () {
+      logoutModal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+      if (event.target == logoutModal) {
+        logoutModal.style.display = "none";
+      }
+    }
   </script>
 </body>
+
 </html>
