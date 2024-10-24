@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Confirmation</title>
-    <!-- Links to Google Fonts and Font Awesome for icons -->
+    <!-- Font: Montserrat and Font Awesome for icons -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Link to the main CSS and page-specific CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/regConf.css') }}">
 
+
     <script>
-        // This function automatically downloads the private key after the page loads
+        // Automatically trigger the download of the private key after the page loads
         window.onload = function() {
-            // Redirect to the private key download route
             window.location.href = "{{ url_for('download_private_key') }}";
         }
     </script>
@@ -23,7 +24,7 @@
 
 <body>
 
-    <!-- Moving background with lock icons for visual effect -->
+    <!-- Floating lock icons background -->
     <div class="moving-background">
         <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
         <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
@@ -32,29 +33,26 @@
         <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
     </div>
 
-    <!-- Website header with logo and navigation links -->
+    <!-- Header -->
     <header>
-        <div class="logo">ConsealSafe</div> <!-- Logo of the website -->
+        <div class="logo">ConsealSafe</div>
         <nav>
-            <!-- Navigation links for homepage, signup, and login -->
             <a href="{{ url_for('homepage') }}">Home</a>
             <a href="{{ url_for('signupsafe1') }}">Sign up</a>
             <a href="{{ url_for('loginsafe') }}">Sign in</a>
         </nav>
     </header>
 
-    <!-- Confirmation message box -->
+    <!-- Container Box -->
     <div class="container-box">
-        <!-- Displaying the user's name after registration -->
         <h2>Thank You for Registering, {{ user_name }}!</h2>
         <p>Your registration was successful.</p>
         <p>Your private key has been downloaded automatically. Please make sure to store it in a secure place.</p>
         <p>You can now log in to your account.</p>
-        <!-- Link to the login page -->
         <a href="{{ url_for('loginsafe') }}" class="button">Go to Login Page</a>
     </div>
 
-    <!-- Footer section with company info and contact details -->
+    <!-- Footer -->
     <footer>
         <div class="footer-section">
             <h3>About Us</h3>
@@ -66,7 +64,6 @@
         </div>
         <div class="footer-section">
             <h3>Follow Us</h3>
-            <!-- Social media icons -->
             <div class="social-icons">
                 <a href="#"><i class="fab fa-twitter"></i></a>
                 <a href="#"><i class="fab fa-instagram"></i></a>

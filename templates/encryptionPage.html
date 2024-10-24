@@ -1,25 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Encrypt and Hide Messages</title>
-
-  <!-- Importing a Google Font for styling -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt and Hide Messages</title>
+    
+  
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-  <!-- Linking custom CSS files for additional styling -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/encrypt.css') }}">
 </head>
-
 <body>
 
-  <!-- Floating Locks Background -->
-  <!-- This section displays multiple lock icons moving across the background for a visual effect -->
+
+
+  <!-- Floating Locks -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
     <i class="fas fa-lock lock-icon" style="left: 30%;"></i>
@@ -28,156 +25,129 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
-
+  <!-- Header -->
   <header>
-    <!-- Logo with a link back to the homepage -->
-    <a href="{{ url_for('userHomePage') }}">
-      <div class="logo">ConsealSafe</div>
-    </a>
-
-    <!-- Navigation menu -->
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
-      <!-- Link to the encryption page -->
       <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
 
-      <!-- Notification bell icon linked to the messages page -->
       <a href="{{ url_for('messages') }}">
         <div class="bell-icon">
           <i class="fas fa-bell"></i>
         </div>
       </a>
 
-      <!-- Profile icon with a dropdown for account options -->
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i>
+        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
         </div>
       </div>
     </nav>
-
-    <!-- Logout Confirmation Modal (hidden by default, shown when user clicks 'Sign out') -->
-    <div id="logoutModal" class="modal">
-      <div class="modal-content">
-        <span class="closeLogout">&times;</span> <!-- Close button for the modal -->
-        <h2>Confirm Logout</h2>
-        <p>Are you sure you want to sign out?</p>
-        <button id="confirmLogoutBtn">Yes</button>
-        <button id="cancelLogoutBtn">No</button>
-      </div>
-    </div>
+    <!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+  <div class="modal-content">
+    <span class="closeLogout">&times;</span>
+    <h2>Confirm Logout</h2>
+    <p>Are you sure you want to sign out?</p>
+    <button id="confirmLogoutBtn">Yes</button>
+    <button id="cancelLogoutBtn">No</button>
+  </div>
+</div>
   </header>
 
 
-  <div class="container">
-    <!-- Section for encrypting a message -->
-    <h2>Encrypt Your Message</h2>
-    <form id="encryptionForm">
-      <label for="message">Enter your message:</label>
-      <!-- Textarea for the user to input their message -->
-      <textarea id="message" rows="4" required></textarea>
+    <div class="container">
+        <h2>Encrypt Your Message</h2>
+        <form id="encryptionForm">
+            <label for="message">Enter your message:</label>
+            <textarea id="message" rows="4" required></textarea>
 
-      <!-- Button to trigger the encryption process -->
-      <button type="button">Encrypt</button>
+            <button type="button">Encrypt</button>
+            <div id="encryptMessageOutput" class="message" style="display:block;">
+                <!-- Placeholder text for encrypted output -->
+                Encrypted message will be displayed here.
+            </div>
+        </form>
 
-      <!-- Output section for displaying the encrypted message -->
-      <div id="encryptMessageOutput" class="message" style="display:block;">
-        <!-- Placeholder text until encryption is complete -->
-        Encrypted message will be displayed here.
-      </div>
-    </form>
+        <h2>Hide Encrypted Message in Media</h2>
+        <form id="steganographyForm">
+            <label for="mediaFile" class="upload">Upload media file (image, video, or audio):</label>
+            <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
 
-    <!-- Section for hiding the encrypted message in a media file -->
-    <h2>Hide Encrypted Message in Media</h2>
-    <form id="steganographyForm">
-      <label for="mediaFile" class="upload">Upload media file (image, video, or audio):</label>
+            <label for="cipherText">Cipher text to hide:</label>
+            <textarea id="cipherText" rows="4" required></textarea>
 
-      <!-- Input for selecting a media file to hide the encrypted message inside -->
-      <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
+            <button type="button">Hide Message</button>
+            <div id="hideMessageOutput" class="message" style="display:block;">
+                <!-- Placeholder text for hidden message output -->
+                Hidden message information will be displayed here.
+            </div>
 
-      <!-- Textarea for pasting the cipher text (encrypted message) -->
-      <label for="cipherText">Cipher text to hide:</label>
-      <textarea id="cipherText" rows="4" required></textarea>
-
-      <!-- Button to trigger the hiding process -->
-      <button type="button">Hide Message</button>
-
-      <!-- Output section for displaying information after hiding the message -->
-      <div id="hideMessageOutput" class="message" style="display:block;">
-
-        <!-- Placeholder text until the message is hidden in the media file -->
-        Hidden message information will be displayed here.
-      </div>
-
-      <!-- Buttons for downloading or sharing the media file with the hidden message -->
-      <div class="btn-group">
-        <button type="button" id="downloadButton">Download File</button>
-        <button type="button" id="shareButton">Share File</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Footer Section -->
-  <footer>
-    <div class="footer-section">
-      <h3>About Us</h3>
-      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+           
+            <div class="btn-group">
+                <button type="button" id="downloadButton">Download File</button>
+                <button type="button" id="shareButton">Share File</button>
+            </div>
+        </form>
     </div>
-    <div class="footer-section">
-      <h3>Contact Us</h3>
-      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
-    </div>
-    <div class="footer-section">
-      <h3>Follow Us</h3>
-      <!-- Social media links -->
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-      </div>
-    </div>
-  </footer>
 
-  <!-- JavaScript Section -->
-  <script>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-section">
+            <h3>About Us</h3>
+            <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
+        </div>
+        <div class="footer-section">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script>
+     
     // Get the logout modal and logout link
-    var logoutModal = document.getElementById("logoutModal");
-    var logoutLink = document.getElementById("logoutlink");
+var logoutModal = document.getElementById("logoutModal");
+var logoutLink = document.getElementById("logoutlink");
 
-    // Get the buttons inside the logout modal
-    var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-    var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+// Get the buttons inside the logout modal
+var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
 
-    var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
 
-    // When the "Sign out" link is clicked, show the modal
-    logoutLink.onclick = function (event) {
-      event.preventDefault(); //Prevent the default link action
-      logoutModal.style.display = "block"; // Shows the modal
-    }
+logoutLink.onclick = function(event) {
+  event.preventDefault(); 
+  logoutModal.style.display = "block";
+}
 
-    // If the user clicks "Yes", proceed to log out
-    confirmLogoutBtn.onclick = function () {
-      window.location.href = logoutLink.href; // Redirects to the logout URL
-    }
+//  clicks  "Yes" 
+confirmLogoutBtn.onclick = function() {
+  window.location.href = logoutLink.href; 
+}
 
-    // If the user clicks "No", close the modal
-    cancelLogoutBtn.onclick = function () {
-      logoutModal.style.display = "none"; // Hides the modal
-    }
+// clicks "No" modal
+cancelLogoutBtn.onclick = function() {
+  logoutModal.style.display = "none"; 
+}
 
-    // If the user clicks the "close" (X) span, close the modal
-    closeLogoutSpan.onclick = function () {
-      logoutModal.style.display = "none"; // Hides the modal
-    }
+// clicks "No" span
+closeLogoutSpan.onclick = function() {
+  logoutModal.style.display = "none"; 
+}
 
-    // If the user clicks outside the modal, close it
-    window.onclick = function (event) {
-      if (event.target == logoutModal) {
-        logoutModal.style.display = "none"; // Hides the modal
-      }
-    }
-  </script>
+window.onclick = function(event) {
+  if (event.target == logoutModal) {
+    logoutModal.style.display = "none"; 
+  }
+}
+    </script>
 </body>
-
 </html>
