@@ -59,25 +59,72 @@
 
 
     <div class="container">
+      
         <h2>Encrypt Your Message</h2>
-        <form id="encryptionForm">
-            <label for="message">Enter your message:</label>
-            <textarea id="message" rows="4" required></textarea>
+        <form action="{{ url_for('encrypt_message') }}" method="post">
+          <label for="receiverEmail">Enter receiver's email:</label>
+          <input type="email" id="receiverEmail" name="receiverEmail" placeholder="Receiver's Email" required>
+      <!--<button type="submit" id="searchButton"><i class="fas fa-search"></i> Search</button>-->
 
-            <button type="button">Encrypt</button>
-            <div id="encryptMessageOutput" class="message" style="display:block;">
-                <!-- Placeholder text for encrypted output -->
-                Encrypted message will be displayed here.
-            </div>
-        </form>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="receivermail" style="list-style-type: none; margin-top: 5%;">
+      {% for category, message in messages %}
+        <li class="receivermail {{ category }}" style="text-align: center;text-shadow: 20px; color:red;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
+          <label for="message">Enter your message:</label>
+          <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
+          
+          <button type="submit">Encrypt and Send</button>
+      </form>
+      
+      {% if encrypted_message and encrypted_key %}
+      <h2>Encryption Results</h2>
+      <label for="encryptedMessage">Encrypted Message:</label>
+      <textarea id="encryptedMessage" rows="4" readonly>{{ encrypted_message }}</textarea>
+      <br>
+      <label for="encryptedKey">Encrypted Key:</label>
+      <textarea id="encryptedKey" rows="4" readonly>{{ encrypted_key }}</textarea>
+      {% endif %}
+      
+
+        <script>
+          document.getElementById("encryptButton").addEventListener("click", function () {
+              const message = document.getElementById("message").value.trim();
+      
+              if (message) {
+                  fetch('/encrypt', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ message: message }),
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.error) {
+                          alert(data.error);
+                      } else {
+                          const outputDiv = document.getElementById("encryptMessageOutput");
+                          outputDiv.textContent = `Ciphertext: ${data.ciphertext}`;
+                          outputDiv.style.display = "block";
+                      }
+                  })
+                  .catch(error => console.error('Error:', error));
+              } else {
+                  alert("Please enter a message to encrypt.");
+              }
+          });
+      </script>
         <h2>Hide Encrypted Message in Media</h2>
         <form id="steganographyForm">
             <label for="mediaFile" class="upload">Upload media file (image, video, or audio):</label>
             <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
 
             <label for="cipherText">Cipher text to hide:</label>
-            <textarea id="cipherText" rows="4" required></textarea>
+            <textarea id="cipherText" rows="4" placeholder="Paste the ciphertext" required></textarea>
 
             <button type="button">Hide Message</button>
             <div id="hideMessageOutput" class="message" style="display:block;">

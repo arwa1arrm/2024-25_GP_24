@@ -63,9 +63,9 @@
     </div>
     <div class="user-info">
       <h2>User Profile</h2>
-      <p><strong>Username:</strong> username </p>
-      <p><strong>Email:</strong> email </p>
-      <p><strong>Password:</strong> ********* </p>
+      <p><strong>Username:</strong> {{ user_name }} </p>
+      <p><strong>Email:</strong> {{ email }} </p>
+      <p><strong>Password:</strong> *** </p>
     </div>
     
     <button class="btn-edit" id="editProfileBtn">Edit Usermame</button>
@@ -75,10 +75,11 @@
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <h2>Edit Username</h2>
-      <label for="usernameInput">New Username</label>
-      <input type="text" id="usernameInput" placeholder="Enter new username" />
-      <button id="saveBtn">Save</button>
+      <form action="{{ url_for('update_username') }}" method="POST">
+        <label for="usernameInput">New Username</label>
+        <input type="text" name="new_username" id="usernameInput" placeholder="Enter new username" required />
+        <button type="submit" id="saveBtn">Save</button>
+      </form>
     </div>
   </div>
 

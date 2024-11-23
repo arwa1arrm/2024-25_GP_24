@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,12 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
-
-
 </head>
 <body>
-
-
 
   <!-- Floating lock icons background -->
   <div class="moving-background">
@@ -37,17 +32,23 @@
     </nav>
   </header>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes" style="list-style-type: none; margin-top: 5%;">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}" style="text-align: center;text-shadow: 20px; color:red;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
   <!-- Hero Section -->
   <section class="hero">
     <div class="logo">
       <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
     </div>
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </section>
-  
-
-
 
   <div class="form-container signn-form">
     <form id="accountForm" action="{{ url_for('signupsafe1') }}" method="POST">
@@ -55,49 +56,50 @@
       <label for="user_name">Username</label>
       <input type="text" id="user_name" name="user_name" required>
 
-
       <label for="email">Email</label>
       <input type="email" id="email" name="email" required>
       <span id="emailError" style="color: red; display: none; margin-bottom: 6%; padding-left: 6%; font-size:medium;">Invalid email format</span>
 
       <label for="password">Password</label>
-<div class="password-container">
-    <input type="password" id="password" name="password" required>
-    <i class="fas fa-eye eye-icon" onclick="togglePassword()"></i>
-</div>
-<span id="passwordError" style="color: red; display: none;"></span>
+      <div class="password-container">
+          <input type="password" id="password" name="password" required>
+          <i class="fas fa-eye eye-icon" onclick="togglePassword()"></i>
+      </div>
+      <span id="passwordError" style="color: red; display: none;"></span>
 
-<!-- Password Validation Rules -->
-<div class="password-rules" style="display: none;">
-    <ul>
-        <li id="ruleLength" class="invalid">At least 8 characters</li> <br>
-        <li id="ruleUppercase" class="invalid">At least one uppercase letter</li><br>
-        <li id="ruleLowercase" class="invalid">At least one lowercase letter</li><br>
-        <li id="ruleNumber" class="invalid">At least one number</li>
-    </ul>
-</div>
+      <!-- Password Validation Rules -->
+      <div class="password-rules" style="display: none;">
+          <ul>
+              <li id="ruleLength" class="invalid">At least 8 characters</li><br>
+              <li id="ruleUppercase" class="invalid">At least one uppercase letter</li><br>
+              <li id="ruleLowercase" class="invalid">At least one lowercase letter</li><br>
+              <li id="ruleNumber" class="invalid">At least one number</li><br>
+              <li id="ruleSpecial" class="invalid">At least one special character (@, $, !, %, *, ?, &)</li>
+
+          </ul>
+      </div>
 
       <label for="confirmPassword">Confirm Password</label>
       <div class="password-container">
           <input type="password" id="confirmPassword" name="confirmPassword" required>
-          <i class="fas fa-eye eye-icon" onclick="toggleConfirmPassword()"></i> <!-- Updated icon -->
+          <i class="fas fa-eye eye-icon" onclick="toggleConfirmPassword()"></i>
       </div>
       <span id="confirmPasswordError" style="color: red; display: none;  margin-bottom: 5%; padding-left: 6%; font-size:medium;">Passwords do not match</span>
 
-
+      
       <button type="submit" id="submitBtn" class="btn-solid" disabled>Create Account</button>
 
-       <!-- Link to Login Page -->
-       <p class="already-account-text">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
-       <br>
-    {% if error %}
-    <div class="error-message" style="text-align: center" >{{ error }}</div>
+      <!-- Link to Login Page -->
+      <p class="already-account-text">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
+      <br>
+      {% if error %}
+      <div class="error-message" style="text-align: center">{{ error }}</div>
       {% endif %}
     </form>
   </div>
 
   <!-- Footer Section -->
-   <footer>
+  <footer>
     <div class="footer-section">
       <h3>About Us</h3>
       <p>We are committed to keeping your data safe and ensuring your privacy.</p>
@@ -127,7 +129,8 @@
     const confirmPasswordError = document.getElementById('confirmPasswordError');
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // Password must be at least 8 characters, one uppercase, one lowercase, and one number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // Password must be at least 8 characters, one uppercase, one lowercase, and one number
+
 
     const validateForm = () => {
         const usernameValid = usernameInput.value.trim() !== '';
@@ -149,7 +152,6 @@
 
     usernameInput.addEventListener('input', toggleSubmitButton);
     
-    // For email input, show error on focus and validate on input
     emailInput.addEventListener('focus', () => {
         emailError.style.display = emailInput.value && !emailRegex.test(emailInput.value) ? 'block' : 'none';
     });
@@ -157,7 +159,6 @@
         toggleSubmitButton();
     });
 
-    // For password input, show error on focus and validate on input
     passwordInput.addEventListener('focus', () => {
         passwordError.style.display = passwordInput.value && !passwordRegex.test(passwordInput.value) ? 'block' : 'none';
     });
@@ -165,7 +166,6 @@
         toggleSubmitButton();
     });
 
-    // For confirmPassword input, show error on focus and validate on input
     confirmPasswordInput.addEventListener('focus', () => {
         confirmPasswordError.style.display = confirmPasswordInput.value && (passwordInput.value !== confirmPasswordInput.value) ? 'block' : 'none';
     });
@@ -187,59 +187,58 @@
     };
 
     const passwordRules = {
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-};
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+    };
 
-const passwordRulesContainer = document.querySelector('.password-rules');
+    const passwordRulesContainer = document.querySelector('.password-rules');
 
-// Show rules when password input is focused
-passwordInput.addEventListener('focus', () => {
-    passwordRulesContainer.style.display = 'block'; // Show rules on focus
-});
+    passwordInput.addEventListener('focus', () => {
+        passwordRulesContainer.style.display = 'block'; // Show rules on focus
+    });
 
-// Hide rules when input loses focus
-passwordInput.addEventListener('blur', () => {
-    // Check if all rules are satisfied before hiding
-    if (!passwordInput.value || 
-        (!passwordRules.length || !passwordRules.uppercase || !passwordRules.lowercase || !passwordRules.number)) {
-        passwordRulesContainer.style.display = 'none';
-    }
-});
+    passwordInput.addEventListener('blur', () => {
+        if (!passwordInput.value || 
+            (!passwordRules.length || !passwordRules.uppercase || !passwordRules.lowercase || !passwordRules.number)) {
+            passwordRulesContainer.style.display = 'none';
+        }
+    });
 
+    const ruleLength = document.getElementById('ruleLength');
+    const ruleUppercase = document.getElementById('ruleUppercase');
+    const ruleLowercase = document.getElementById('ruleLowercase');
+    const ruleNumber = document.getElementById('ruleNumber');
 
-const ruleLength = document.getElementById('ruleLength');
-const ruleUppercase = document.getElementById('ruleUppercase');
-const ruleLowercase = document.getElementById('ruleLowercase');
-const ruleNumber = document.getElementById('ruleNumber');
+    passwordInput.addEventListener('input', () => {
+        passwordRules.length = passwordInput.value.length >= 8;
+        ruleLength.classList.toggle('invalid', !passwordRules.length);
+        ruleLength.classList.toggle('valid', passwordRules.length);
 
-const validatePasswordRules = () => {
-    const passwordValue = passwordInput.value;
+        passwordRules.uppercase = /[A-Z]/.test(passwordInput.value);
+        ruleUppercase.classList.toggle('invalid', !passwordRules.uppercase);
+        ruleUppercase.classList.toggle('valid', passwordRules.uppercase);
 
-    // Check each rule
-    passwordRules.length = passwordValue.length >= 8;
-    passwordRules.uppercase = /[A-Z]/.test(passwordValue);
-    passwordRules.lowercase = /[a-z]/.test(passwordValue);
-    passwordRules.number = /\d/.test(passwordValue);
+        passwordRules.lowercase = /[a-z]/.test(passwordInput.value);
+        ruleLowercase.classList.toggle('invalid', !passwordRules.lowercase);
+        ruleLowercase.classList.toggle('valid', passwordRules.lowercase);
 
-    // Update the UI based on rule validation
-    ruleLength.classList.toggle('valid', passwordRules.length);
-    ruleUppercase.classList.toggle('valid', passwordRules.uppercase);
-    ruleLowercase.classList.toggle('valid', passwordRules.lowercase);
-    ruleNumber.classList.toggle('valid', passwordRules.number);
-};
+        passwordRules.number = /\d/.test(passwordInput.value);
+        ruleNumber.classList.toggle('invalid', !passwordRules.number);
+        ruleNumber.classList.toggle('valid', passwordRules.number);
 
-// Update event listener for password input to check rules
-passwordInput.addEventListener('input', () => {
-    toggleSubmitButton();
-    validatePasswordRules(); // Check password rules on input
-});
+        passwordRules.special = /[@$!%*?&]/.test(passwordInput.value); // Validate special characters
+        ruleSpecial.classList.toggle('invalid', !passwordRules.special);
+        ruleSpecial.classList.toggle('valid', passwordRules.special);
+
+        // Enable submit button if all rules are satisfied
+        submitBtn.disabled = !validateForm();
+    });
 
     const toggleConfirmPassword = () => {
         const confirmPasswordField = document.getElementById('confirmPassword');
-        const icon = document.querySelectorAll('.password-container .eye-icon')[1]; // Selects the second eye icon
+        const icon = document.querySelector('.password-container .eye-icon');
 
         if (confirmPasswordField.type === 'password') {
             confirmPasswordField.type = 'text';
@@ -249,14 +248,7 @@ passwordInput.addEventListener('input', () => {
             icon.classList.remove('fa-eye-slash');
         }
     };
-
-    // Prevent form submission if inputs are invalid
-    document.getElementById('accountForm').addEventListener('submit', (event) => {
-        if (!validateForm()) {
-            event.preventDefault(); // Prevent form submission if form is invalid
-        }
-    });
-</script>
+  </script>
 
 </body>
 </html>

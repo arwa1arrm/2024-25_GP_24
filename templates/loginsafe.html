@@ -1,5 +1,5 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,10 +8,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-
 </head>
 <body>
 
@@ -24,6 +21,7 @@
     <i class="fas fa-lock lock-icon" style="left: 90%;"></i>
   </div>
 
+
   <!-- Header -->
   <header>
     <div class="logo">ConsealSafe</div>
@@ -34,50 +32,69 @@
     </nav>
   </header>
 
+ 
+
+
   <!-- Hero Section -->
   <section class="hero">
     <div class="logo">
       <img src="{{ url_for('static', filename='images/safelogo.png') }}" alt="ConsealSafe Logo">
     </div>
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </section>
 
   <!-- Form Section -->
-<div class="container">
-  <div class="form-container loginn-form">
-    <form action="/loginsafe" method="POST">
-      <label for="email">Email</label>
-      <input type="text" id="email" name="email" placeholder="Email" required>
+  <div class="container">
+    <div class="form-container loginn-form">
+      <form id="loginForm" action="{{ url_for('loginsafe') }}" method="POST">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Email" required>
 
-      <label for="password">Password</label>
-      <div class="password-container">
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+        <label for="password">Password</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Password" required>
+          <i class="fas fa-eye eye-icon" id="togglePassword"></i>
+        </div>
+
+        <p class="forgot-password-text">
+          <a href="{{ url_for('ForgotPassword') }}">Forgot password</a>
+        </p>
+
+        <!-- Display error message if login fails -->
+        {% if error %}
+          <div class="errorlogin" style="text-align: center; color: red; margin-top: 20px;">
+            {{ error }}
+          </div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashe" style="list-style-type: none; margin-top: 5%;">
+            {% for category, message in messages %}
+              <li class="flash {{ category }}" style="text-align: center; margin-right:9%;font-size: small; color:rgb(8, 15, 72);">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+        <br><br>
+        <button type="submit" class="btn-solid">Sign in</button>
+      </form>
+
+      <!-- OTP Verification Section (Hidden Initially) -->
+      <div id="otpSection" style="display: none;">
+          <label for="otp">Enter OTP</label>
+          <input type="text" id="otp" name="otp" required>
+          <span id="otpError" style="color: red; display: none;">Invalid OTP</span>
       </div>
 
-      <p class="forgot-password-text">
-        <a href="{{ url_for('ForgotPassword') }}">Forgot password</a>
-    </p>
-    
+      <button type="button" id="verifyOtpBtn" class="btn-solid" style="display: none;">Verify OTP</button>
 
-      <!-- Display error message if login fails -->
-      {% if error %}
-        <div class="errorlogin" style="text-align: center; color: red; margin-top: 20px;">
-          {{ error }}
-        </div>
-      {% endif %}
-
-      <br><br>
-      <button type="submit" class="btn-solid">Sign in</button>
-    </form>
-
-    <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">
-      Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.
-    </p>
+      <p style="text-align: center; margin-top: 30px; font-size: 0.9rem;">
+        Don't have an account? <a href="{{ url_for('signupsafe1') }}">Sign up here</a>.
+      </p>
+    </div>
   </div>
-</div>
-
 
   <!-- Footer -->
   <footer>
@@ -98,18 +115,40 @@
     </div>
   </footer>
 
-  <!-- JavaScript for toggling password visibility -->
+  <!-- JavaScript for toggling password visibility and handling OTP -->
   <script>
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
+    const otpSection = document.getElementById('otpSection');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
 
-    togglePassword.addEventListener('click', function (e) {
+    togglePassword.addEventListener('click', function () {
       // toggle the type attribute
       const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
       password.setAttribute('type', type);
       
       // toggle the eye / eye-slash icon
       this.classList.toggle('fa-eye-slash');
+    });
+
+    verifyOtpBtn.addEventListener('click', function() {
+      const otpValue = document.getElementById('otp').value;
+      
+      fetch('/verify_otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp: otpValue })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.valid) {
+              // Redirect to user homepage if OTP is valid
+              window.location.href = '{{ url_for("userHomePage") }}';
+          } else {
+              document.getElementById('otpError').style.display = 'block';
+          }
+      })
+      .catch(error => console.error('Error:', error));
     });
   </script>
 

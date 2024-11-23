@@ -72,37 +72,27 @@
 
 
   <!-- Messages Container -->
-<div class="messages-container">
-  <h2>Messages</h2>
+  <div class="messages-container">
+    <h2>Messages</h2>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message-item" onclick="toggleMessageContent(this)">
+          <p><strong>Sender Email:</strong> {{ message.SenderEmail }}</p>
+          <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
+          <p><strong>Encrypted Key:</strong> {{ message.EncryptedSharedKey }}</p>
+          
 
-  <!-- File Message 1 -->
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-file-archive"></i> Project_Documents.zip</div>
-    <div class="message-content">
-      <p>You have received a new file: <strong>Project_Documents.zip</strong>. Click the button below to extract and decrypt the file.</p>
-      <a href="{{ url_for('decrypt') }}"><button class="decrypt-btn">Extract & Decrypt</button></a>
-    </div>
+          <a href="{{ url_for('decrypt_message', message_id=message['MessageID']) }}">
+            <button class="decrypt-btn">Decrypt</button>
+          </a>
+          
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No messages found.</p>
+    {% endif %}
   </div>
 
-  <!-- File Message 2 -->
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-image"></i> confidential_diagram.png</div>
-    <div class="message-content">
-      <p>A new image file has been sent to you: <strong>confidential_diagram.png</strong>. You can decrypt and view the image below.</p>
-      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
-    </div>
-  </div>
-
-  <!-- File Message 3 -->
-  <div class="message-item" onclick="toggleMessageContent(this)">
-    <div class="message-title"><i class="fas fa-file-archive"></i> Secure_Backup.rar</div>
-    <div class="message-content">
-      <p>An encrypted archive <strong>Secure_Backup.rar</strong> is available. Decrypt the archive to access the secured files.</p>
-      <button class="decrypt-btn">Extract & Decrypt</button><!--link for Extract & Decrypt-->
-    </div>
-  </div>
-
-</div>
 
 
   <!-- Footer -->
