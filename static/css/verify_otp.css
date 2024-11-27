@@ -25,6 +25,12 @@ body {
     z-index: -1;
     overflow: hidden;
   }
+
+  .disabled {
+    pointer-events: none;
+    color: gray;
+}
+
   
   /* Styling for the floating lock icons */
   .lock-icon {

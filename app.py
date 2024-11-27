@@ -199,15 +199,17 @@ def signupsafe1():
         # Hash the password using bcrypt
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
 
-        # Store user details and certificate in the database
-        cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                    (user_name, email, hashed_password.decode('utf-8'), certificate.decode()))
-        con.commit()
 
         # Store private key in the session
         session['private_key'] = base64.b64encode(private_key).decode()
         session['user_id'] = cur.lastrowid  # Store user ID in session
-
+        
+        # Store user details in session instead of the database
+        session['user_name'] = user_name
+        session['email'] = email
+        session['password'] = password
+        session['certificate'] = certificate
+        
         # Generate and send OTP
         otp = generate_otp()
         session['otp'] = otp  # Store OTP in session
@@ -793,8 +795,8 @@ def verify_login_otp():
 
 # Define constants
 MAX_OTP_ATTEMPTS = 3
-INITIAL_COOLDOWN_PERIOD = 5  # Initial cooldown period in minutes
-COOLDOWN_INCREMENT = 5       # Increment cooldown period in minutes
+INITIAL_COOLDOWN_PERIOD = 1  # Initial cooldown period in minutes
+COOLDOWN_INCREMENT = 3       # Increment cooldown period in minutes
 
 @app.route("/verify_otp", methods=["GET", "POST"])
 def verify_otp():
@@ -822,12 +824,6 @@ def verify_otp():
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"])
             flash(f"You are blocked from verifying OTP. Please wait {block_duration} minutes. A new OTP has been sent to your email.", "danger")
             
-            # Resend OTP if not already sent during this block period
-            if session["otp_resend_count"] == 0:
-                new_otp = generate_otp()
-                session["otp"] = new_otp
-                send_otp_email(session["email"], new_otp)
-                session["otp_resend_count"] += 1
             return render_template("verify_otp.html")
         else:
             # Reset block timer and attempt count after cooldown ends
@@ -839,7 +835,20 @@ def verify_otp():
         otp_entered = request.form["otp"]
 
         if otp_entered == session["otp"]:
-            # OTP is correct, clear session variables
+            # OTP is correct, now store the user data in the database
+            con = mysql.connect()
+            cur = con.cursor()
+
+            # Hash the password
+            hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
+
+            # Insert the user data into the database
+            cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
+                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
+            con.commit()
+
+            # Store the user ID in the session
+            session['user_id'] = cur.lastrowid
             session.pop("otp", None)
             session.pop("otp_attempts", None)
             session.pop("otp_block_until", None)
@@ -883,6 +892,11 @@ def verify_otp():
 @app.route("/resend_otp")
 def resend_otp():
     """Handle OTP resend requests."""
+    """Handle OTP resend requests, but only after block period ends."""
+    # Check if the user is allowed to request a new OTP
+    if session.get("otp_block_until") and datetime.datetime.utcnow() < session["otp_block_until"]:
+        flash("You are still blocked from requesting a new OTP. Please wait for the cooldown period to end.", "warning")
+        return redirect(url_for('verify_otp'))
     # Generate a new OTP
     otp = generate_otp()
     session['otp'] = otp  # Store the new OTP in the session
