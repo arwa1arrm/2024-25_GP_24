@@ -71,27 +71,27 @@
 </header>
 
 
-  <!-- Messages Container -->
-  <div class="messages-container">
-    <h2>Messages</h2>
+<div class="messages-container">
+  <h2>Messages</h2>
+  <div class="messages-wrapper">
+    <!-- Messages go here -->
     {% if messages %}
       {% for message in messages %}
-        <div class="message-item" onclick="toggleMessageContent(this)">
+        <div class="message-item">
           <p><strong>Sender Email:</strong> {{ message.SenderEmail }}</p>
           <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
           <p><strong>Encrypted Key:</strong> {{ message.EncryptedSharedKey }}</p>
-          
-
           <a href="{{ url_for('decrypt_message', message_id=message['MessageID']) }}">
             <button class="decrypt-btn">Decrypt</button>
           </a>
-          
         </div>
       {% endfor %}
     {% else %}
       <p>No messages found.</p>
     {% endif %}
   </div>
+  <button class="show-more-btn" onclick="toggleMessages()">Show More</button>
+</div>
 
 
 
@@ -150,6 +150,18 @@ window.onclick = function(event) {
     logoutModal.style.display = "none"; 
   }
 }
+
+function toggleMessages() {
+  const messages = document.querySelectorAll('.messages-wrapper .message-item');
+  const button = document.querySelector('.show-more-btn');
+
+  messages.forEach((message) => {
+    message.style.display = 'block'; // Reveal all messages
+  });
+
+  button.style.display = 'none'; // Hide the "Show More" button
+}
+
   </script>
 </body>
 </html>

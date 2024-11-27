@@ -250,6 +250,7 @@ def download_private_key():
 #**********************************************************#
 
 @app.route("/ForgotPassword", methods=['GET', 'POST'])
+
 def ForgotPassword():
     """Render the Forgot Password page."""
     return render_template('ForgotPassword.html')
@@ -294,19 +295,31 @@ def update_username():
         flash("Username must be at least 3 characters long.", "warning")
         return redirect(url_for("viewprofile"))
 
-    # Update the username in the database
-    con = mysql.connect()
-    cur = con.cursor()
-    cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
-    con.commit()
-    cur.close()
-    con.close()
+    try:
+        # Update the username in the database
+        con = mysql.connect()
+        cur = con.cursor()
+        cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
+        con.commit()
+        
+        # Check if the update was successful
+        if cur.rowcount > 0:  # `rowcount` indicates the number of rows affected
+            # Update the session with the new username
+            session["user_name"] = new_username
+            flash("Username updated successfully!", "success")
+        else:
+            flash("No changes were made. Please try again.", "warning")
+        
+        cur.close()
+        con.close()
 
-    # Update the session with the new username
-    session["user_name"] = new_username
+    except Exception as e:
+        # Handle database errors
+        flash(f"An error occurred: {str(e)}. Please try again.", "danger")
+        return redirect(url_for("viewprofile"))
 
-    flash("Username updated successfully!", "success")
     return redirect(url_for("viewprofile"))
+
 
 
 
@@ -314,6 +327,8 @@ def update_username():
 #**********************Send messages route*******************#
 #**********************************************************#    
 @app.route('/send_message', methods=['POST'])
+@login_required
+
 def send_message():
     sender_email = session.get('user_email')
     receiver_email = request.form['receiver_email']
@@ -377,6 +392,8 @@ def send_message():
 #**********************messages route*******************#
 #**********************************************************#    
 @app.route('/messages')
+@login_required
+
 def messages():
     # Example: Fetch messages for the logged-in user
     user_id = session.get('user_id')  # Assuming user_id is stored in the session
@@ -422,6 +439,8 @@ def messages():
 #**********************************************************#    
 
 @app.route('/decrypt/<int:message_id>', methods=['GET', 'POST'])
+@login_required
+
 def decrypt_message(message_id):
     if request.method == 'POST':
         private_key_data = request.form.get("privatekey")
@@ -930,11 +949,11 @@ def request_reset():
 #**********************************************************#
 #**********************reset_password route*******************#
 #**********************************************************#  
-@app.route("/reset_password", methods=["GET", "POST"])
-def reset_password():
-    user_id = request.args.get("user_id")  # Get user ID from query string
-
+@app.route("/reset_password/<int:user_id>", methods=["GET", "POST"])
+def reset_password(user_id):
+    """Reset user password."""
     if request.method == "POST":
+        user_id = request.form["user_id"]
         new_password = request.form["new_password"]
         confirm_password = request.form["confirm_password"]
 
@@ -952,8 +971,8 @@ def reset_password():
         cur.close()
         con.close()
 
-        flash("Your password has been updated successfully.", "success")
-        return redirect(url_for("loginsafe"))
+        flash("Password has been updated successfully!", "success")
+        return redirect(url_for("viewprofile"))
 
     return render_template("reset_password.html", user_id=user_id)
 
