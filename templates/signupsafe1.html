@@ -32,15 +32,6 @@
     </nav>
   </header>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class="flashes" style="list-style-type: none; margin-top: 5%;">
-      {% for category, message in messages %}
-        <li class="flash {{ category }}" style="text-align: center;text-shadow: 20px; color:red;">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
   <!-- Hero Section -->
   <section class="hero">
@@ -74,7 +65,7 @@
               <li id="ruleUppercase" class="invalid">At least one uppercase letter</li><br>
               <li id="ruleLowercase" class="invalid">At least one lowercase letter</li><br>
               <li id="ruleNumber" class="invalid">At least one number</li><br>
-              <li id="ruleSpecial" class="invalid">At least one special character (@, $, !, %, *, ?, &)</li>
+              <li id="ruleSpecial" class="invalid">At least one special character </li>
 
           </ul>
       </div>
@@ -98,24 +89,24 @@
     </form>
   </div>
 
-  <!-- Footer Section -->
+  <!-- Footer -->
   <footer>
     <div class="footer-section">
-      <h3>About Us</h3>
-      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+        <h3>About Us</h3>
+        <p>We are committed to keeping your data safe and ensuring your privacy.</p>
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
-    </div>
+      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+  </div>        
     <div class="footer-section">
-      <h3>Follow Us</h3>
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-      </div>
+        <h3>Follow Us</h3>
+        <div class="social-icons">
+            <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
+        </div>
     </div>
-  </footer>
+</footer>
 
   <script>
     const usernameInput = document.getElementById('user_name');
@@ -129,7 +120,7 @@
     const confirmPasswordError = document.getElementById('confirmPasswordError');
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // Password must be at least 8 characters, one uppercase, one lowercase, and one number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])[A-Za-z\d@$!%*?&!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
 
 
     const validateForm = () => {
@@ -228,7 +219,7 @@
         ruleNumber.classList.toggle('invalid', !passwordRules.number);
         ruleNumber.classList.toggle('valid', passwordRules.number);
 
-        passwordRules.special = /[@$!%*?&]/.test(passwordInput.value); // Validate special characters
+        passwordRules.special = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/.test(passwordInput.value); // Validate special characters
         ruleSpecial.classList.toggle('invalid', !passwordRules.special);
         ruleSpecial.classList.toggle('valid', passwordRules.special);
 

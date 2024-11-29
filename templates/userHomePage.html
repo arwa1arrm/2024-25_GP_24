@@ -16,7 +16,7 @@
 </head>
 
 <body>
-
+ 
   <!-- Floating Locks -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -30,25 +30,25 @@
   <header>
     <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
-     <a href="{{ url_for('encryptionPage') }}" class="enchide">Encrypt & Hide</a>
-
-        
-      <a href="{{ url_for('messages') }}">
-        <div class="bell-icon">
-          <i class="fas fa-bell"></i>
-        </div>
-      </a>
-
-      
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+  
+      <!-- messages -->
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon -->
+          <i class="fas fa-bell"></i>
+        <div class="dropdown">
+          <a href="{{ url_for('messages') }}">Received Messages</a>
+          <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+        </div>
+      </div>
+  
+      <!-- profile -->
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
-        
         </div>
       </div>
-    
     </nav>
 
     <!-- Logout Confirmation Modal -->
@@ -83,22 +83,21 @@
   <!-- Footer -->
   <footer>
     <div class="footer-section">
-      <h3>About Us</h3>
-      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+        <h3>About Us</h3>
+        <p>We are committed to keeping your data safe and ensuring your privacy.</p>
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
-    </div>
+      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+  </div>        
     <div class="footer-section">
-      <h3>Follow Us</h3>
-      <div class="social-icons">
-        <a href="#"><i class="fab fa-facebook"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-      </div>
+        <h3>Follow Us</h3>
+        <div class="social-icons">
+            <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
+        </div>
     </div>
-  </footer>
+</footer>
 
   <script>
    

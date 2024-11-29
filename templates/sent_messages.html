@@ -76,27 +76,33 @@
 
 
 <div class="messages-container">
-  <h2>Received Messages</h2>
-  <div class="messages-wrapper">
-    <!-- Messages go here -->
-    {% if messages %}
-      {% for message in messages %}
-        <div class="message-item">
-          <p><strong>Sender Email:</strong> {{ message.SenderEmail }}</p>
-          <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
-          <a href="{{ url_for('decrypt_message', message_id=message['MessageID']) }}">
-            <button class="decrypt-btn">Decrypt</button>
-          </a>
-          <button  class="decrypt-btn" >Download File</button>
+    <h2>Sent Messages</h2>
+    <div class="messages-wrapper">
+      <!-- Messages go here -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message-item">
+            <p><strong>Sent To:</strong> {{  message.ReceiverEmail  }}</p>
+            <p><strong>Encrypted Message:</strong> {{  message.EncryptedMessage}}</p>
+            <a href="{{ url_for('decrypt_message', message_id=message['MessageID']) }}">
+              <button class="decrypt-btn">Decrypt</button>
+            </a>
+               <!-- Download button is static for now -->
 
-        </div>
-      {% endfor %}
-    {% else %}
-      <p>No messages found.</p>
-    {% endif %}
+            <button  class="decrypt-btn" >Download File</button>
+
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No messages found.</p>
+      {% endif %}
+    </div>
+    <button class="show-more-btn" onclick="toggleMessages()">Show More</button>
   </div>
-  <button class="show-more-btn" onclick="toggleMessages()">Show More</button>
-</div>
+  
+  
+  
+  
 
 
 

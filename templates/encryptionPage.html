@@ -30,15 +30,19 @@
     <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
       <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
-
-      <a href="{{ url_for('messages') }}">
-        <div class="bell-icon">
-          <i class="fas fa-bell"></i>
-        </div>
-      </a>
-
+  
+      <!-- messages -->
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> <!-- Profile icon instead of image -->
+          <i class="fas fa-bell"></i>
+        <div class="dropdown">
+          <a href="{{ url_for('messages') }}">Received Messages</a>
+          <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+        </div>
+      </div>
+  
+      <!-- profile -->
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
@@ -87,9 +91,21 @@
       <label for="encryptedMessage">Encrypted Message:</label>
       <textarea id="encryptedMessage" rows="4" readonly>{{ encrypted_message }}</textarea>
       <br>
-      <label for="encryptedKey">Encrypted Key:</label>
-      <textarea id="encryptedKey" rows="4" readonly>{{ encrypted_key }}</textarea>
+      <!--<label for="encryptedKey">Encrypted Key:</label>
+      <textarea id="encryptedKey" rows="4" readonly>{{ encrypted_key }}</textarea>-->
       {% endif %}
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
       
 
         <script>
@@ -142,22 +158,22 @@
 
     <!-- Footer -->
     <footer>
-        <div class="footer-section">
-            <h3>About Us</h3>
-            <p>We are committed to keeping your data safe and ensuring your privacy.</p>
-        </div>
-        <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p>Email: support@consealsafe.com | Phone: +123 456 789</p>
-        </div>
-        <div class="footer-section">
-            <h3>Follow Us</h3>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-    </footer>
+      <div class="footer-section">
+          <h3>About Us</h3>
+          <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+    </div>        
+      <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+              <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
+              <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
+          </div>
+      </div>
+  </footer>
     <script>
      
     // Get the logout modal and logout link

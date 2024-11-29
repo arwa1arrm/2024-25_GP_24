@@ -18,25 +18,38 @@
   <header>
     <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
     <nav>
-     <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
-
-        
-     <a href="{{ url_for('messages') }}">
-        <div class="bell-icon">
-          <i class="fas fa-bell"></i>
-        </div>
-      </a>
-      
+      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+  
+      <!-- messages -->
       <div class="profile">
-        <i class="fas fa-user-circle profile-icon"></i> 
+          <i class="fas fa-bell"></i>
+        <div class="dropdown">
+          <a href="{{ url_for('messages') }}">Received Messages</a>
+          <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+        </div>
+      </div>
+  
+      <!-- profile -->
+      <div class="profile">
+        <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
           <a href="{{ url_for('viewprofile') }}">View Account</a>
           <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
-        
         </div>
       </div>
-    
     </nav>
+    
+    <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <span class="closeLogout">&times;</span>
+      <h2>Confirm Logout</h2>
+      <p>Are you sure you want to sign out?</p>
+      <button id="confirmLogoutBtn">Yes</button>
+      <button id="cancelLogoutBtn">No</button>
+    </div>
+  </div>
+  </header>
 
     <!-- Logout Confirmation Modal -->
 <div id="logoutModal" class="modal">
@@ -71,18 +84,30 @@
                  <!-- Show the decrypted message -->
   
 
-<!--<label for="cipherText">Paste Cipher Text:</label>
-<textarea id="cipherText" name="cipherText" rows="6" required>{{ session.get('encrypted_message', '') }}</textarea><br>
+          <!--<label for="cipherText">Cipher Text:</label>
+          <textarea id="cipherText" name="cipherText" rows="6" required>{{ session.get('encrypted_message', '') }}</textarea><br>
 
             <label for="EncryptedSharedKey"> Encrypted Shared key:</label>
-            <textarea id="EncryptedSharedKey" rows="4" required></textarea> -->
+            <textarea id="EncryptedSharedKey" rows="4" required></textarea>  -->
 
             <button type="submit">Decrypt</button>
-
+<body>
+    <!-- Flash messages display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <label for="PlainText">Decrypted Plain Text:</label>
     <textarea id="PlainText" name="PlainText" rows="4" readonly>{{ plaintext_message }}</textarea>
-
-            <button type="button" id="downloadButton">Download File</button>
+    <!--{% if plaintext_message %}
+    <h3>Decrypted Message:</h3>
+    <textarea readonly>{{ plaintext_message }}</textarea>
+{% endif %}-->
 
 
         </form>
@@ -94,14 +119,14 @@
               <p>We are committed to keeping your data safe and ensuring your privacy.</p>
           </div>
           <div class="footer-section">
-              <h3>Contact Us</h3>
-              <p>Email: support@concealsafe.com | Phone: +123 456 789</p>
-          </div>
+            <h3>Contact Us</h3>
+            <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+        </div>        
           <div class="footer-section">
               <h3>Follow Us</h3>
               <div class="social-icons">
-                  <a href="#"><i class="fab fa-twitter"></i></a>
-                  <a href="#"><i class="fab fa-instagram"></i></a>
+                  <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
+                  <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
               </div>
           </div>
       </footer>
@@ -109,7 +134,7 @@
 
     <script>
 
-function decryptMessage() {
+function decryptMessage(messageId) {
     const privateKey = document.getElementById("privatekey").value;
 
     if (!privateKey) {
@@ -117,33 +142,25 @@ function decryptMessage() {
         return;
     }
 
-    fetch(`/decrypt/${messageId}`, { // Replace `16` dynamically with the actual message ID
-        method: 'POST', // Specify POST explicitly
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            privatekey: privateKey
+    fetch(`/decrypt/${messageId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ privatekey: privateKey })
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                document.getElementById("PlainText").value = data.plaintext_message;
+            } else {
+                alert(data.error || "Decryption failed.");
+            }
         })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        }
-        throw new Error("Failed to decrypt the message");
-    })
-    .then(data => {
-        if (data.success) {
-            document.getElementById("PlainText").value = data.plaintext_message;
-        } else {
-            alert(data.error || "Decryption failed.");
-        }
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        alert("An error occurred during decryption.");
-    });
+        .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred during decryption.");
+        });
 }
+
 
 
 

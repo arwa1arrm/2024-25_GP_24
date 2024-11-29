@@ -1,5 +1,6 @@
 import re  # Regular expressions
 import time
+import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
 from flaskext.mysql import MySQL
 from cryptography.hazmat.backends import default_backend
@@ -23,7 +24,6 @@ from cryptography.fernet import Fernet
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
-
 
 
 # Initialize Flask app and MySQL
@@ -171,80 +171,48 @@ def userHomePage():
     user_name = session.get('user_name')  # Get the user_name from the session
     return render_template('userHomePage.html', user_name=user_name)
 
-#**********************************************************#
-#**********************Signup route**********************#
-#**********************************************************#
-@app.route("/signupsafe1", methods=['GET', 'POST'])
-def signupsafe1():
-    """Handle user registration."""
-    con = mysql.connect()
-    cur = con.cursor()
 
-    if request.method == "POST":
-        user_name = request.form['user_name']
-        email = request.form['email']
-        password = request.form['password']
-        confirmPassword = request.form['confirmPassword']
-
-        # Check if the email already exists in the DB
-        cur.execute("SELECT email FROM users WHERE email=%s", (email,))
-        existing_user = cur.fetchone()
-
-        if existing_user:
-            return render_template('signupsafe1.html', error="Email is already registered!")
-
-        # Generate keys and certificate
-        private_key, certificate = generate_keys_and_certificate(user_name)
-
-        # Hash the password using bcrypt
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
-
-
-        # Store private key in the session
-        session['private_key'] = base64.b64encode(private_key).decode()
-        session['user_id'] = cur.lastrowid  # Store user ID in session
-        
-        # Store user details in session instead of the database
-        session['user_name'] = user_name
-        session['email'] = email
-        session['password'] = password
-        session['certificate'] = certificate
-        
-        # Generate and send OTP
-        otp = generate_otp()
-        session['otp'] = otp  # Store OTP in session
-        session['email'] = email  # Store email in session
-        send_otp_email(email, otp)  # Your function to send OTP
-
-        flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
-        return redirect(url_for('verify_otp'))
-
-    cur.close()
-    con.close()
-    return render_template('signupsafe1.html')
 
 
 #**********************************************************#
 #**********************download_private_key route****************#
 #**********************************************************#
 
-@app.route("/download_private_key")
-@login_required
-def download_private_key():
-    """Allow users to download their private key."""
-    private_key_b64 = session.get('private_key')
+##
+#*download_keys route*#
+##
 
-    if private_key_b64:
+
+@app.route("/download_keys_zip")
+@login_required
+def download_keys_zip():
+    """Allow users to download both their private key and certificate in a zip file."""
+
+    # Retrieve the private key and certificate from session
+    private_key_b64 = session.get('private_key')
+    certificate = session.get('certificate')
+
+    if private_key_b64 and certificate:
+        # Decode the private key from base64
         private_key = base64.b64decode(private_key_b64)
+
+        # Create a ZIP file in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Add private key to zip
+            zip_file.writestr('private_key.pem', private_key)
+            # Add certificate (public key) to zip
+            zip_file.writestr('public_key.pem', certificate)
+
+        zip_buffer.seek(0)
         return send_file(
-            io.BytesIO(private_key),
+            zip_buffer,
             as_attachment=True,
-            attachment_filename='private_key.pem',
-            mimetype='application/x-pem-file'
+            attachment_filename='keys.zip',  # Change this line
+            mimetype='application/zip'
         )
     else:
-        # Handle case when private_key is not found in the session
-        flash('Private key not found in your session. Please register again or contact support.', 'danger')
+        flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
         return redirect(url_for('userHomePage'))
 
 #**********************************************************#
@@ -325,12 +293,11 @@ def update_username():
 
 
 
-#**********************************************************#
-#**********************Send messages route*******************#
-#**********************************************************#    
+##
+#*Send messages route#
+##    
 @app.route('/send_message', methods=['POST'])
 @login_required
-
 def send_message():
     sender_email = session.get('user_email')
     receiver_email = request.form['receiver_email']
@@ -348,6 +315,10 @@ def send_message():
 
     receiver_id, receiver_certificate = receiver
 
+    # Get sender's certificate from the session or database (you should have this available)
+    cur.execute("SELECT certificate FROM users WHERE email = %s", (sender_email,))
+    sender_certificate = cur.fetchone()[0]
+
     # Generate symmetric key for encryption
     symmetric_key = os.urandom(32)  # AES-256 key
     iv = os.urandom(16)
@@ -355,9 +326,9 @@ def send_message():
     encryptor = cipher.encryptor()
     encrypted_message = base64.b64encode(iv + encryptor.update(plaintext_message.encode()) + encryptor.finalize()).decode()
 
-    # Encrypt the symmetric key with the receiver's certificate (RSA)
+    # Encrypt the symmetric key twice: once with receiver's public key and once with sender's public key
     receiver_public_key = serialization.load_pem_public_key(receiver_certificate.encode())
-    encrypted_symmetric_key = base64.b64encode(receiver_public_key.encrypt(
+    encrypted_symmetric_key_receiver = base64.b64encode(receiver_public_key.encrypt(
         symmetric_key,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -366,21 +337,32 @@ def send_message():
         )
     )).decode()
 
-    # Ensure the encrypted shared key length is within database constraints
-    if len(encrypted_symmetric_key) > 255:
-        flash('Encryption error: shared key too large for database storage.', 'error')
-        return redirect(url_for('send_message_page'))
+    # Encrypt with sender's public key as well
+    sender_public_key = serialization.load_pem_public_key(sender_certificate.encode())
+    encrypted_symmetric_key_sender = base64.b64encode(sender_public_key.encrypt(
+        symmetric_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )).decode()
 
-    # Get next MessageID if required
+    # Get next MessageID
     cur.execute("SELECT MAX(MessageID) FROM message")
     next_message_id = (cur.fetchone()[0] or 0) + 1
 
-    # Store the message in the database
+    # Ensure the encrypted symmetric key length is within database constraints
+    if len(encrypted_symmetric_key_receiver) > 255 or len(encrypted_symmetric_key_sender) > 255:
+        flash('Encryption error: shared key too large for database storage.', 'error')
+        return redirect(url_for('send_message_page'))
+
+    # Store both encrypted symmetric keys and the message content in the database
     try:
         cur.execute("""
-            INSERT INTO message (MessageID, EncryptedSharedKey, Content, SenderID, RecipientID)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (next_message_id, encrypted_symmetric_key, encrypted_message, sender_email, receiver_id))
+            INSERT INTO message (MessageID, EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (next_message_id, encrypted_symmetric_key_receiver, encrypted_symmetric_key_sender, encrypted_message, sender_email, receiver_id))
         con.commit()
         flash('Message sent successfully!', 'success')
     except Exception as e:
@@ -390,12 +372,56 @@ def send_message():
     cur.close()
     return redirect(url_for('userHomePage'))
 
-#**********************************************************#
-#**********************messages route*******************#
-#**********************************************************#    
+
+
+
+
+@app.route("/sent_messages", methods=["GET"])
+@login_required
+def sent_messages():
+    """Display the messages sent by the user."""
+    sender_id = session.get('user_id')
+
+    con = mysql.connect()
+    cur = con.cursor()
+    cur.execute( """
+    SELECT 
+        m.MessageID,  -- Include MessageID
+        m.EncryptedSharedKeySender, 
+        m.Content AS EncryptedMessage, 
+        u.email AS ReceiverEmail
+    FROM 
+        message m
+    JOIN 
+        users u 
+    ON 
+        m.RecipientID = u.user_id
+    WHERE 
+        m.SenderID = %s
+""", (sender_id,))
+   
+    messages = cur.fetchall()
+    # Convert to a list of dictionaries for easier template rendering
+    messages_list = [
+        {      
+        "MessageID": message[0],
+        "EncryptedSharedKeySender": message[1],
+        "EncryptedMessage": message[2],
+        "ReceiverEmail": message[3]
+        }
+        for message in messages
+    ]
+
+    cur.close()
+    con.close()
+    return render_template('sent_messages.html', messages=messages_list)
+
+
+##
+#*messages route#
+##    
 @app.route('/messages')
 @login_required
-
 def messages():
     # Example: Fetch messages for the logged-in user
     user_id = session.get('user_id')  # Assuming user_id is stored in the session
@@ -406,7 +432,7 @@ def messages():
     cur.execute("""
     SELECT 
         m.MessageID,  -- Include MessageID
-        m.EncryptedSharedKey, 
+        m.EncryptedSharedKeyReceiver, 
         m.Content AS EncryptedMessage, 
         u.email AS SenderEmail
     FROM 
@@ -425,7 +451,7 @@ def messages():
     messages_list = [
         {      
         "MessageID": message[0],
-        "EncryptedSharedKey": message[1],
+        "EncryptedSharedKeyReceiver": message[1],
         "EncryptedMessage": message[2],
         "SenderEmail": message[3]
         }
@@ -436,48 +462,58 @@ def messages():
     con.close()
     return render_template('messages.html', messages=messages_list)
 
-#**********************************************************#
-#**********************decrypt route*******************#
-#**********************************************************#    
-
+######################################
+#*decrypt route#
+####################################    
 @app.route('/decrypt/<int:message_id>', methods=['GET', 'POST'])
 @login_required
-
 def decrypt_message(message_id):
+    user_id = session.get('user_id')  # Ensure the user is logged in
+    plaintext_message = ' '  # Initialize the decrypted message as None
+
     if request.method == 'POST':
         private_key_data = request.form.get("privatekey")
 
         if not private_key_data:
-            flash('Private key is required for decryption.', 'error')
-            return redirect(url_for('decrypt_message', message_id=message_id))
+            flash("Private key is required for decryption.", "error")
+            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
         try:
-            # Load the private key
+            # Load private key
             private_key = serialization.load_pem_private_key(
-                private_key_data.encode(), 
+                private_key_data.encode(),
                 password=None
             )
 
-            # Fetch the message and its encrypted shared key
+            # Fetch message data from DB
             con = mysql.connect()
             cur = con.cursor()
-            cur.execute("SELECT EncryptedSharedKey, Content FROM message WHERE MessageID = %s", (message_id,))
+            cur.execute("""
+                SELECT EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID 
+                FROM message
+                WHERE MessageID = %s
+            """, (message_id,))
             result = cur.fetchone()
             cur.close()
             con.close()
 
             if not result:
-                flash('Message not found.', 'error')
-                return redirect(url_for('decrypt_message', message_id=message_id))
+                flash("Message not found.", "error")
+                return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
-            encrypted_shared_key, cipher_text = result
+            encrypted_shared_key_receiver, encrypted_shared_key_sender, cipher_text, sender_id, receiver_id = result
+            
+            # Determine which shared key to use
+            encrypted_shared_key = (
+                encrypted_shared_key_receiver if user_id == receiver_id else encrypted_shared_key_sender
+            )
 
-            # Decode the encrypted shared key and cipher text
+            # Decode keys and ciphertext
             encrypted_shared_key_bytes = base64.b64decode(encrypted_shared_key)
             encrypted_message_bytes = base64.b64decode(cipher_text)
             iv, ciphertext = encrypted_message_bytes[:16], encrypted_message_bytes[16:]
 
-            # Decrypt the symmetric key
+            # Decrypt symmetric key
             symmetric_key = private_key.decrypt(
                 encrypted_shared_key_bytes,
                 padding.OAEP(
@@ -487,33 +523,33 @@ def decrypt_message(message_id):
                 )
             )
 
-            # Decrypt the message using the symmetric key
+            # Decrypt message
             cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
             decryptor = cipher.decryptor()
             plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
-            flash('Message decrypted successfully!', 'success')
-            return render_template(
-                'decrypt.html', 
-                message_id=message_id, 
-                plaintext_message=plaintext_message.decode()
-            )
+            # Render the decrypted message on the same page
+            flash("Message decrypted successfully!", "success")
+            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message.decode())
 
         except Exception as e:
-            flash(f'Error during decryption: {e}', 'error')
-            return redirect(url_for('decrypt_message', message_id=message_id))
+            flash(f"Decryption failed please try again", "error")
+            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
     # Render the decrypt page for GET requests
-    return render_template('decrypt.html', message_id=message_id)
+    return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
 
 
 
 
 
-#**********************************************************#
-#**********************encryptionPage route*******************#
-#**********************************************************#    
+
+
+
+##
+#*encryptionPage route#
+##    
 @app.route("/encrypt", methods=["POST"])
 @login_required
 def encrypt_message():
@@ -553,8 +589,19 @@ def encrypt_message():
             iv + encryptor.update(message.encode()) + encryptor.finalize()
         ).decode()
 
-        # Encrypt the symmetric key
-        encrypted_key = receiver_public_key.encrypt(
+        # Encrypt the symmetric key twice
+        encrypted_key_receiver = receiver_public_key.encrypt(
+            symmetric_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        # Also encrypt the symmetric key with sender's public key (you need sender's public key here)
+        sender_public_key = get_sender_public_key(session.get("user_id"))  # You need to define this function
+        encrypted_key_sender = sender_public_key.encrypt(
             symmetric_key,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -567,27 +614,50 @@ def encrypt_message():
         con = mysql.connect()
         cur = con.cursor()
         cur.execute("""
-            INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID)
-            VALUES (%s, %s, %s, %s)
-        """, (base64.b64encode(encrypted_key).decode(), encrypted_message, session.get("user_id"), receiver_id))
+            INSERT INTO message (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (base64.b64encode(encrypted_key_receiver).decode(),
+              base64.b64encode(encrypted_key_sender).decode(),
+              encrypted_message, session.get("user_id"), receiver_id))
         con.commit()
         cur.close()
         con.close()
+
+        flash("Message encrypted and sent successfully.", "success")
+
 
         # Return to the encryption page with the results
         return render_template(
             "encryptionPage.html",
             encrypted_message=encrypted_message,
-            encrypted_key=base64.b64encode(encrypted_key).decode()
+            encrypted_key_receiver=base64.b64encode(encrypted_key_receiver).decode(),
+            encrypted_key_sender=base64.b64encode(encrypted_key_sender).decode()
         )
     except Exception as e:
         flash(f"An error occurred: {e}", "danger")
         return redirect(url_for("encryptionPage"))
 
+def get_sender_public_key(sender_id):
+    con = mysql.connect()
+    cur = con.cursor()
+    
+    # Query the sender's public key from the database (assuming it's stored in the users table)
+    cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
+    sender_certificate_pem = cur.fetchone()
 
-#**********************************************************#
-#**********************encryptionPage route*******************#
-#**********************************************************#    
+    if sender_certificate_pem:
+        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem[0].encode(), default_backend())
+        sender_public_key = sender_certificate.public_key()
+        cur.close()
+        con.close()
+        return sender_public_key
+    else:
+        cur.close()
+        con.close()
+        raise Exception("Sender's certificate not found in the database.")
+##
+#*encryptionPage route#
+##    
 
 @app.route("/encryptionPage", methods=['GET', 'POST'])
 @login_required
@@ -624,7 +694,7 @@ def encryptionPage():
             con = mysql.connect()
             cur = con.cursor()
             cur.execute(
-                "INSERT INTO messages (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",
+                "INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",
                 (encrypted_symmetric_key, encrypted_message, sender_id, recipient_id)
             )
             con.commit()
@@ -639,11 +709,63 @@ def encryptionPage():
     return render_template('encryptionPage.html')  # Render the encryption page
 
 #**********************************************************#
+#**********************Signup route**********************#
+#**********************************************************#
+@app.route("/signupsafe1", methods=['GET', 'POST'])
+def signupsafe1():
+    """Handle user registration."""
+    con = mysql.connect()
+    cur = con.cursor()
+
+    if request.method == "POST":
+        user_name = request.form['user_name']
+        email = request.form['email']
+        password = request.form['password']
+        confirmPassword = request.form['confirmPassword']
+
+        # Check if the email already exists in the DB
+        cur.execute("SELECT email FROM users WHERE email=%s", (email,))
+        existing_user = cur.fetchone()
+
+        if existing_user:
+            return render_template('signupsafe1.html', error="Email is already registered!")
+
+        # Generate keys and certificate
+        private_key, certificate = generate_keys_and_certificate(user_name)
+
+        # Hash the password using bcrypt
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
+
+
+        # Store private key in the session
+        session['private_key'] = base64.b64encode(private_key).decode()
+        session['user_id'] = cur.lastrowid  # Store user ID in session
+        
+        # Store user details in session instead of the database
+        session['user_name'] = user_name
+        session['email'] = email
+        session['password'] = password
+        session['certificate'] = certificate
+        
+        # Generate and send OTP
+        otp = generate_otp()
+        session['otp'] = otp  # Store OTP in session
+        session['email'] = email  # Store email in session
+        send_otp_email(email, otp)  # Your function to send OTP
+
+        flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
+        return redirect(url_for('verify_otp'))
+
+    cur.close()
+    con.close()
+    return render_template('signupsafe1.html')
+#**********************************************************#
 #**********************loginsafe route*******************#
 #**********************************************************#    
 
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
+   
     con = mysql.connect()
     cur = con.cursor()
 
@@ -690,118 +812,82 @@ def loginsafe():
 
 @app.route("/verify_login_otp", methods=["GET", "POST"])
 def verify_login_otp():
-    """Handle OTP verification during login with retries, blocking, and dynamic block duration."""
-    
-    # Constants for limits
-    MAX_OTP_ATTEMPTS = 3
-    INITIAL_BLOCK_DURATION = 5  # Initial block duration in minutes
-    COOLDOWN_INCREMENT = 5      # Increment block duration in minutes
+    """Handle OTP verification for login."""
+    # Check if OTP exists in session for login; if not, redirect to login page
+    if "otp" not in session:
+        flash("No OTP found. Please log in again.", "warning")
+        return redirect(url_for("loginsafe"))  # Adjust according to your login page route
 
-    # Clear lingering flash messages
-    session.pop('_flashes', None)
+    # Initialize session variables for login
+    if "otp_attempts" not in session:
+        session["otp_attempts"] = 0
+    if "otp_block_until" not in session:
+        session["otp_block_until"] = None
+    if "cooldown_multiplier" not in session:
+        session["cooldown_multiplier"] = 0
+    if "otp_resend_count" not in session:
+        session["otp_resend_count"] = 0
 
-    # Ensure the user is logged in
-    if "user_id" not in session:
-        flash("You need to log in first.", "warning")
-        return redirect(url_for("loginsafe"))
-
-    # Initialize session variables if not already set (using unique names for login OTP)
-    if "login_otp_attempts" not in session:
-        session["login_otp_attempts"] = 0
-        session["login_otp_block_until"] = None
-        session["login_otp_resend_count"] = 0
-        session["login_cooldown_multiplier"] = 0
-
-    # Check if the user is blocked
-    if session["login_otp_block_until"]:
-        block_until = session["login_otp_block_until"]
+    # Check if the user is currently blocked due to multiple failed OTP attempts
+    if session["otp_block_until"]:
+        block_until = session["otp_block_until"]
         if datetime.datetime.utcnow() < block_until:
-            block_duration = INITIAL_BLOCK_DURATION + (COOLDOWN_INCREMENT * session["login_cooldown_multiplier"])
-            flash(
-                f"You are blocked from verifying OTP. Please wait {block_duration} minutes. A new OTP has been sent to your email.",
-                "danger"
-            )
-            # Resend new OTP if not already sent during this block period
-            if session["login_otp_resend_count"] == 0:
-                new_otp = generate_otp()
-                session["otp"] = new_otp
-                send_otp_email(session["email"], new_otp)
-                session["login_otp_resend_count"] += 1
+            block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
+            flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
+            #return render_template("verify_otp.html")
             return render_template("verify_login_otp.html")
+
         else:
-            # Reset block state after the block period
-            session["login_otp_attempts"] = 0
-            session["login_otp_block_until"] = None
-            session["login_otp_resend_count"] = 0
-            session["login_cooldown_multiplier"] = 0
+            # Reset attempt count after cooldown period
+            session["otp_attempts"] = 0
+            session["otp_block_until"] = None
+            session["otp_resend_count"] = 0
 
     if request.method == "POST":
         otp_entered = request.form["otp"]
 
-        # Check if the entered OTP matches the stored OTP
-        if otp_entered == session.get("otp"):
-            # OTP is correct; clear all session variables and log in
-            session.pop("otp", None)
-            session.pop("email", None)
-            session.pop("login_otp_attempts", None)
-            session.pop("login_otp_block_until", None)
-            session.pop("login_otp_resend_count", None)
-            session.pop("login_cooldown_multiplier", None)
+        if otp_entered == session["otp"]:
+            # OTP is correct, proceed with login logic
 
-            flash("Login successful!", "success")
-            return redirect(url_for("userHomePage"))
-        else:
-            # Increment the failed attempt count
-            session["login_otp_attempts"] += 1
+            # Example: User successfully logged in
+            user_id = session.get("user_id")
+            if user_id:
+                flash("Login successful!", "success")
+                return redirect(url_for("userHomePage"))  # Adjust according to your app's flow
 
-            # Check if max attempts are exceeded
-            if session["login_otp_attempts"] >= MAX_OTP_ATTEMPTS:
-                # Increase cooldown multiplier
-                session["login_cooldown_multiplier"] += 1
-                block_duration = INITIAL_BLOCK_DURATION + (COOLDOWN_INCREMENT * (session["login_cooldown_multiplier"] - 1))
-                session["login_otp_block_until"] = datetime.datetime.utcnow() + timedelta(minutes=block_duration)
-
-                # First block: resend a new OTP
-                if session["login_otp_resend_count"] == 0:
-                    flash(
-                        f"You have used all your OTP attempts. You are now blocked for {block_duration} minutes. A new OTP has been sent to your email.",
-                        "danger"
-                    )
-                    new_otp = generate_otp()
-                    session["otp"] = new_otp
-                    send_otp_email(session["email"], new_otp)
-                    session["login_otp_resend_count"] += 1
-                # Additional blocks: Notify user to contact support
-                else:
-                    flash(
-                        "You have been blocked due to repeated failed attempts. Please contact support for assistance.",
-                        "danger"
-                    )
-                    return render_template("verify_login_otp.html")
             else:
-                # Notify user of remaining attempts
-                remaining_attempts = MAX_OTP_ATTEMPTS - session["login_otp_attempts"]
+                flash("Session expired. Please try logging in again.", "warning")
+                return redirect(url_for("loginsafe"))  # Adjust the route to your login page
+
+        else:
+            # Increment OTP attempt count
+            session["otp_attempts"] += 1
+
+            # Check if the max OTP attempts are reached
+            if session["otp_attempts"] >= MAX_OTP_ATTEMPTS:
+                # Increase cooldown and set block until time
+                session["cooldown_multiplier"] += 1
+                block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
+                session["otp_block_until"] = datetime.datetime.utcnow() + timedelta(minutes=block_duration)
+
+                flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
+            else:
+                remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
                 flash(f"Invalid OTP. You have {remaining_attempts} attempts left.", "warning")
 
     return render_template("verify_login_otp.html")
 
-
-
 #**********************************************************#
 #**********************verify_otp route*******************#
 #**********************************************************#    
-
-# FIXED: OTP verification for registration - clearing unnecessary flash messages
-
-# Define constants
+# Constants
 MAX_OTP_ATTEMPTS = 3
-INITIAL_COOLDOWN_PERIOD = 1  # Initial cooldown period in minutes
-COOLDOWN_INCREMENT = 3       # Increment cooldown period in minutes
+INITIAL_COOLDOWN_PERIOD = 1 
+COOLDOWN_INCREMENT = 2       
 
 @app.route("/verify_otp", methods=["GET", "POST"])
 def verify_otp():
     """Handle OTP verification for registration."""
-
     if "otp" not in session:
         flash("No OTP found. Please register again.", "warning")
         return redirect(url_for("signupsafe1"))
@@ -820,10 +906,9 @@ def verify_otp():
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
         if datetime.datetime.utcnow() < block_until:
-            # Calculate current block duration based on multiplier
-            block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"])
-            flash(f"You are blocked from verifying OTP. Please wait {block_duration} minutes. A new OTP has been sent to your email.", "danger")
-            
+            # Calculate current block duration based on multiplier (only for verification, not resend)
+            block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
+            flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             return render_template("verify_otp.html")
         else:
             # Reset block timer and attempt count after cooldown ends
@@ -855,7 +940,6 @@ def verify_otp():
             session.pop("cooldown_multiplier", None)
             session.pop("otp_resend_count", None)
 
-            flash("Verification successful. You are now registered!", "success")
             return render_template("registration_confirmation.html")
         else:
             # Increment attempt count
@@ -865,16 +949,11 @@ def verify_otp():
             if session["otp_attempts"] >= MAX_OTP_ATTEMPTS:
                 # Increment cooldown multiplier and calculate block duration
                 session["cooldown_multiplier"] += 1
-                block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * (session["cooldown_multiplier"] - 1))
+                block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
                 session["otp_block_until"] = datetime.datetime.utcnow() + timedelta(minutes=block_duration)
 
-                flash(f"You have used all your OTP attempts. Please wait {block_duration} minutes. A new OTP has been sent to your email.", "danger")
+                flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
 
-                # Resend a new OTP
-                new_otp = generate_otp()
-                session["otp"] = new_otp
-                send_otp_email(session["email"], new_otp)
-                session["otp_resend_count"] += 1
             else:
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
                 flash(f"Invalid OTP. You have {remaining_attempts} attempts left.", "warning")
@@ -882,34 +961,79 @@ def verify_otp():
     return render_template("verify_otp.html")
 
 
-
-
-
 #**********************************************************#
 #**********************resend_otp route*******************#
 #**********************************************************#    
-# Resen OTP
-@app.route("/resend_otp")
-def resend_otp():
-    """Handle OTP resend requests."""
-    """Handle OTP resend requests, but only after block period ends."""
+# Resend OTP
+@app.route("/resend_login_otp")
+def resend_login_otp():
+    """Handle OTP resend requests for login verification."""
     # Check if the user is allowed to request a new OTP
     if session.get("otp_block_until") and datetime.datetime.utcnow() < session["otp_block_until"]:
-        flash("You are still blocked from requesting a new OTP. Please wait for the cooldown period to end.", "warning")
-        return redirect(url_for('verify_otp'))
-    # Generate a new OTP
+        # If the block period has not expired yet, inform the user to wait
+        block_until = session["otp_block_until"]
+        remaining_time = block_until - datetime.datetime.utcnow()
+        remaining_minutes = remaining_time.seconds // 60
+        remaining_seconds = remaining_time.seconds % 60
+
+        if remaining_minutes == 0 and remaining_seconds > 0:
+            remaining_message = f"Please wait for the remaining time: {remaining_seconds} seconds."
+        else:
+            remaining_message = f"Please wait for the remaining time: {remaining_minutes} minutes."
+
+        flash(f" {remaining_message}", "warning")
+        return redirect(url_for('verify_login_otp'))
+
+    # Generate a new OTP for login
     otp = generate_otp()
     session['otp'] = otp  # Store the new OTP in the session
 
-    # Send the new OTP to the user's email
-    if 'email' in session:  # Check if the email is stored in session
+    # Send OTP email for login
+    if 'email' in session:  # Assuming email is in session
+        send_otp_email(session['email'], otp)
+        flash("A new OTP has been sent to your email.", 'info')
+    else:
+        flash("Error: Email not found. Please try logging in again.", 'danger')
+        return redirect(url_for('loginsafe'))  # Redirect to login page if email is not found
+
+    return redirect(url_for('verify_login_otp'))
+
+
+
+
+@app.route("/resend_registration_otp")
+def resend_registration_otp():
+    """Handle OTP resend requests for registration verification."""
+    # Check if the user is allowed to request a new OTP
+    if session.get("otp_block_until") and datetime.datetime.utcnow() < session["otp_block_until"]:
+        # If the block period has not expired yet, inform the user to wait
+        block_until = session["otp_block_until"]
+        remaining_time = block_until - datetime.datetime.utcnow()
+        remaining_minutes = remaining_time.seconds // 60
+        remaining_seconds = remaining_time.seconds % 60
+
+        if remaining_minutes == 0 and remaining_seconds > 0:
+            remaining_message = f"Please wait for {remaining_seconds} seconds."
+        else:
+            remaining_message = f"Please wait for {remaining_minutes} minutes."
+
+        flash(f" {remaining_message} before requesting a new OTP.", "warning")
+        return redirect(url_for('verify_otp'))
+
+    # Generate a new OTP for registration
+    otp = generate_otp()
+    session['otp'] = otp  # Store the new OTP in the session
+
+    # Send OTP email for registration
+    if 'email' in session:  # Assuming email is in session
         send_otp_email(session['email'], otp)
         flash("A new OTP has been sent to your email.", 'info')
     else:
         flash("Error: Email not found. Please try registering again.", 'danger')
-        return redirect(url_for('signupsafe1'))
+        return redirect(url_for('signupsafe1'))  # Redirect to registration page if email is not found
 
     return redirect(url_for('verify_otp'))
+
 
 
 #**********************************************************#
