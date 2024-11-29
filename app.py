@@ -21,7 +21,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import os
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.fernet import Fernet
-from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 
@@ -133,7 +132,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:  # Check if the user is logged in
-            flash('You need to log in first.', 'warning')
+            #flash('You need to log in first.', 'warning')
             return redirect(url_for('loginsafe'))  # Redirect to login page if not logged in
         return f(*args, **kwargs)
     return decorated_function
@@ -533,7 +532,7 @@ def decrypt_message(message_id):
             return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message.decode())
 
         except Exception as e:
-            flash(f"Decryption failed please try again", "error")
+            flash(f"Decryption failed please try agian", "error")
             return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
     # Render the decrypt page for GET requests
@@ -852,7 +851,6 @@ def verify_login_otp():
             # Example: User successfully logged in
             user_id = session.get("user_id")
             if user_id:
-                flash("Login successful!", "success")
                 return redirect(url_for("userHomePage"))  # Adjust according to your app's flow
 
             else:
@@ -1110,11 +1108,45 @@ def reset_password(user_id):
         con.close()
 
         flash("Password has been updated successfully!", "success")
-        return redirect(url_for("viewprofile"))
+        return redirect(url_for("loginsafe"))
 
     return render_template("reset_password.html", user_id=user_id)
 
 
+@app.route("/edit_password/<int:user_id>", methods=["GET", "POST"])
+def edit_password(user_id):
+    """Edit user password."""
+    if request.method == "POST":
+        current_password = request.form["current_password"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+
+        # Validate the current password by checking it against the stored one
+        con = mysql.connect()
+        cur = con.cursor()
+        cur.execute("SELECT password FROM users WHERE user_id=%s", (user_id,))
+        stored_password = cur.fetchone()
+
+        if not stored_password or not bcrypt.checkpw(current_password.encode("utf-8"), stored_password[0].encode("utf-8")):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for("edit_password", user_id=user_id))
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return redirect(url_for("edit_password", user_id=user_id))
+
+        # Hash and update the new password
+        hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
+        con.commit()
+        cur.close()
+        con.close()
+
+        flash("Password has been updated successfully!", "success")
+        return redirect(url_for("viewprofile"))
+
+    return render_template("edit_password.html", user_id=user_id)
 
 
 

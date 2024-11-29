@@ -94,6 +94,28 @@ button:hover {
     padding-top: 60px;
 }
 
+.feedback-message {
+    font-size: 14px;
+    color: #555; /* Neutral text color */
+    margin: 5px 0;
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    text-align: center; 
+}
+
+.flash-messages {
+    list-style: none; /* Removes the bullet points */
+    padding: 0; /* Removes any default padding */
+    margin: 0; /* Removes any default margin */
+}
+
+/* Specific styling for error messages */
+.feedback-message.error {
+    color: red; /* Text in red to indicate an error, but no box */
+    background: none; /* Remove red background */
+    border: none; /* Remove border */
+}
 
 .modal-content {
     background-color: #fefefe;

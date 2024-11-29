@@ -20,6 +20,12 @@ body {
   overflow: hidden;
 }
 
+.flash-message1 {
+  margin-left: 16%;
+  margin-top: 10%;
+  font-size: small;
+}
+
 /* Styling for the floating lock icons */
 .lock-icon {
   position: absolute;

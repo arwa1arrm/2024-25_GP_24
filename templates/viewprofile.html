@@ -76,6 +76,8 @@
         </div>
       {% endif %}
     {% endwith %}
+
+    
     </div>
    
   </section>
@@ -121,7 +123,7 @@
 
     // Password edit icon click listener
     document.getElementById("editPasswordIcon").addEventListener("click", function () {
-      window.location.href = "{{ url_for('reset_password', user_id=session.get('user_id')) }}";
+      window.location.href = "{{ url_for('edit_password', user_id=session.get('user_id')) }}";
     });
 
     // Close the username modal when clicking outside or on the close button
