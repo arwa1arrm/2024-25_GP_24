@@ -32,13 +32,14 @@
       <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
   
       <!-- messages -->
-      <div class="profile">
-          <i class="fas fa-bell"></i>
-        <div class="dropdown">
-          <a href="{{ url_for('messages') }}">Received Messages</a>
-          <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
-        </div>
-      </div>
+    <div class="profile">
+      <!--<i class="fas fa-bell"></i>-->
+      <a>messages</a>
+    <div class="dropdown">
+      <a href="{{ url_for('messages') }}">Received Messages</a>
+      <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+    </div>
+  </div>
   
       <!-- profile -->
       <div class="profile">
