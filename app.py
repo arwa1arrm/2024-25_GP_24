@@ -35,8 +35,8 @@ app.secret_key = 'g5$8^bG*dfK4&2e3yH!Q6j@z'  # Change this before deploying
 
 
 #*********************** Configure your Flask-Mail****************************#
-#************* we used TLC, which is a cryptographic protocol designed to provide secure
-# ******************* communication over a computer network
+#************* we used TLC, which is a cryptographic protocol designed to provide secure *******************#
+# ******************* communication over a computer network ******************* #
 app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -363,6 +363,9 @@ def send_message():
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (next_message_id, encrypted_symmetric_key_receiver, encrypted_symmetric_key_sender, encrypted_message, sender_email, receiver_id))
         con.commit()
+
+        
+
         flash('Message sent successfully!', 'success')
     except Exception as e:
         con.rollback()
@@ -814,7 +817,7 @@ def verify_login_otp():
     """Handle OTP verification for login."""
     # Check if OTP exists in session for login; if not, redirect to login page
     if "otp" not in session:
-        flash("No OTP found. Please log in again.", "warning")
+        flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
         return redirect(url_for("loginsafe"))  # Adjust according to your login page route
 
     # Initialize session variables for login
@@ -871,7 +874,7 @@ def verify_login_otp():
                 flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             else:
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
-                flash(f"Invalid OTP. You have {remaining_attempts} attempts left.", "warning")
+                flash(f"<span style='color:red;'>Invalid OTP. You have {remaining_attempts} attempts left.</span>", "warning")
 
     return render_template("verify_login_otp.html")
 
@@ -887,7 +890,7 @@ COOLDOWN_INCREMENT = 2
 def verify_otp():
     """Handle OTP verification for registration."""
     if "otp" not in session:
-        flash("No OTP found. Please register again.", "warning")
+        flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
         return redirect(url_for("signupsafe1"))
 
     # Initialize session variables if not already set
@@ -954,7 +957,8 @@ def verify_otp():
 
             else:
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
-                flash(f"Invalid OTP. You have {remaining_attempts} attempts left.", "warning")
+                flash(f"<span style='color:red;'>Invalid OTP. You have {remaining_attempts} attempts left.</span>", "warning")
+
 
     return render_template("verify_otp.html")
 
@@ -975,9 +979,9 @@ def resend_login_otp():
         remaining_seconds = remaining_time.seconds % 60
 
         if remaining_minutes == 0 and remaining_seconds > 0:
-            remaining_message = f"Please wait for the remaining time: {remaining_seconds} seconds."
+            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
         else:
-            remaining_message = f"Please wait for the remaining time: {remaining_minutes} minutes."
+            remaining_message = f"<span style='color:red;'> Please wait for the remaining time: {remaining_minutes} minutes.</span>"
 
         flash(f" {remaining_message}", "warning")
         return redirect(url_for('verify_login_otp'))
@@ -1011,11 +1015,12 @@ def resend_registration_otp():
         remaining_seconds = remaining_time.seconds % 60
 
         if remaining_minutes == 0 and remaining_seconds > 0:
-            remaining_message = f"Please wait for {remaining_seconds} seconds."
-        else:
-            remaining_message = f"Please wait for {remaining_minutes} minutes."
+            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
 
-        flash(f" {remaining_message} before requesting a new OTP.", "warning")
+        else:
+            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_minutes} seconds.</span>"
+
+        flash(f" {remaining_message}.", "warning")
         return redirect(url_for('verify_otp'))
 
     # Generate a new OTP for registration

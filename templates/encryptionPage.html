@@ -80,6 +80,8 @@
   {% endif %}
 {% endwith %}
 
+
+
           <label for="message">Enter your message:</label>
           <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
           
@@ -95,17 +97,7 @@
       <textarea id="encryptedKey" rows="4" readonly>{{ encrypted_key }}</textarea>-->
       {% endif %}
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+     
       
 
         <script>
