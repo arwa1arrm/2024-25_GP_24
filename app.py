@@ -161,7 +161,7 @@ def homepage():
     return render_template('homepage.html')
 
 #**********************************************************#
-#**********************userHomepage route**********************#
+#******************userHomepage route**********************#
 #**********************************************************#
 @app.route("/userHomePage")
 @login_required
@@ -174,13 +174,8 @@ def userHomePage():
 
 
 #**********************************************************#
-#**********************download_private_key route****************#
+#*****************download_private_key route****************#
 #**********************************************************#
-
-##
-#*download_keys route*#
-##
-
 
 @app.route("/download_keys_zip")
 @login_required
@@ -248,10 +243,11 @@ def viewprofile():
     else:
         flash('User not found in the database.', 'danger')
         return redirect(url_for('userHomePage'))
-        
- #**********************update_username route*******************#
+
+#**************************************************************#
+#**********************update_username route*******************#
 #***************************************************************#
-#    
+
 @app.route("/update_username", methods=["POST"])
 @login_required
 def update_username():
@@ -290,11 +286,9 @@ def update_username():
     return redirect(url_for("viewprofile"))
 
 
-
-
-##
-#*Send messages route#
-##    
+#**************************************************************#
+#**********************send_message route***********************#
+#***************************************************************#
 @app.route('/send_message', methods=['POST'])
 @login_required
 def send_message():
@@ -377,11 +371,13 @@ def send_message():
 
 
 
-
+#**************************************************************#
+#**********************sent_message route***********************#
+#***************************************************************#
 @app.route("/sent_messages", methods=["GET"])
 @login_required
+ #  Display the messages sent by the user.
 def sent_messages():
-    """Display the messages sent by the user."""
     sender_id = session.get('user_id')
 
     con = mysql.connect()
@@ -419,13 +415,12 @@ def sent_messages():
     return render_template('sent_messages.html', messages=messages_list)
 
 
-##
-#*messages route#
-##    
+#**************************************************************#
+#**********************messages route**************************#
+#***************************************************************#
 @app.route('/messages')
 @login_required
 def messages():
-    # Example: Fetch messages for the logged-in user
     user_id = session.get('user_id')  # Assuming user_id is stored in the session
     con = mysql.connect()
     cur = con.cursor()
@@ -464,13 +459,13 @@ def messages():
     con.close()
     return render_template('messages.html', messages=messages_list)
 
-######################################
-#*decrypt route#
-####################################    
+#**************************************************************#
+#**********************decrypt route***********************#
+#***************************************************************# 
 @app.route('/decrypt/<int:message_id>', methods=['GET', 'POST'])
 @login_required
 def decrypt_message(message_id):
-    user_id = session.get('user_id')  # Ensure the user is logged in
+    user_id = session.get('user_id')  
     plaintext_message = ' '  # Initialize the decrypted message as None
 
     if request.method == 'POST':
@@ -542,20 +537,14 @@ def decrypt_message(message_id):
     return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
 
 
-
-
-
-
-
-
-
-##
-#*encryptionPage route#
-##    
+#**************************************************************#
+#**********************encrypt route****************************#
+#***************************************************************#
 @app.route("/encrypt", methods=["POST"])
 @login_required
+# Encrypt a message and validate the receiver's email.
 def encrypt_message():
-    """Encrypt a message and validate the receiver's email."""
+
     receiver_email = request.form.get("receiverEmail")
     message = request.form.get("message")
 
@@ -657,15 +646,16 @@ def get_sender_public_key(sender_id):
         cur.close()
         con.close()
         raise Exception("Sender's certificate not found in the database.")
-##
-#*encryptionPage route#
-##    
+    
+#**************************************************************#
+#**********************encrypttionpage route****************************#
+#***************************************************************#
 
 @app.route("/encryptionPage", methods=['GET', 'POST'])
 @login_required
+# Render the encryption page and handle message encryption
 def encryptionPage():
-    """Render the encryption page and handle message encryption."""
-    sender_id = session.get('user_id')  # Get the sender's user ID
+    sender_id = session.get('user_id')  
     key = session.get('symmetric_key')  # Retrieve the symmetric key from the session (or generate it if not available)
 
     if request.method == 'POST':
@@ -683,7 +673,7 @@ def encryptionPage():
 
         if recipient_data:
             recipient_id = recipient_data[0]  # Get recipient's user ID
-            recipient_public_key = recipient_data[4]  # Assuming public_key is stored in the users table
+            recipient_public_key = recipient_data[4]  
 
 
             # Encrypt the message using the symmetric key
@@ -704,18 +694,18 @@ def encryptionPage():
             con.close()
 
             flash('Message sent successfully!', 'success')
-            return redirect(url_for('userHomePage'))  # Redirect to user homepage after sending the message
+            return redirect(url_for('userHomePage')) 
         else:
             flash('Recipient not found. Please check the email.', 'danger')
 
-    return render_template('encryptionPage.html')  # Render the encryption page
+    return render_template('encryptionPage.html')  
 
 #**********************************************************#
-#**********************Signup route**********************#
+#**********************Signup route************************#
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
+#Handle user resistration
 def signupsafe1():
-    """Handle user registration."""
     con = mysql.connect()
     cur = con.cursor()
 
@@ -764,10 +754,8 @@ def signupsafe1():
 #**********************************************************#
 #**********************loginsafe route*******************#
 #**********************************************************#    
-
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-   
     con = mysql.connect()
     cur = con.cursor()
 
@@ -784,14 +772,14 @@ def loginsafe():
 
             # Check if the hashed password matches the entered password
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                session['user_id'] = user[0]  # Store user ID in session
+                session['user_id'] = user[0]  
                 session['user_name'] = user[1]  
                 
                 # Generate and send OTP
                 otp = generate_otp()
                 send_otp_email(email, otp)
-                session['otp'] = otp  # Store OTP in the session
-                session['email'] = email  # Store email in the session
+                session['otp'] = otp 
+                session['email'] = email  
                 
                 flash('OTP has been sent to your email. Please verify to log in.', 'info')
                 return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
@@ -806,20 +794,16 @@ def loginsafe():
     return render_template('loginsafe.html')
 
 #**********************************************************#
-#**********************verify_login_otp route*******************#
+#*****************verify_login_otp route*******************#
 #**********************************************************#    
-
-# FIXED: OTP verification for login - clearing unnecessary flash messages
-
-
 @app.route("/verify_login_otp", methods=["GET", "POST"])
+#Hnadle OTP verification for login
 def verify_login_otp():
-    """Handle OTP verification for login."""
     # Check if OTP exists in session for login; if not, redirect to login page
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
-        return redirect(url_for("loginsafe"))  # Adjust according to your login page route
-
+        return redirect(url_for("loginsafe"))  
+    
     # Initialize session variables for login
     if "otp_attempts" not in session:
         session["otp_attempts"] = 0
@@ -851,14 +835,14 @@ def verify_login_otp():
         if otp_entered == session["otp"]:
             # OTP is correct, proceed with login logic
 
-            # Example: User successfully logged in
+           
             user_id = session.get("user_id")
             if user_id:
-                return redirect(url_for("userHomePage"))  # Adjust according to your app's flow
+                return redirect(url_for("userHomePage"))  
 
             else:
                 flash("Session expired. Please try logging in again.", "warning")
-                return redirect(url_for("loginsafe"))  # Adjust the route to your login page
+                return redirect(url_for("loginsafe")) 
 
         else:
             # Increment OTP attempt count
@@ -887,8 +871,8 @@ INITIAL_COOLDOWN_PERIOD = 1
 COOLDOWN_INCREMENT = 2       
 
 @app.route("/verify_otp", methods=["GET", "POST"])
+#Hnadle OTP verification for registration
 def verify_otp():
-    """Handle OTP verification for registration."""
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
         return redirect(url_for("signupsafe1"))
@@ -964,12 +948,11 @@ def verify_otp():
 
 
 #**********************************************************#
-#**********************resend_otp route*******************#
+#*********************resend_otp route*******************#
 #**********************************************************#    
-# Resend OTP
 @app.route("/resend_login_otp")
+#Handle OTP resend requests for login verification.
 def resend_login_otp():
-    """Handle OTP resend requests for login verification."""
     # Check if the user is allowed to request a new OTP
     if session.get("otp_block_until") and datetime.datetime.utcnow() < session["otp_block_until"]:
         # If the block period has not expired yet, inform the user to wait
@@ -996,14 +979,17 @@ def resend_login_otp():
         flash("A new OTP has been sent to your email.", 'info')
     else:
         flash("Error: Email not found. Please try logging in again.", 'danger')
-        return redirect(url_for('loginsafe'))  # Redirect to login page if email is not found
-
+        return redirect(url_for('loginsafe'))  
+    
     return redirect(url_for('verify_login_otp'))
 
 
 
-
+#**********************************************************#
+#*********************resend_otp route*********************#
+#**********************************************************#  
 @app.route("/resend_registration_otp")
+#Handle OTP resend requests for registration verification.
 def resend_registration_otp():
     """Handle OTP resend requests for registration verification."""
     # Check if the user is allowed to request a new OTP
@@ -1015,10 +1001,10 @@ def resend_registration_otp():
         remaining_seconds = remaining_time.seconds % 60
 
         if remaining_minutes == 0 and remaining_seconds > 0:
-            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
+            remaining_message = f" <span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
 
         else:
-            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_minutes} seconds.</span>"
+            remaining_message = f" <span style='color:red;'> Please wait for the remaining time: {remaining_minutes} seconds.</span>"
 
         flash(f" {remaining_message}.", "warning")
         return redirect(url_for('verify_otp'))
@@ -1033,14 +1019,14 @@ def resend_registration_otp():
         flash("A new OTP has been sent to your email.", 'info')
     else:
         flash("Error: Email not found. Please try registering again.", 'danger')
-        return redirect(url_for('signupsafe1'))  # Redirect to registration page if email is not found
+        return redirect(url_for('signupsafe1'))  
 
     return redirect(url_for('verify_otp'))
 
 
 
 #**********************************************************#
-#**********************request_reset_password route*******************#
+#***********request_reset_password route*******************#
 #**********************************************************#    
 @app.route("/request_reset", methods=["POST"])
 def request_reset():
@@ -1088,9 +1074,10 @@ def request_reset():
 
 
 #**********************************************************#
-#**********************reset_password route*******************#
+#********************reset_password route*******************#
 #**********************************************************#  
 @app.route("/reset_password/<int:user_id>", methods=["GET", "POST"])
+#Reset user password.
 def reset_password(user_id):
     """Reset user password."""
     if request.method == "POST":
@@ -1157,7 +1144,7 @@ def edit_password(user_id):
 
 
 #**********************************************************#
-#**********************logout route*******************#
+#**********************logout route************************#
 #**********************************************************#    
 @app.route("/logout")
 def logout():

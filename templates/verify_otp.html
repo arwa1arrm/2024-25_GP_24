@@ -52,7 +52,7 @@
 
     
     <p class="message">Please enter the OTP sent to your email to verify your login.</p>
-    <form action="{{ url_for('verify_otp') }}" method="post">  <!-- This form will now post to the login OTP verification route -->
+    <form action="{{ url_for('verify_otp') }}" method="post">  
       <label for="otp">Enter OTP</label>
       <input type="text" id="otp" name="otp" required>
       <button type="submit" id="submitBtn" class="btn-solid">Verify OTP</button>
