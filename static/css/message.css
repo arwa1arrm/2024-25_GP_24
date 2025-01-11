@@ -31,9 +31,9 @@
       .welcome button:hover {
         background-color: #26367B;
         color: #f4b942;
+
       }
-  
-      
+            
   
       .features-section h2 {
         font-size: 40px;
@@ -166,7 +166,7 @@
       .show-more-btn {
         display: block;
         margin: 20px auto;
-        background-color: #f4b942;
+        background-color: #26367B;
         border: none;
         color: white;
         padding: 10px 20px;
@@ -177,26 +177,29 @@
       
       .show-more-btn:hover {
         background-color: #e7a832;
-      }
-      
-  
-      /* Button for decryption */
-      .decrypt-btn {
-        background-color: #f4b942;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        margin-top: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-      }
+        color: #26367B; /* White text */
 
-      
-  
-      .decrypt-btn:hover {
-        background-color: #e7a832;
       }
+      
+
+      /* Button for decryption */
+.decrypt-btn {
+  background-color: #26367B; /* Default yellow */
+  border: none;
+  color: white; /* White text */
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.decrypt-btn:hover {
+  background-color: #f4b942; /* Blue background on hover */
+  color: #26367B; /* White text */
+
+}
+
 
       @media (max-width: 768px) {
 

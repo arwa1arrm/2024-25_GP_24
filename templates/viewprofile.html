@@ -21,17 +21,18 @@
 
   <!-- Header -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConcealSafe</div></a>
     <nav>
-      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+      <a href="{{ url_for('encryptionPage') }}"style="text-decoration: none;">Encrypt & Hide</a>
   
       <!-- messages -->
-    <div class="profile">
-      <!--<i class="fas fa-bell"></i>-->
-      <a>messages</a>
+      <div class="profile">
+        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-right:15px; margin-left: 10px;">
+          <i class="fas fa-envelope" style="font-size: 20px;"></i>
+      </a>
     <div class="dropdown">
-      <a href="{{ url_for('messages') }}">Received Messages</a>
-      <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+      <a href="{{ url_for('messages') }}"style="text-decoration: none;">Received messages</a>
+      <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
     </div>
   </div>
   
@@ -39,8 +40,8 @@
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
-          <a href="{{ url_for('viewprofile') }}">View Account</a>
-          <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+          <a href="{{ url_for('viewprofile') }}"style="text-decoration: none;">View account</a>
+          <a href="{{ url_for('logout') }}" id="logoutlink"style="text-decoration: none;">Sign out</a>
         </div>
       </div>
     </nav>
@@ -57,7 +58,7 @@
         <strong>Email:</strong> {{ email }}
       </p>
       <p>
-        <strong>Username:</strong> {{ user_name }}
+        <strong>name:</strong> {{ user_name }}
         <i class="fas fa-edit edit-username-icon" id="editUsernameIcon" title="Edit Username" style="cursor: pointer; margin-left: 10px;"></i>
       </p>
       
@@ -90,7 +91,7 @@
     <div class="modal-content">
       <span class="close">&times;</span>
       <form action="{{ url_for('update_username') }}" method="POST">
-        <label for="usernameInput">New Username</label>
+        <label for="usernameInput">New name</label>
         <input type="text" name="new_username" id="usernameInput" placeholder="Enter new username" required />
         <button type="submit" id="saveBtn">Save</button>
       </form>
@@ -105,8 +106,8 @@
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-  </div>        
+      <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+    </div>        
     <div class="footer-section">
         <h3>Follow Us</h3>
         <div class="social-icons">

@@ -24,7 +24,7 @@
 
   <!-- Header -->
   <header>
-    <div class="logo">ConsealSafe</div>
+    <div class="logo">ConcealSafe</div>
     <nav>
       <a href="{{ url_for('homepage') }}">Home</a>
       <a href="{{ url_for('signupsafe1') }}">Sign up</a>
@@ -44,7 +44,7 @@
   <div class="form-container signn-form">
     <form id="accountForm" action="{{ url_for('signupsafe1') }}" method="POST">
       
-      <label for="user_name">Username</label>
+      <label for="user_name">Name</label>
       <input type="text" id="user_name" name="user_name" required>
 
       <label for="email">Email</label>
@@ -70,7 +70,7 @@
           </ul>
       </div>
 
-      <label for="confirmPassword">Confirm Password</label>
+      <label for="confirmPassword">Confirm password</label>
       <div class="password-container">
           <input type="password" id="confirmPassword" name="confirmPassword" required>
           <i class="fas fa-eye eye-icon" onclick="toggleConfirmPassword()"></i>
@@ -78,7 +78,7 @@
       <span id="confirmPasswordError" style="color: red; display: none;  margin-bottom: 5%; padding-left: 6%; font-size:medium;">Passwords do not match</span>
 
       
-      <button type="submit" id="submitBtn" class="btn-solid" disabled>Create Account</button>
+      <button type="submit" id="submitBtn" class="btn-solid" disabled>Create account</button>
 
       <!-- Link to Login Page -->
       <p class="already-account-text">Already have an account? <a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
@@ -97,8 +97,8 @@
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-  </div>        
+      <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+    </div>        
     <div class="footer-section">
         <h3>Follow Us</h3>
         <div class="social-icons">

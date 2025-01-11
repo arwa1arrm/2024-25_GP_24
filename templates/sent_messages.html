@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messages - ConsealSafe</title>
+  <title>Messages - ConcealSafe</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -38,17 +38,18 @@
 
   <!-- Header -->
 <header>
-  <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+  <a href="{{ url_for('userHomePage') }}"><div class="logo">ConcealSafe</div></a>
   <nav>
-    <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+    <a href="{{ url_for('encryptionPage') }}"style="text-decoration: none;">Encrypt & Hide</a>
 
     <!-- messages -->
-    <div class="profile">
-      <!--<i class="fas fa-bell"></i>-->
-      <a>messages</a>
+      <div class="profile">
+        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
+          <i class="fas fa-envelope" style="font-size: 20px;"></i>
+      </a>
     <div class="dropdown">
-      <a href="{{ url_for('messages') }}">Received Messages</a>
-      <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+      <a href="{{ url_for('messages') }}"style="text-decoration: none;">Received messages</a>
+      <a href="{{ url_for('sent_messages') }}"style="text-decoration: none;" >Sent messages</a>
     </div>
   </div>
 
@@ -56,8 +57,8 @@
     <div class="profile">
       <i class="fas fa-user-circle profile-icon"></i>
       <div class="dropdown">
-        <a href="{{ url_for('viewprofile') }}">View Account</a>
-        <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+        <a href="{{ url_for('viewprofile') }}"style="text-decoration: none;">View account</a>
+        <a href="{{ url_for('logout') }}" id="logoutlink"style="text-decoration: none;">Sign out</a>
       </div>
     </div>
   </nav>
@@ -89,7 +90,7 @@
             </a>
                <!-- Download button is static for now -->
 
-            <button  class="decrypt-btn" >Download File</button>
+            <button  class="decrypt-btn" >Download file</button>
 
           </div>
         {% endfor %}
@@ -97,14 +98,9 @@
         <p>No messages found.</p>
       {% endif %}
     </div>
-    <button class="show-more-btn" onclick="toggleMessages()">Show More</button>
+    <button class="show-more-btn" onclick="toggleMessages()">Show more</button>
   </div>
   
-  
-  
-  
-
-
 
   <!-- Footer -->
   <footer>
@@ -114,8 +110,8 @@
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-  </div>        
+      <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+    </div>        
     <div class="footer-section">
         <h3>Follow Us</h3>
         <div class="social-icons">

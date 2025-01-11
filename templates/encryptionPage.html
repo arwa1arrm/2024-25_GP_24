@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypt and Hide Messages</title>
+    <title>Encrypt and hide messages</title>
     
   
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -27,17 +27,17 @@
 
   <!-- Header -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+    <a href="{{ url_for('userHomePage') }}"style="text-decoration: none;"><div class="logo">ConcealSafe</div></a>
     <nav>
-      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+      <a href="{{ url_for('encryptionPage') }}"style="text-decoration: none;">Encrypt & Hide</a>
   
       <!-- messages -->
-    <div class="profile">
-      <!--<i class="fas fa-bell"></i>-->
-      <a>messages</a>
-    <div class="dropdown">
-      <a href="{{ url_for('messages') }}">Received Messages</a>
-      <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+      <div class="profile">
+        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
+          <i class="fas fa-envelope" style="font-size: 20px;"></i>
+      </a>    <div class="dropdown">
+      <a href="{{ url_for('messages') }}"style="text-decoration: none;">Received messages</a>
+      <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
     </div>
   </div>
   
@@ -45,8 +45,8 @@
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
-          <a href="{{ url_for('viewprofile') }}">View Account</a>
-          <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+          <a href="{{ url_for('viewprofile') }}"style="text-decoration: none;">View account</a>
+          <a href="{{ url_for('logout') }}" id="logoutlink"style="text-decoration: none;">Sign out</a>
         </div>
       </div>
     </nav>
@@ -54,7 +54,7 @@
 <div id="logoutModal" class="modal">
   <div class="modal-content">
     <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
+    <h2>Confirm logout</h2>
     <p>Are you sure you want to sign out?</p>
     <button id="confirmLogoutBtn">Yes</button>
     <button id="cancelLogoutBtn">No</button>
@@ -65,7 +65,7 @@
 
     <div class="container">
       
-        <h2>Encrypt Your Message</h2>
+        <h2>Encrypt your message</h2>
         <form action="{{ url_for('encrypt_message') }}" method="post">
           <label for="receiverEmail">Enter receiver's email:</label>
           <input type="email" id="receiverEmail" name="receiverEmail" placeholder="Receiver's Email" required>
@@ -86,12 +86,12 @@
           <label for="message">Enter your message:</label>
           <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
           
-          <button type="submit">Encrypt and Send</button>
+          <button type="submit">Encrypt and send</button>
       </form>
       
       {% if encrypted_message and encrypted_key %}
-      <h2>Encryption Results</h2>
-      <label for="encryptedMessage">Encrypted Message:</label>
+      <h2>Encryption results</h2>
+      <label for="encryptedMessage">Encrypted message:</label>
       <textarea id="encryptedMessage" rows="4" readonly>{{ encrypted_message }}</textarea>
       <br>
       <!--<label for="encryptedKey">Encrypted Key:</label>
@@ -127,7 +127,7 @@
               }
           });
       </script>
-        <h2>Hide Encrypted Message in Media</h2>
+        <h2>Hide encrypted message in media</h2>
         <form id="steganographyForm">
             <label for="mediaFile" class="upload">Upload media file (image, video, or audio):</label>
             <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
@@ -135,7 +135,7 @@
             <label for="cipherText">Cipher text to hide:</label>
             <textarea id="cipherText" rows="4" placeholder="Paste the ciphertext" required></textarea>
 
-            <button type="button">Hide Message</button>
+            <button type="button">Hide message</button>
             <div id="hideMessageOutput" class="message" style="display:block;">
                 <!-- Placeholder text for hidden message output -->
                 Hidden message information will be displayed here.
@@ -143,8 +143,8 @@
 
            
             <div class="btn-group">
-                <button type="button" id="downloadButton">Download File</button>
-                <button type="button" id="shareButton">Share File</button>
+                <button type="button" id="downloadButton">Download file</button>
+                <button type="button" id="shareButton">Share file</button>
             </div>
         </form>
     </div>
@@ -157,8 +157,8 @@
       </div>
       <div class="footer-section">
         <h3>Contact Us</h3>
-        <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-    </div>        
+        <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+      </div>        
       <div class="footer-section">
           <h3>Follow Us</h3>
           <div class="social-icons">

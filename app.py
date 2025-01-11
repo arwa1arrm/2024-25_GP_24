@@ -257,7 +257,7 @@ def update_username():
 
     # Validate the input
     if not new_username or len(new_username) < 3:
-        flash("Username must be at least 3 characters long.", "warning")
+        flash("Your name must be at least 3 characters long.", "warning")
         return redirect(url_for("viewprofile"))
 
     try:
@@ -271,7 +271,7 @@ def update_username():
         if cur.rowcount > 0:  # `rowcount` indicates the number of rows affected
             # Update the session with the new username
             session["user_name"] = new_username
-            flash("Username updated successfully!", "success")
+            flash("Your name updated successfully!", "success")
         else:
             flash("No changes were made. Please try again.", "warning")
         

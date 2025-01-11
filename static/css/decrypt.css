@@ -42,24 +42,26 @@ input[type="file"] {
 
 /* Button styling */
 button {
-    background-color: #f4b942;
-    color: white;
+    background-color: #26367B; /* Blue as default */
+    color: white; /* White text */
     padding: 10px 15px;
     border: none;
     border-radius: 25px;
     cursor: pointer;
     width: 100%; /* Full width for button */
     font-size: 16px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for both background and text color */
     box-sizing: border-box; /* Ensures padding is included in width */
     margin-bottom: 10px;
     margin-top: 2%;
 }
 
 button:hover {
-    background-color: #26367B;
-    color: #f4b942;
+    background-color: #f4b942; /* Yellow on hover */
+    color: #26367B; /* Blue text */
 }
+
+
 
 /* Message styles */
 .message {

@@ -28,17 +28,18 @@
 
   <!-- Header -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConsealSafe</div></a>
+    <a href="{{ url_for('userHomePage') }}"><div class="logo">ConcealSafe</div></a>
     <nav>
-      <a href="{{ url_for('encryptionPage') }}">Encrypt & Hide</a>
+      <a href="{{ url_for('encryptionPage') }}"style="text-decoration: none;">Encrypt & Hide</a>
   
       <!-- messages -->
-    <div class="profile">
-      <!--<i class="fas fa-bell"></i>-->
-      <a>messages</a>
+      <div class="profile">
+        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
+          <i class="fas fa-envelope" style="font-size: 20px;"></i>
+      </a>
     <div class="dropdown">
-      <a href="{{ url_for('messages') }}">Received Messages</a>
-      <a href="{{ url_for('sent_messages') }}" >Sent Messages</a>
+      <a href="{{ url_for('messages') }}"style="text-decoration: none;">Received messages</a>
+      <a href="{{ url_for('sent_messages') }}"style="text-decoration: none;" >Sent messages</a>
     </div>
   </div>
   
@@ -46,8 +47,8 @@
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
-          <a href="{{ url_for('viewprofile') }}">View Account</a>
-          <a href="{{ url_for('logout') }}" id="logoutlink">Sign out</a>
+          <a href="{{ url_for('viewprofile') }}"style="text-decoration: none;">View account</a>
+          <a href="{{ url_for('logout') }}" id="logoutlink"style="text-decoration: none;">Sign out</a>
         </div>
       </div>
     </nav>
@@ -56,7 +57,7 @@
 <div id="logoutModal" class="modal">
   <div class="modal-content">
     <span class="closeLogout">&times;</span>
-    <h2>Confirm Logout</h2>
+    <h2>Confirm logout</h2>
     <p>Are you sure you want to sign out?</p>
     <button id="confirmLogoutBtn">Yes</button>
     <button id="cancelLogoutBtn">No</button>
@@ -68,19 +69,19 @@
 
   <!-- Welcome Section -->
 <div class="welcome">
-    <h1>Welcome Back {{ user_name }}!</h1>
+    <h1>Welcome back {{ user_name }}!</h1>
     <p>Your ultimate solution for encrypting and hiding your files!</p>
   </div>
   
 
   <!-- Features Section -->
   <div class="features-section">
-    <h2>What You Can Do</h2>
+    <h2>What you can do</h2>
     <p>
       With ConsealSafe, you can easily encrypt your files, keep them hidden, and ensure your privacy and security. 
       Explore various features to protect your sensitive data and communicate safely with other users.
     </p>
-    <button onclick= location.href="{{ url_for('encryptionPage') }}">Start Encrypting</button>
+    <button onclick= location.href="{{ url_for('encryptionPage') }}">Start encrypting</button>
   </div>
 
   <!-- Footer -->
@@ -91,8 +92,8 @@
     </div>
     <div class="footer-section">
       <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:concealsafe@gmail.com">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-  </div>        
+      <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
+    </div>        
     <div class="footer-section">
         <h3>Follow Us</h3>
         <div class="social-icons">

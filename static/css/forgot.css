@@ -201,19 +201,21 @@ input:focus {
 /* Submit button */
 .btn-reset {
   padding: 10px 20px;
-  margin-left: 26%;
-  background-color: #26367B;
-  color: #fff;
+  margin-left: 23%;
+  background-color: #26367B; /* Blue background */
+  color: #ffffff; /* Blue text */
   border: none;
   border-radius: 15px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-reset:hover {
-  background-color: #f4b942dc;
+  background-color: #f4b942; /* Yellow background on hover */
+  color: #26367B; /* Keep text blue on hover */
 }
+
 
 /* Error message styling */
 .error-message {
@@ -267,6 +269,8 @@ input:focus {
   display: block;
   /* Ensures it remains in the layout even if hidden */
 }
+
+
 
 
 
