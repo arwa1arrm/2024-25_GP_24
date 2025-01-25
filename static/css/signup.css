@@ -115,7 +115,7 @@ header a:hover {
   left: -20px;
   width: 240px;
   height: 240px;
-  background: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
   opacity: 0.2;
   z-index: 0;
@@ -246,10 +246,9 @@ footer {
   padding-left: 80px;
   display: flex;
   margin-top: 10%;
-  flex-wrap: wrap;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -283,8 +282,6 @@ footer .social-icons a:hover {
   color: #f4b942;
 }
 
-
-
 /*----------------------------------------------------------------*/
 /* Error message styling */
 .error-message {
@@ -294,98 +291,84 @@ footer .social-icons a:hover {
   margin-bottom: 20px;
 }
 
-.valid-message {
-  color: green;
-  font-size: 0.9rem;
-  margin-top: -10px;
-  margin-bottom: 20px;
+/* Default (grey) color for password rules */
+.password-rules li {
+  color: grey; /* Grey color for initial state */
 }
 
+/* Green color for satisfied rules */
+.password-rules li.valid {
+  color: green;
+}
+
+/* Red color for unsatisfied rules after user types */
+.password-rules li.invalid {
+  color: red;
+}
 
 .password-rules {
-margin-bottom: 6%;
-margin-left: 35px;
-font-size: medium;
+  margin-bottom: 6%;
+  margin-left: 35px;
+  font-size: medium;
 }
 
 .password-rules ul {
-list-style: none;
-padding-left: 0;
+  list-style: none;
+  padding-left: 0;
+}
+#agreeCheckbox{
+  margin-left: -200px;
+  margin-top: 28px;
+  
+  }
+.agree-checklist {
+  display: flex;
+  align-items: center;
+  margin-top: 10px; /* Adjust spacing as needed */
 }
 
-.password-rules li {
-color: red; /* Default color for rules */
+.agree-checklist input[type="checkbox"] {
+  margin-right: 10px; /* Space between the checkbox and the text */
+  transform: scale(1.2); /* Optional: Make the checkbox slightly bigger */
 }
 
-.password-rules li.valid {
-color: green; /* Color when the rule is satisfied */
+.agree-checklist label {
+  font-size: 14px; /* Adjust font size */
+  line-height: 1.5; /* Improves spacing for multi-line text */
+  word-wrap: break-word; /* Ensures long text wraps properly */
 }
-
-
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 20% 10%;
+  }
 
-.hero {
-  padding: 20% 10%;
+  .hero .logo {
+    width: 190px;
+  }
+
+  .signn-form {
+    width: 60%;
+    padding: 10%;
+  }
+
+  label {
+    margin-left: 5%;
+    font-size: 0.9rem;
+  }
+
+  input {
+    margin-left: 5%;
+    width: 90%;
+  }
+
+  .btn-solid {
+    margin-left: 10%;
+    width: 80%;
+  }
+
+  footer .footer-section {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
-
-.hero .logo {
-  width: 190px;
-}
-
-.hero .content {
-  width: 80%;
-}
-
-.signn-form {
-  width: 60%;
-  padding: 10%;
-}
-
-label {
-  margin-left: 5%;
-  font-size: 0.9rem;
-}
-
-input {
-  margin-left: 5%;
-  width: 90%;
-}
-
-.password-container {
-  width: 80%;
-
-}
-body{
-  background-color: #7b4e26;
-}
-
-.eye-icon {
-  right: -50px;
-}
-.btn-solid {
-  margin-left: 10%;
-  padding: 10px 30px;
-  width: 80%;
-  text-align: center;
-}
-
-footer .footer-section {
-  width: 100%;
-  margin-bottom: 20px;
-  margin-right: 25%;
-  margin-left: 10%;
-}
-
-footer .social-icons a {
-  font-size: 18px;
-}
-.already-account-text {
-  font-size: 0.75rem; 
-}
-
-}
-
-
-
-  

@@ -3,19 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encrypt and hide messages</title>
-    
-  
+    <title>Encrypt and Hide Messages</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/encrypt.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/encrypt.css') }}">
 </head>
 <body>
-
-
-
   <!-- Floating Locks -->
   <div class="moving-background">
     <i class="fas fa-lock lock-icon" style="left: 10%;"></i>
@@ -27,183 +21,114 @@
 
   <!-- Header -->
   <header>
-    <a href="{{ url_for('userHomePage') }}"style="text-decoration: none;"><div class="logo">ConcealSafe</div></a>
+    <a href="{{ url_for('userHomePage') }}" style="text-decoration: none;">
+      <div class="logo">ConcealSafe</div>
+    </a>
     <nav>
-      <a href="{{ url_for('encryptionPage') }}"style="text-decoration: none;">Encrypt & Hide</a>
-  
-      <!-- messages -->
+      <a href="{{ url_for('encryptionPage') }}" style="text-decoration: none;">Encrypt & Hide</a>
       <div class="profile">
         <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
           <i class="fas fa-envelope" style="font-size: 20px;"></i>
-      </a>    <div class="dropdown">
-      <a href="{{ url_for('messages') }}"style="text-decoration: none;">Received messages</a>
-      <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
-    </div>
-  </div>
-  
-      <!-- profile -->
+        </a>
+        <div class="dropdown">
+          <a href="{{ url_for('messages') }}" style="text-decoration: none;">Received messages</a>
+          <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
+        </div>
+      </div>
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
-          <a href="{{ url_for('viewprofile') }}"style="text-decoration: none;">View account</a>
-          <a href="{{ url_for('logout') }}" id="logoutlink"style="text-decoration: none;">Sign out</a>
+          <a href="{{ url_for('viewprofile') }}" style="text-decoration: none;">View account</a>
+          <a href="{{ url_for('logout') }}" id="logoutlink" style="text-decoration: none;">Sign out</a>
         </div>
       </div>
     </nav>
-    <!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="modal">
-  <div class="modal-content">
-    <span class="closeLogout">&times;</span>
-    <h2>Confirm logout</h2>
-    <p>Are you sure you want to sign out?</p>
-    <button id="confirmLogoutBtn">Yes</button>
-    <button id="cancelLogoutBtn">No</button>
-  </div>
-</div>
   </header>
 
+  <!-- Encryption and Hiding Form -->
+  <div class="container">
+    <h2>Encrypt and Hide Your Message</h2>
+    <form action="{{ url_for('encrypt_and_hide') }}" method="post" enctype="multipart/form-data" id="encryptHideForm">
+      <label for="receiverEmail">Enter receiver's email:</label>
+      <input type="email" id="receiverEmail" name="receiverEmail" placeholder="Receiver's Email" required>
 
-    <div class="container">
-      
-        <h2>Encrypt your message</h2>
-        <form action="{{ url_for('encrypt_message') }}" method="post">
-          <label for="receiverEmail">Enter receiver's email:</label>
-          <input type="email" id="receiverEmail" name="receiverEmail" placeholder="Receiver's Email" required>
-      <!--<button type="submit" id="searchButton"><i class="fas fa-search"></i> Search</button>-->
+      <label for="message">Enter your message:</label>
+      <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul class="receivermail" style="list-style-type: none; margin-top: 5%;">
-      {% for category, message in messages %}
-        <li class="receivermail {{ category }}" style="text-align: center;text-shadow: 20px; color:red;">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-
-
-          <label for="message">Enter your message:</label>
-          <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
-          
-          <button type="submit">Encrypt and send</button>
-      </form>
-      
-      {% if encrypted_message and encrypted_key %}
-      <h2>Encryption results</h2>
-      <label for="encryptedMessage">Encrypted message:</label>
-      <textarea id="encryptedMessage" rows="4" readonly>{{ encrypted_message }}</textarea>
-      <br>
-      <!--<label for="encryptedKey">Encrypted Key:</label>
-      <textarea id="encryptedKey" rows="4" readonly>{{ encrypted_key }}</textarea>-->
-      {% endif %}
-
-     
+      <label for="mediaFile" class="upload">
+        Upload media file (supported formats: .png, .jpg, .jpeg, .gif, .bmp, .svg, .webp, .txt, .docx, .pdf, .rtf):
+    </label>
+      <input type="file" id="mediaFile" name="mediaFile" 
+            accept=".png, .jpg, .jpeg, .gif, .bmp, .svg, .webp, .txt, .docx, .pdf, .rtf" required>
       
 
-        <script>
-          document.getElementById("encryptButton").addEventListener("click", function () {
-              const message = document.getElementById("message").value.trim();
-      
-              if (message) {
-                  fetch('/encrypt', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ message: message }),
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                      if (data.error) {
-                          alert(data.error);
-                      } else {
-                          const outputDiv = document.getElementById("encryptMessageOutput");
-                          outputDiv.textContent = `Ciphertext: ${data.ciphertext}`;
-                          outputDiv.style.display = "block";
-                      }
-                  })
-                  .catch(error => console.error('Error:', error));
-              } else {
-                  alert("Please enter a message to encrypt.");
-              }
-          });
-      </script>
-        <h2>Hide encrypted message in media</h2>
-        <form id="steganographyForm">
-            <label for="mediaFile" class="upload">Upload media file (image, video, or audio):</label>
-            <input type="file" id="mediaFile" accept=".png, .jpg, .jpeg, .mp4, .mp3" required>
+      <button type="submit" id="sendButton">Encrypt and Send</button>
+    </form>
 
-            <label for="cipherText">Cipher text to hide:</label>
-            <textarea id="cipherText" rows="4" placeholder="Paste the ciphertext" required></textarea>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="receivermail" style="list-style-type: none; margin-top: 5%;">
+        {% for category, message in messages %}
+          <li class="receivermail {{ category }}" style="text-align: center; text-shadow: 20px; color: red;">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% endwith %}
 
-            <button type="button">Hide message</button>
-            <div id="hideMessageOutput" class="message" style="display:block;">
-                <!-- Placeholder text for hidden message output -->
-                Hidden message information will be displayed here.
-            </div>
+    <!-- Download and Share Buttons -->
+    {% if download_url %}
+    <div class="download-section" style="margin-top: 20px; text-align: center;">
+        <h2>Your Hidden File is Ready</h2>
 
-           
-            <div class="btn-group">
-                <button type="button" id="downloadButton">Download file</button>
-                <button type="button" id="shareButton">Share file</button>
-            </div>
+        <!-- Download Button -->
+        <form action="{{ download_url }}" method="get" style="display: inline;">
+            <button type="submit" class="btn btn-primary">Download Hidden File</button>
         </form>
+
+        <!-- Share Button -->
+        <button class="btn btn-secondary" onclick="copyShareableLink(this)" data-link="{{ download_url }}">
+            Share File
+        </button>
     </div>
-
-    <!-- Footer -->
-    <footer>
-      <div class="footer-section">
-          <h3>About Us</h3>
-          <p>We are committed to keeping your data safe and ensuring your privacy.</p>
-      </div>
-      <div class="footer-section">
-        <h3>Contact Us</h3>
-        <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none;color: white;">concealsafe@gmail.com</a> | Phone: +123 456 789</p>
-      </div>        
-      <div class="footer-section">
-          <h3>Follow Us</h3>
-          <div class="social-icons">
-              <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
-              <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
-          </div>
-      </div>
-  </footer>
     <script>
-     
-    // Get the logout modal and logout link
-var logoutModal = document.getElementById("logoutModal");
-var logoutLink = document.getElementById("logoutlink");
-
-// Get the buttons inside the logout modal
-var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
-var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
-
-var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
-
-logoutLink.onclick = function(event) {
-  event.preventDefault(); 
-  logoutModal.style.display = "block";
-}
-
-//  clicks  "Yes" 
-confirmLogoutBtn.onclick = function() {
-  window.location.href = logoutLink.href; 
-}
-
-// clicks "No" modal
-cancelLogoutBtn.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
-
-// clicks "No" span
-closeLogoutSpan.onclick = function() {
-  logoutModal.style.display = "none"; 
-}
-
-window.onclick = function(event) {
-  if (event.target == logoutModal) {
-    logoutModal.style.display = "none"; 
-  }
-}
+    function copyShareableLink(button) {
+        const shareableLink = button.getAttribute("data-link");
+        navigator.clipboard.writeText(shareableLink)
+            .then(function() {
+                alert("Shareable link copied to clipboard!");
+            })
+            .catch(function(err) {
+                alert("Failed to copy the link: " + err);
+            });
+    }
     </script>
+    {% endif %}
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-section">
+      <h3>About Us</h3>
+      <p>We are committed to keeping your data safe and ensuring your privacy.</p>
+    </div>
+    <div class="footer-section">
+      <h3>Contact Us</h3>
+      <p>Email: <a href="mailto:concealsafe@gmail.com" style="text-decoration: none; color: white;">concealsafe@gmail.com</a></p>
+    </div>
+    <div class="footer-section">
+      <h3>Follow Us</h3>
+      <div class="social-icons">
+        <a href="https://x.com/concealsafe"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/concealsafe"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("encryptHideForm").onsubmit = function(event) {
+      const sendButton = document.getElementById("sendButton");
+      sendButton.disabled = true;
+    };
+  </script>
 </body>
 </html>

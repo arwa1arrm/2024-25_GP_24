@@ -77,6 +77,14 @@
       </div>
       <span id="confirmPasswordError" style="color: red; display: none;  margin-bottom: 5%; padding-left: 6%; font-size:medium;">Passwords do not match</span>
 
+      <!-- Agree Checklist -->
+    <div class="agree-checklist">
+        <label for="agreeCheckbox">
+          I agree that the keys used for secure messaging will be generated and securely stored directly on my device.
+        </label>        <br>
+        <input type="checkbox" id="agreeCheckbox" name="agreeCheckbox" required>
+      </div>
+      <span id="agreeError" style="color: red; display: none;"></span>
       
       <button type="submit" id="submitBtn" class="btn-solid" disabled>Create account</button>
 
@@ -119,6 +127,7 @@
     const passwordError = document.getElementById('passwordError');
     const confirmPasswordError = document.getElementById('confirmPasswordError');
     
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])[A-Za-z\d@$!%*?&!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]{8,}$/;
 
@@ -128,11 +137,14 @@
         const emailValid = emailRegex.test(emailInput.value);
         const passwordValid = passwordRegex.test(passwordInput.value);
         const passwordsMatch = passwordInput.value === confirmPasswordInput.value;
+        const agreeChecked = agreeCheckbox.checked;
+        
 
         // Show error messages based on validation results
         emailError.style.display = emailInput.value ? (emailValid ? 'none' : 'block') : 'none';
         passwordError.style.display = passwordInput.value ? (passwordValid ? 'none' : 'block') : 'none';
         confirmPasswordError.style.display = confirmPasswordInput.value ? (passwordsMatch ? 'none' : 'block') : 'none';
+        agreeError.style.display = agreeChecked ? 'none' : 'block';
 
         return usernameValid && emailValid && passwordValid && passwordsMatch;
     };
@@ -188,7 +200,10 @@
 
     passwordInput.addEventListener('focus', () => {
         passwordRulesContainer.style.display = 'block'; // Show rules on focus
+        const rules = document.querySelectorAll('.password-rules li');
+        rules.forEach(rule => rule.classList.remove('valid', 'invalid')); // Reset colors to grey
     });
+
 
     passwordInput.addEventListener('blur', () => {
         if (!passwordInput.value || 
@@ -201,8 +216,11 @@
     const ruleUppercase = document.getElementById('ruleUppercase');
     const ruleLowercase = document.getElementById('ruleLowercase');
     const ruleNumber = document.getElementById('ruleNumber');
+    const ruleSpecial = document.getElementById('ruleSpecial');
 
     passwordInput.addEventListener('input', () => {
+        const passwordValue = passwordInput.value;
+
         passwordRules.length = passwordInput.value.length >= 8;
         ruleLength.classList.toggle('invalid', !passwordRules.length);
         ruleLength.classList.toggle('valid', passwordRules.length);
@@ -239,6 +257,8 @@
             icon.classList.remove('fa-eye-slash');
         }
     };
+
+    
   </script>
 
 </body>

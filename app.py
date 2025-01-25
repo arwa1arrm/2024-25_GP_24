@@ -23,6 +23,9 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
+from stegano import lsb
+from PIL import Image
+from flask import send_from_directory
 
 
 # Initialize Flask app and MySQL
@@ -286,87 +289,221 @@ def update_username():
     return redirect(url_for("viewprofile"))
 
 
-#**************************************************************#
-#**********************send_message route***********************#
-#***************************************************************#
-@app.route('/send_message', methods=['POST'])
-@login_required
-def send_message():
-    sender_email = session.get('user_email')
-    receiver_email = request.form['receiver_email']
-    plaintext_message = request.form['message']
 
-    # Validate the receiver's email and get recipient user_id
+
+
+# Helper function: Convert files like PDF, DOCX, RTF to plain text
+def convert_to_text(file_path):
+    """Convert supported file types to plain text."""
+    file_extension = os.path.splitext(file_path)[1].lower()
+    
+    if file_extension == '.pdf':
+        # Extract text from PDF using PyPDF2
+        from PyPDF2 import PdfReader
+        reader = PdfReader(file_path)
+        return ' '.join(page.extract_text() for page in reader.pages)
+
+    elif file_extension == '.docx':
+        # Extract text from DOCX using python-docx
+        import docx
+        doc = docx.Document(file_path)
+        return ' '.join(paragraph.text for paragraph in doc.paragraphs)
+
+    elif file_extension == '.rtf':
+        # Extract text from RTF using striprtf
+        import striprtf
+        with open(file_path, 'r', encoding='utf-8') as rtf_file:
+            return striprtf.rtf_to_text(rtf_file.read())
+
+    else:
+        raise ValueError("Unsupported file type for text extraction.")
+
+# Helper function: Encode a message with Zero-Width Characters
+def encode_with_zero_width(message):
+    """Encodes a binary message using Zero-Width Characters."""
+    zero_width_mapping = {'0': '\u200b', '1': '\u200c'}
+    binary_message = ''.join(format(ord(char), '08b') for char in message)
+    encoded_message = ''.join(zero_width_mapping[bit] for bit in binary_message)
+    return encoded_message
+
+#**************************************************************#
+#**********************encrypt_and_hide route*******************#
+#***************************************************************#
+
+# Ensure a temporary folder exists
+UPLOAD_FOLDER = os.path.join(app.root_path, "uploads", "temp_files")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Utility functions for Zero-Width Encoding
+def encode_with_zero_width(message):
+    """Encodes a binary message using Zero-Width Characters."""
+    zero_width_mapping = {'0': '\u200b', '1': '\u200c'}
+    binary_message = ''.join(format(ord(char), '08b') for char in message)
+    encoded_message = ''.join(zero_width_mapping[bit] for bit in binary_message)
+    return encoded_message
+
+def decode_with_zero_width(encoded_text):
+    """Decodes a Zero-Width encoded message back to plaintext."""
+    zero_width_mapping = {'\u200b': '0', '\u200c': '1'}
+    binary_message = ''.join(zero_width_mapping[char] for char in encoded_text if char in zero_width_mapping)
+    decoded_message = ''.join(chr(int(binary_message[i:i+8], 2)) for i in range(0, len(binary_message), 8))
+    return decoded_message
+
+
+# Updated encrypt_and_hide function
+@app.route("/encrypt_and_hide", methods=["POST"])
+@login_required
+def encrypt_and_hide():
+    sender_id = session.get('user_id')
+    receiver_email = request.form.get("receiverEmail")
+    plaintext_message = request.form.get("message")
+    uploaded_file = request.files.get("mediaFile")
+
+    # Validation
+    if not receiver_email or not plaintext_message or not uploaded_file:
+        flash("All fields (receiver email, message, and media file) are required.", "danger")
+        return redirect(url_for("encryptionPage"))
+
+    # Check file extension
+    file_extension = os.path.splitext(uploaded_file.filename)[1].lower()
+    if file_extension not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp', '.txt', '.docx', '.pdf', '.rtf']:
+        flash("Invalid file type. Please upload a supported media file (.png, .jpg, .jpeg, .gif, .bmp, .svg, .webp) or text file (.txt, .docx, .pdf, .rtf).", "danger")
+        return redirect(url_for("encryptionPage"))
+
     con = mysql.connect()
     cur = con.cursor()
-    cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
-    receiver = cur.fetchone()
 
-    if not receiver:
-        flash('The receiver\'s email is not registered.', 'error')
-        return redirect(url_for('send_message_page'))
-
-    receiver_id, receiver_certificate = receiver
-
-    # Get sender's certificate from the session or database (you should have this available)
-    cur.execute("SELECT certificate FROM users WHERE email = %s", (sender_email,))
-    sender_certificate = cur.fetchone()[0]
-
-    # Generate symmetric key for encryption
-    symmetric_key = os.urandom(32)  # AES-256 key
-    iv = os.urandom(16)
-    cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
-    encryptor = cipher.encryptor()
-    encrypted_message = base64.b64encode(iv + encryptor.update(plaintext_message.encode()) + encryptor.finalize()).decode()
-
-    # Encrypt the symmetric key twice: once with receiver's public key and once with sender's public key
-    receiver_public_key = serialization.load_pem_public_key(receiver_certificate.encode())
-    encrypted_symmetric_key_receiver = base64.b64encode(receiver_public_key.encrypt(
-        symmetric_key,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )).decode()
-
-    # Encrypt with sender's public key as well
-    sender_public_key = serialization.load_pem_public_key(sender_certificate.encode())
-    encrypted_symmetric_key_sender = base64.b64encode(sender_public_key.encrypt(
-        symmetric_key,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )).decode()
-
-    # Get next MessageID
-    cur.execute("SELECT MAX(MessageID) FROM message")
-    next_message_id = (cur.fetchone()[0] or 0) + 1
-
-    # Ensure the encrypted symmetric key length is within database constraints
-    if len(encrypted_symmetric_key_receiver) > 255 or len(encrypted_symmetric_key_sender) > 255:
-        flash('Encryption error: shared key too large for database storage.', 'error')
-        return redirect(url_for('send_message_page'))
-
-    # Store both encrypted symmetric keys and the message content in the database
     try:
+        # Retrieve receiver details
+        cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
+        receiver_data = cur.fetchone()
+        if not receiver_data:
+            flash("The receiver's email is not registered.", "danger")
+            return redirect(url_for("encryptionPage"))
+
+        receiver_id, receiver_certificate_pem = receiver_data
+        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
+        receiver_public_key = receiver_certificate.public_key()
+
+        # Retrieve sender details
+        cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
+        sender_certificate_pem = cur.fetchone()[0]
+        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode(), default_backend())
+        sender_public_key = sender_certificate.public_key()
+
+        # Step 1: Encrypt the message
+        symmetric_key = os.urandom(32)
+        iv = os.urandom(16)
+        cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
+        encryptor = cipher.encryptor()
+        encrypted_message = base64.b64encode(
+            iv + encryptor.update(plaintext_message.encode()) + encryptor.finalize()
+        ).decode()
+
+        # Step 2: Encrypt the symmetric key
+        encrypted_key_receiver = base64.b64encode(receiver_public_key.encrypt(
+            symmetric_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )).decode()
+
+        encrypted_key_sender = base64.b64encode(sender_public_key.encrypt(
+            symmetric_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )).decode()
+
+        # Step 3: Handle file embedding
+        media_file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
+        uploaded_file.save(media_file_path)
+
+        if file_extension in ['.txt', '.docx', '.pdf', '.rtf']:
+            # For text files, use Zero-Width Characters to hide the message
+            if file_extension == '.txt':
+                with open(media_file_path, "r", encoding="utf-8") as text_file:
+                    text_content = text_file.read()
+            else:
+                # Convert non-txt text formats to plain text
+                text_content = convert_to_text(media_file_path)
+
+            zero_width_message = encode_with_zero_width(encrypted_message)
+            hidden_text_content = text_content + zero_width_message
+
+            hidden_filename = f"hidden_{uploaded_file.filename}"
+            hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+
+            with open(hidden_path, "w", encoding="utf-8") as hidden_file:
+                hidden_file.write(hidden_text_content)
+
+        elif file_extension in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp']:
+            # For image files, embed the encrypted message
+            img = Image.open(media_file_path)
+            encoded_img = img.copy()
+            width, height = img.size
+            binary_message = ''.join(format(ord(c), '08b') for c in encrypted_message) + '11111111'
+
+            msg_idx = 0
+            for x in range(width):
+                for y in range(height):
+                    pixel = list(encoded_img.getpixel((x, y)))
+                    for i in range(3):  # RGB channels
+                        if msg_idx < len(binary_message):
+                            pixel[i] = pixel[i] & ~1 | int(binary_message[msg_idx])
+                            msg_idx += 1
+                    encoded_img.putpixel((x, y), tuple(pixel))
+                    if msg_idx >= len(binary_message):
+                        break
+                if msg_idx >= len(binary_message):
+                    break
+
+            hidden_filename = f"hidden_{uploaded_file.filename}"
+            hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+            encoded_img.save(hidden_path)
+
+        else:
+            flash("Unsupported file type for embedding.", "danger")
+            return redirect(url_for("encryptionPage"))
+
+        # Step 4: Save to database
         cur.execute("""
-            INSERT INTO message (MessageID, EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (next_message_id, encrypted_symmetric_key_receiver, encrypted_symmetric_key_sender, encrypted_message, sender_email, receiver_id))
+            INSERT INTO message (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, MediaFile, SenderID, RecipientID, Filename)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            encrypted_key_receiver,
+            encrypted_key_sender,
+            encrypted_message,
+            hidden_filename,
+            sender_id,
+            receiver_id,
+            hidden_filename
+        ))
         con.commit()
 
-        
+        flash("Message encrypted, hidden, and sent successfully.", "success")
 
-        flash('Message sent successfully!', 'success')
+        # Provide a download URL for the hidden file
+        download_url = url_for("download_file", filename=hidden_filename, _external=True)
+        return render_template(
+            "encryptionPage.html",
+            download_url=download_url,
+            filename=hidden_filename
+        )
+
     except Exception as e:
+        flash(f"An error occurred: {e}", "danger")
         con.rollback()
-        flash(f'Error sending message: {e}', 'error')
+        return redirect(url_for("encryptionPage"))
 
-    cur.close()
-    return redirect(url_for('userHomePage'))
+    finally:
+        cur.close()
+        con.close()
+
 
 
 
@@ -415,6 +552,7 @@ def sent_messages():
     return render_template('sent_messages.html', messages=messages_list)
 
 
+
 #**************************************************************#
 #**********************messages route**************************#
 #***************************************************************#
@@ -428,10 +566,11 @@ def messages():
     # Query to fetch messages where the user is the recipient
     cur.execute("""
     SELECT 
-        m.MessageID,  -- Include MessageID
-        m.EncryptedSharedKeyReceiver, 
-        m.Content AS EncryptedMessage, 
-        u.email AS SenderEmail
+        m.MessageID,
+        m.EncryptedSharedKeyReceiver,
+        m.Content AS EncryptedMessage,
+        u.email AS SenderEmail,
+        m.Filename  -- Ensure Filename column exists in the table
     FROM 
         message m
     JOIN 
@@ -440,17 +579,18 @@ def messages():
         m.SenderID = u.user_id
     WHERE 
         m.RecipientID = %s
-""", (user_id,))
+    """, (user_id,))
 
-    messages = cur.fetchall()  # Retrieve all messages
-   
-    # Convert to a list of dictionaries for easier template rendering
+    messages = cur.fetchall()
+
+    # Convert to a list of dictionaries
     messages_list = [
-        {      
-        "MessageID": message[0],
-        "EncryptedSharedKeyReceiver": message[1],
-        "EncryptedMessage": message[2],
-        "SenderEmail": message[3]
+        {
+            "MessageID": message[0],
+            "EncryptedSharedKeyReceiver": message[1],
+            "EncryptedMessage": message[2],
+            "SenderEmail": message[3],
+            "filename": message[4]  # Add the filename here
         }
         for message in messages
     ]
@@ -459,194 +599,120 @@ def messages():
     con.close()
     return render_template('messages.html', messages=messages_list)
 
+
 #**************************************************************#
-#**********************decrypt route***********************#
-#***************************************************************# 
-@app.route('/decrypt/<int:message_id>', methods=['GET', 'POST'])
+
+
+
+@app.route("/download_file/<filename>")
 @login_required
-def decrypt_message(message_id):
-    user_id = session.get('user_id')  
-    plaintext_message = ' '  # Initialize the decrypted message as None
+def download_file(filename):
+    """Handle downloading hidden media files."""
+    uploads_dir = os.path.join(app.root_path, "uploads", "temp_files")  # Ensure the directory path is correct
+    try:
+        return send_from_directory(uploads_dir, filename, as_attachment=True)
+    except FileNotFoundError:
+        flash("File not found on the server.", "danger")
+        return redirect(url_for("encryptionPage"))
 
-    if request.method == 'POST':
-        private_key_data = request.form.get("privatekey")
+#**************************************************************#
+#**********************decrypt route***************************#
+#**************************************************************#
+@app.route("/extract_and_decrypt", methods=["POST"])
+@login_required
+def extract_and_decrypt():
+    message_id = request.form.get("message_id")
+    private_key_data = request.form.get("privateKey")
+    media_file = request.files.get("mediaFile")
 
-        if not private_key_data:
-            flash("Private key is required for decryption.", "error")
-            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
+    if not message_id or not private_key_data or not media_file:
+        flash("Message ID, private key, and media file are required.", "danger")
+        return redirect(url_for("decrypt", message_id=message_id))
 
+    # Save the uploaded file temporarily
+    temp_file_path = os.path.join(UPLOAD_FOLDER, media_file.filename)
+    media_file.save(temp_file_path)
+
+    try:
+        # Fetch the encrypted key and ciphertext from the database
+        con = mysql.connect()
+        cur = con.cursor()
+        cur.execute("SELECT EncryptedSharedKeySender, Content FROM message WHERE MessageID = %s", (message_id,))
+        result = cur.fetchone()
+        cur.close()
+        con.close()
+
+        if not result:
+            flash("Message not found in the database.", "danger")
+            return redirect(url_for("decrypt", message_id=message_id))
+
+        encrypted_shared_key, encrypted_message = result
+
+        # Decrypt the symmetric key using the provided private key
         try:
-            # Load private key
             private_key = serialization.load_pem_private_key(
-                private_key_data.encode(),
-                password=None
+                private_key_data.encode(), password=None, backend=default_backend()
             )
+        except Exception as e:
+            flash("Invalid private key format or data.", "danger")
+            return redirect(url_for("decrypt", message_id=message_id))
 
-            # Fetch message data from DB
-            con = mysql.connect()
-            cur = con.cursor()
-            cur.execute("""
-                SELECT EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID 
-                FROM message
-                WHERE MessageID = %s
-            """, (message_id,))
-            result = cur.fetchone()
-            cur.close()
-            con.close()
-
-            if not result:
-                flash("Message not found.", "error")
-                return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
-
-            encrypted_shared_key_receiver, encrypted_shared_key_sender, cipher_text, sender_id, receiver_id = result
-            
-            # Determine which shared key to use
-            encrypted_shared_key = (
-                encrypted_shared_key_receiver if user_id == receiver_id else encrypted_shared_key_sender
+        symmetric_key = private_key.decrypt(
+            base64.b64decode(encrypted_shared_key),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
             )
+        )
 
-            # Decode keys and ciphertext
-            encrypted_shared_key_bytes = base64.b64decode(encrypted_shared_key)
-            encrypted_message_bytes = base64.b64decode(cipher_text)
-            iv, ciphertext = encrypted_message_bytes[:16], encrypted_message_bytes[16:]
-
-            # Decrypt symmetric key
-            symmetric_key = private_key.decrypt(
-                encrypted_shared_key_bytes,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None
-                )
-            )
-
-            # Decrypt message
+        # Decrypt the ciphertext using the symmetric key
+        try:
+            cipher_text_bytes = base64.b64decode(encrypted_message)
+            iv, ciphertext = cipher_text_bytes[:16], cipher_text_bytes[16:]
             cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
             decryptor = cipher.decryptor()
             plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
-
-            # Render the decrypted message on the same page
-            flash("Message decrypted successfully!", "success")
-            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message.decode())
-
         except Exception as e:
-            flash(f"Decryption failed please try agian", "error")
-            return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
+            flash("Failed to decrypt the message. Please check the media file and private key.", "danger")
+            return redirect(url_for("decrypt", message_id=message_id))
 
-    # Render the decrypt page for GET requests
-    return render_template('decrypt.html', message_id=message_id, plaintext_message=plaintext_message)
+        # Success! Display  decrypted messages
+        flash("Message decrypted successfully!", "success")
+        return render_template(
+            "decrypt.html",
+            plaintext_message=plaintext_message.decode(),
+            encrypted_message=encrypted_message,
+            message_id=message_id
+        )
+
+    except Exception as e:
+        flash(f"An unexpected error occurred: {str(e)}", "danger")
+        return redirect(url_for("decrypt", message_id=message_id))
+
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
 
 #**************************************************************#
-#**********************encrypt route****************************#
-#***************************************************************#
-@app.route("/encrypt", methods=["POST"])
+#**********************decrypt page route**********************#
+#**************************************************************#
+@app.route("/decrypt", methods=["GET"])
 @login_required
-# Encrypt a message and validate the receiver's email.
-def encrypt_message():
+def decrypt():
+    message_id = request.args.get("message_id")
 
-    receiver_email = request.form.get("receiverEmail")
-    message = request.form.get("message")
+    if not message_id:
+        flash("No message selected for decryption.", "danger")
+        return redirect(url_for("sent_messages"))
 
-    if not receiver_email or not message:
-        flash("Receiver's email and message are required.", "danger")
-        return redirect(url_for("encryptionPage"))
-
-    con = mysql.connect()
-    cur = con.cursor()
-    cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
-    result = cur.fetchone()
-
-    if not result:
-        cur.close()
-        con.close()
-        flash("The receiver's email is not found in the database. Please try again.", "danger")
-        return redirect(url_for("encryptionPage"))
-
-    receiver_id, receiver_certificate_pem = result
-    cur.close()
-    con.close()
-
-    try:
-        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
-        receiver_public_key = receiver_certificate.public_key()
-
-        # Generate keys and encrypt the message
-        symmetric_key = os.urandom(32)
-        iv = os.urandom(16)
-        cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
-        encryptor = cipher.encryptor()
-        encrypted_message = base64.b64encode(
-            iv + encryptor.update(message.encode()) + encryptor.finalize()
-        ).decode()
-
-        # Encrypt the symmetric key twice
-        encrypted_key_receiver = receiver_public_key.encrypt(
-            symmetric_key,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )
-
-        # Also encrypt the symmetric key with sender's public key (you need sender's public key here)
-        sender_public_key = get_sender_public_key(session.get("user_id"))  # You need to define this function
-        encrypted_key_sender = sender_public_key.encrypt(
-            symmetric_key,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )
-
-        # Store in the database
-        con = mysql.connect()
-        cur = con.cursor()
-        cur.execute("""
-            INSERT INTO message (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, SenderID, RecipientID)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (base64.b64encode(encrypted_key_receiver).decode(),
-              base64.b64encode(encrypted_key_sender).decode(),
-              encrypted_message, session.get("user_id"), receiver_id))
-        con.commit()
-        cur.close()
-        con.close()
-
-        flash("Message encrypted and sent successfully.", "success")
+    # Pass the message_id to the template for use in decryption
+    return render_template("decrypt.html", message_id=message_id)
 
 
-        # Return to the encryption page with the results
-        return render_template(
-            "encryptionPage.html",
-            encrypted_message=encrypted_message,
-            encrypted_key_receiver=base64.b64encode(encrypted_key_receiver).decode(),
-            encrypted_key_sender=base64.b64encode(encrypted_key_sender).decode()
-        )
-    except Exception as e:
-        flash(f"An error occurred: {e}", "danger")
-        return redirect(url_for("encryptionPage"))
 
-def get_sender_public_key(sender_id):
-    con = mysql.connect()
-    cur = con.cursor()
-    
-    # Query the sender's public key from the database (assuming it's stored in the users table)
-    cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
-    sender_certificate_pem = cur.fetchone()
-
-    if sender_certificate_pem:
-        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem[0].encode(), default_backend())
-        sender_public_key = sender_certificate.public_key()
-        cur.close()
-        con.close()
-        return sender_public_key
-    else:
-        cur.close()
-        con.close()
-        raise Exception("Sender's certificate not found in the database.")
-    
 #**************************************************************#
 #**********************encrypttionpage route****************************#
 #***************************************************************#
