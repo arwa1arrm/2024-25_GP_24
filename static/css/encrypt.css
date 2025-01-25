@@ -52,6 +52,13 @@ input[type="email"] {
     box-sizing: border-box; /* Proper padding inside input */
 }
 
+.logo {
+    font-size: 16px;
+    font-weight: bold;
+    color: #26367B;
+    text-align: center;
+    margin-left: 20px;
+  }
 
 /* Button styling */
 button {

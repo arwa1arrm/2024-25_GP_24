@@ -159,6 +159,13 @@ body {
     margin: 0 auto 40px;
   }
   
+  header .logo {
+    font-size: 16px;
+    font-weight: bold;
+    color: #26367B;
+    text-align: center;
+    margin-left: 20px; /* Add space on the left */
+  }
 
 /* Container for the OTP form */
 .container {
