@@ -96,6 +96,52 @@ button:hover {
     padding-top: 60px;
 }
 
+/* Style the file upload input */
+input[type="file"] {
+    display: none; /* Hide the default file input */
+  }
+  
+  /* Create a custom label for the file input */
+  label[for="privateKey"] {
+    display: inline-block;
+    background-color: #26367bb9; /* Blue background */
+    color: white; /* White text */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-align: center;
+    margin-left: 26%;
+    margin-bottom: 3%;
+  }
+
+  p{
+    margin-left: 13%;
+    margin-top: 5%;
+  }
+  
+  /* Hover effect for the custom label */
+  label[for="privateKey"]:hover {
+    background-color: #f4b942; /* Yellow background */
+    color: #26367B; /* Blue text */
+  }
+  
+  /* Add a margin below the upload section for spacing */
+  input[type="file"] + label {
+    margin-bottom: 20px;
+    display: block;
+  }
+  
+  /* Display the selected file name */
+  .file-name {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555; /* Gray text */
+    font-style: italic;
+  }
+  
+
 .feedback-message {
     font-size: 14px;
     color: #555; /* Neutral text color */

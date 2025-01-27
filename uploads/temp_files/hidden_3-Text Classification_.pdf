@@ -1,0 +1,941 @@
+IT 469 Human Language Technologies :
+3-Text Classification
+College of Computer and Information Sciences, 
+Information  Technology Department
+King Saud University
+ Outline•Textclassification(part1)•Definition•Classificationmethod(supervisedlearning)•CloserlookatNaïveBayesclassifier•Evaluationmetrics•Harmmitigation•GenerativeandDiscriminativeClassifiers(part2)•LogisticRegression•Learningcomponents•Overfitting•Regularization Is this spam?
+ Identify "toxic" comments
+Toxic or not Toxic ?
+https://www.perspectiveapi.com/ Book ReviewsI absoultely loved this book !PositiveNegative
+ Text Classification: definition•Input:•a document d•a fixed set of classes  C ={c1, c2,…, cJ}•Output: a predicted class cÎC Classification Methods:Supervised Machine Learning•Any kind of classifier•NaïveBayes•Logistic regression•Neural networks•k-Nearest Neighbors•… Naive Bayes Classifier Naive Bayes Intuition
+•Simple ("naive") classification method based on
+Bayes rule
+•Relies on very simple representation of document
+•Bag of words The Bag of Words Representation
+10it
+itit
+it
+it
+itI
+III
+Ilove
+recommend
+movie
+thethe
+thetheto
+totoand
+and andseenseen
+yet
+would
+withwhowhimsical
+whilewhenevertimessweet
+several
+scenessatirical
+romanticof
+manageshumor
+havehappy
+funfriendfairy
+dialogue
+but
+conventionsareanyone
+adventurealways
+again
+aboutI love this movie! It's sweet, 
+but with satirical humor. The 
+dialogue is great and the 
+adventure scenes are fun... It manages to be whimsical 
+and romantic while laughing 
+at the conventions of the fairy tale genre. I would 
+recommend it to just about 
+anyone. I've seen it several times, and I'm always happy 
+to see it again whenever I 
+have a friend who hasn't seen it yet!it I
+the
+toand
+seen
+yetwould
+whimsical
+timessweet
+satirical
+adventuregenre
+fairy
+humorhave
+great
+…6 5
+4
+33
+2
+11
+1
+11
+1
+11
+1
+11
+1
+…it
+itit
+it
+it
+itI
+III
+Ilove
+recommend
+movie
+thethe
+thetheto
+totoand
+and andseenseen
+yet
+would
+withwhowhimsical
+whilewhenevertimessweet
+several
+scenessatirical
+romanticof
+manageshumor
+havehappy
+funfriendfairy
+dialogue
+but
+conventionsareanyone
+adventurealways
+again
+aboutI love this movie! It's sweet,
+but with satirical humor. The
+dialogue is great and the
+adventure scenes are fun...It manages to be whimsical
+and romantic while laughing
+at the conventions of thefairy tale genre. I would
+recommend it to just about
+anyone. I've seen it severaltimes, and I'm always happy 
+to see it again whenever I
+have a friend who hasn'tseen it yet!it I
+the
+toand
+seen
+yetwould
+whimsical
+timessweet
+satirical
+adventuregenre
+fairy
+humorhave
+great
+…6 5
+4
+33
+2
+11
+1
+11
+1
+11
+1
+11
+1
+…it
+itit
+it
+it
+itI
+III
+Ilove
+recommend
+movie
+thethe
+thetheto
+totoand
+and andseenseen
+yet
+would
+withwhowhimsical
+whilewhenevertimessweet
+several
+scenessatirical
+romanticof
+manageshumor
+havehappy
+funfriendfairy
+dialogue
+but
+conventionsareanyone
+adventurealways
+again
+aboutI love this movie! It's sweet,
+but with satirical humor. The 
+dialogue is great and the
+adventure scenes are fun...It manages to be whimsical
+and romantic while laughing 
+at the conventions of thefairy tale genre. I would
+recommend it to just about
+anyone. I've seen it severaltimes, and I'm always happy 
+to see it again whenever I
+have a friend who hasn'tseen it yet!it I
+the
+toand
+seen
+yetwould
+whimsical
+timessweet
+satirical
+adventuregenre
+fairy
+humorhave
+great
+…6 5
+4
+33
+2
+11
+1
+11
+1
+11
+1
+11
+1
+… Bayes’ Rule Applied to Documents and Classes•For a document dand a class cP(c|d)=P(d|c)P(c)P(d) Laplace (add-1) smoothing for Naïve Bayes
+ˆP(wi|c)=count (wi,c)+1
+count (w,c)+1 ( )
+w∈V∑
+=count(wi,c)+1
+count(w,c
+w∈V∑ )#
+$%%&
+'((+VˆP(wi|c)=count (wi,c)
+count (w,c) ( )
+w∈V∑
+E 4.14 Multinomial Naïve Bayes: Learning•Calculate P(cj)terms•For each cjin Cdodocsj¬all docs with  class =cjP(wk|cj)←nk+αn+α|Vocabulary|P(cj)←|docsj||total # documents|•Calculate P(wk|cj)terms•Textj¬single doc containing all docsj•Foreach word wkin Vocabularynk¬# of occurrences of wkin Textj•From training corpus, extract Vocabulary Worked example
+•Let’s walk through an example of training and testing naive Bayes with add -one
+smoothing. We’ll use a sentiment analysis domain with the two classes positive
+(+) and negative ( -), and take the following miniature training and test documents
+simplified from actual movie reviews.
+ Worked example Cont.
+•The prior P(c) for the two classes is computed via Eq. 4.11 as
+The word with doesn’t occur in the training set, so we drop it completely (we don’t use unknown word models for 
+naive Bayes) Worked example Cont.
+•The likelihoods from the training set for the remaining three words “predictable”,
+“no”, and “fun”, are as follows, from Eq. 4.14
+ For the test sentence S = “predictable with no fun”, •after removing the word ‘with’, the chosen class via Eq. 4.9:
+The model thus predicts the class negative for the test sentence Unknown words
+•What about unknown words
+•that appear in our test data
+•but not in our training data or vocabulary?
+•We ignore them
+•Remove them from the test document!
+•Pretend they weren't there!
+•Don't include any probability for them at all!
+•Why don't we build an unknown word model?
+•It doesn't help: knowing which class has more unknown words is not generally
+helpful! Stop words•Some systems ignore stop words•Stop words:very frequent words like the and a.•Sort the vocabulary by word frequency in training set•Call the top 10 or 50 words the stopwordlist.•Remove all stop words from both training and test sets•As if they were never there!•But removing stop words doesn't usually help•So in practice most NB algorithms use allwords and don'tuse stopwordlists Summary: Naive Bayes is Not So Naive
+•Very Fast, low storage requirements
+•Work well with very small amounts of training data
+•Robust to Irrelevant Features
+Irrelevant Features cancel each other without affecting results
+•Very good in domains with many equally important features
+Decision Trees suffer from fragmentation in such cases –especially if little data
+•Optimal if the independence assumptions hold: If assumed independence is
+correct, then it is the Bayes Optimal Classifier for problem
+•A good dependable baseline for text classification
+•But we will see other classifiers that give better accuracy
+Slide from Chris Manning Evaluation MetricsPrecision, Recall, and F measure Evaluation•Let's consider just binary text classification tasks•Imagine you're the CEO of Delicious Pie Company•You want to know what people are saying about your pies•So you build a "Delicious Pie" tweet detector•Positive class: tweets about Delicious Pie Co•Negative class: all other tweets The 2-by-2 confusion matrix4.7•EVA L UAT I O N:PRECISION,RECALL,F -MEASURE11As it happens, the positive model assigns a higher probability to the sentence:P(s|pos)>P(s|neg). Note that this is just the likelihood part of the naive Bayesmodel; once we multiply in the prior a full naive Bayes model might well make adifferent classiﬁcation decision.4.7 Evaluation: Precision, Recall, F-measureTo introduce the methods for evaluating text classiﬁcation, let’s ﬁrst consider somesimple binarydetectiontasks. For example, in spam detection, our goal is to labelevery text as being in the spam category (“positive”) or not in the spam category(“negative”). For each item (email document) we therefore need to know whetherour system called it spam or not. We also need to know whether the email is actuallyspam or not, i.e. the human-deﬁned labels for each document that we are trying tomatch. We will refer to these human labels as thegold labels.gold labelsOr imagine you’re the CEO of theDelicious Pie Companyand you need to knowwhat people are saying about your pies on social media, so you build a system thatdetects tweets concerning Delicious Pie. Here the positive class is tweets aboutDelicious Pie and the negative class is all other tweets.In both cases, we need a metric for knowing how well our spam detector (orpie-tweet-detector) is doing. To evaluate any system for detecting things, we startby building aconfusion matrixlike the one shown in Fig.4.4. A confusion matrixconfusionmatrixis a table for visualizing how an algorithm performs with respect to the human goldlabels, using two dimensions (system output and gold labels), and each cell labelinga set of possible outcomes. In the spam detection case, for example, true positivesare documents that are indeed spam (indicated by human-created gold labels) thatour system correctly said were spam. False negatives are documents that are indeedspam but our system incorrectly labeled as non-spam.To the bottom right of the table is the equation foraccuracy, which asks whatpercentage of all the observations (for the spam or pie examples that means all emailsor tweets) our system labeled correctly. Although accuracy might seem a naturalmetric, we generally don’t use it for text classiﬁcation tasks. That’s because accuracydoesn’t work well when the classes are unbalanced (as indeed they are with spam,which is a large majority of email, or with tweets, which are mainly not about pie).true positivefalse negativefalse positivetrue negativegold positivegold negativesystempositivesystemnegativegold standard labelssystemoutputlabelsrecall = tptp+fnprecision = tptp+fpaccuracy = tp+tntp+fp+tn+fnFigure 4.4A confusion matrix for visualizing how well a binary classiﬁcation system per-forms against gold standard labels.To make this more explicit, imagine that we looked at a million tweets, andlet’s say that only 100 of them are discussing their love (or hatred) for our pie, Evaluation: Accuracy•Why don't we use accuracyas our metric?•Imagine we saw 1 million tweets•100 of them talked about Delicious Pie Co.•999,900 talked about something else•We could build a dumb classifier that just labels every tweet "not about pie"•It would get 99.99% accuracy!!! Wow!!!!•But useless! Doesn't return the comments we are looking for!•That's why we use precisionand recall instead Evaluation: Precision
+•% of items the system detected (i.e., items the system labeled as positive) that 
+are in fact positive (according to the human gold labels) 12 CHAPTER 4•NAIVE BAYES AND SENTIMENT CLASSIFICATION
+while the other 999,900 are tweets about something completely unrelated. Imagine a
+simple classiﬁer that stupidly classiﬁed every tweet as “not about pie”. This classiﬁer
+would have 999,900 true negatives and only 100 false negatives for an accuracy of
+999,900/1,000,000 or 99.99%! What an amazing accuracy level! Surely we should
+be happy with this classiﬁer? But of course this fabulous ‘no pie’ classiﬁer wouldbe completely useless, since it wouldn’t ﬁnd a single one of the customer commentswe are looking for. In other words, accuracy is not a good metric when the goal isto discover something that is rare, or at least not completely balanced in frequency,
+which is a very common situation in the world.
+That’s why instead of accuracy we generally turn to two other metrics shown in
+Fig.4.4:precision andrecall. Precision measures the percentage of the items that
+precision
+the system detected (i.e., the system labeled as positive) that are in fact positive (i.e.,
+are positive according to the human gold labels). Precision is deﬁned as
+Precision =true positives
+true positives + false positives
+Recall measures the percentage of items actually present in the input that were recall
+correctly identiﬁed by the system. Recall is deﬁned as
+Recall =true positives
+true positives + false negatives
+Precision and recall will help solve the problem with the useless “nothing is
+pie” classiﬁer. This classiﬁer, despite having a fabulous accuracy of 99.99%, has
+a terrible recall of 0 (since there are no true positives, and 100 false negatives, the
+recall is 0/100). You should convince yourself that the precision at ﬁnding relevant
+tweets is equally problematic. Thus precision and recall, unlike accuracy, emphasizetrue positives: ﬁnding the things that we are supposed to be looking for.
+There are many ways to deﬁne a single metric that incorporates aspects of both
+precision and recall. The simplest of these combinations is the F-measure (van
+F-measure
+Rijsbergen, 1975) , deﬁned as:
+Fb=(b2+1)PR
+b2P+R
+Thebparameter differentially weights the importance of recall and precision,
+based perhaps on the needs of an application. Values of b>1 favor recall, while
+values of b<1 favor precision. When b=1, precision and recall are equally bal-
+anced; this is the most frequently used metric, and is called F b=1or just F 1: F1
+F1=2PR
+P+R(4.16)
+F-measure comes from a weighted harmonic mean of precision and recall. The
+harmonic mean of a set of numbers is the reciprocal of the arithmetic mean of recip-rocals:
+HarmonicMean(a
+1,a2,a3,a4,...,a n)=n
+1
+a1+1
+a2+1
+a3+...+1
+an(4.17)
+and hence F-measure is
+F=1
+a1
+P+(1a)1
+Ror✓
+withb2=1a
+a◆
+F=(b2+1)PR
+b2P+R(4.18) Evaluation: Recall
+•% of items actually present in the input that were correctly identified by the 
+system. 12 CHAPTER 4•NAIVE BAYES AND SENTIMENT CLASSIFICATION
+while the other 999,900 are tweets about something completely unrelated. Imagine a
+simple classiﬁer that stupidly classiﬁed every tweet as “not about pie”. This classiﬁer
+would have 999,900 true negatives and only 100 false negatives for an accuracy of
+999,900/1,000,000 or 99.99%! What an amazing accuracy level! Surely we should
+be happy with this classiﬁer? But of course this fabulous ‘no pie’ classiﬁer wouldbe completely useless, since it wouldn’t ﬁnd a single one of the customer commentswe are looking for. In other words, accuracy is not a good metric when the goal isto discover something that is rare, or at least not completely balanced in frequency,
+which is a very common situation in the world.
+That’s why instead of accuracy we generally turn to two other metrics shown in
+Fig.4.4:precision andrecall. Precision measures the percentage of the items that
+precision
+the system detected (i.e., the system labeled as positive) that are in fact positive (i.e.,
+are positive according to the human gold labels). Precision is deﬁned as
+Precision =true positives
+true positives + false positives
+Recall measures the percentage of items actually present in the input that were recall
+correctly identiﬁed by the system. Recall is deﬁned as
+Recall =true positives
+true positives + false negatives
+Precision and recall will help solve the problem with the useless “nothing is
+pie” classiﬁer. This classiﬁer, despite having a fabulous accuracy of 99.99%, has
+a terrible recall of 0 (since there are no true positives, and 100 false negatives, the
+recall is 0/100). You should convince yourself that the precision at ﬁnding relevant
+tweets is equally problematic. Thus precision and recall, unlike accuracy, emphasizetrue positives: ﬁnding the things that we are supposed to be looking for.
+There are many ways to deﬁne a single metric that incorporates aspects of both
+precision and recall. The simplest of these combinations is the F-measure (van
+F-measure
+Rijsbergen, 1975) , deﬁned as:
+Fb=(b2+1)PR
+b2P+R
+Thebparameter differentially weights the importance of recall and precision,
+based perhaps on the needs of an application. Values of b>1 favor recall, while
+values of b<1 favor precision. When b=1, precision and recall are equally bal-
+anced; this is the most frequently used metric, and is called F b=1or just F 1: F1
+F1=2PR
+P+R(4.16)
+F-measure comes from a weighted harmonic mean of precision and recall. The
+harmonic mean of a set of numbers is the reciprocal of the arithmetic mean of recip-rocals:
+HarmonicMean(a
+1,a2,a3,a4,...,a n)=n
+1
+a1+1
+a2+1
+a3+...+1
+an(4.17)
+and hence F-measure is
+F=1
+a1
+P+(1a)1
+Ror✓
+withb2=1a
+a◆
+F=(b2+1)PR
+b2P+R(4.18) Why Precision and recall
+•Our dumb pie -classifier
+•Just label nothing as "about pie"
+Accuracy=99.99%
+but
+Recall = 0
+•(it doesn't get any of the 100 Pie tweets)
+Precision and recall, unlike accuracy, emphasize true positives:
+•finding the things that we are supposed to be looking for. A combined measure: F
+•F measure: a single number that combines P and R:
+•We almost always use balanced F1(i.e., b= 1)12 CHAPTER 4•NAIVE BAYES AND SENTIMENT CLASSIFICATION
+while the other 999,900 are tweets about something completely unrelated. Imagine a
+simple classiﬁer that stupidly classiﬁed every tweet as “not about pie”. This classiﬁer
+would have 999,900 true negatives and only 100 false negatives for an accuracy of
+999,900/1,000,000 or 99.99%! What an amazing accuracy level! Surely we should
+be happy with this classiﬁer? But of course this fabulous ‘no pie’ classiﬁer wouldbe completely useless, since it wouldn’t ﬁnd a single one of the customer commentswe are looking for. In other words, accuracy is not a good metric when the goal isto discover something that is rare, or at least not completely balanced in frequency,
+which is a very common situation in the world.
+That’s why instead of accuracy we generally turn to two other metrics shown in
+Fig.4.4: precision andrecall. Precision measures the percentage of the items that
+precision
+the system detected (i.e., the system labeled as positive) that are in fact positive (i.e.,
+are positive according to the human gold labels). Precision is deﬁned as
+Precision =true positives
+true positives + false positives
+Recall measures the percentage of items actually present in the input that were recall
+correctly identiﬁed by the system. Recall is deﬁned as
+Recall =true positives
+true positives + false negatives
+Precision and recall will help solve the problem with the useless “nothing is
+pie” classiﬁer. This classiﬁer, despite having a fabulous accuracy of 99.99%, has
+a terrible recall of 0 (since there are no true positives, and 100 false negatives, the
+recall is 0/100). You should convince yourself that the precision at ﬁnding relevant
+tweets is equally problematic. Thus precision and recall, unlike accuracy, emphasizetrue positives: ﬁnding the things that we are supposed to be looking for.
+There are many ways to deﬁne a single metric that incorporates aspects of both
+precision and recall. The simplest of these combinations is the F-measure (van
+F-measure
+Rijsbergen, 1975) , deﬁned as:
+Fb=(b2+1)PR
+b2P+R
+Thebparameter differentially weights the importance of recall and precision,
+based perhaps on the needs of an application. Values of b>1 favor recall, while
+values of b<1 favor precision. When b=1, precision and recall are equally bal-
+anced; this is the most frequently used metric, and is called F b=1or just F 1: F1
+F1=2PR
+P+R(4.16)
+F-measure comes from a weighted harmonic mean of precision and recall. The
+harmonic mean of a set of numbers is the reciprocal of the arithmetic mean of recip-rocals:
+HarmonicMean(a
+1,a2,a3,a4,...,a n)=n
+1
+a1+1
+a2+1
+a3+...+1
+an(4.17)
+and hence F-measure is
+F=1
+a1
+P+(1a)1
+Ror✓
+withb2=1a
+a◆
+F=(b2+1)PR
+b2P+R(4.18)12 CHAPTER 4•NAIVE BAYES AND SENTIMENT CLASSIFICATION
+while the other 999,900 are tweets about something completely unrelated. Imagine a
+simple classiﬁer that stupidly classiﬁed every tweet as “not about pie”. This classiﬁer
+would have 999,900 true negatives and only 100 false negatives for an accuracy of
+999,900/1,000,000 or 99.99%! What an amazing accuracy level! Surely we should
+be happy with this classiﬁer? But of course this fabulous ‘no pie’ classiﬁer wouldbe completely useless, since it wouldn’t ﬁnd a single one of the customer commentswe are looking for. In other words, accuracy is not a good metric when the goal isto discover something that is rare, or at least not completely balanced in frequency,
+which is a very common situation in the world.
+That’s why instead of accuracy we generally turn to two other metrics shown in
+Fig.4.4:precision andrecall. Precision measures the percentage of the items that
+precision
+the system detected (i.e., the system labeled as positive) that are in fact positive (i.e.,
+are positive according to the human gold labels). Precision is deﬁned as
+Precision =true positives
+true positives + false positives
+Recall measures the percentage of items actually present in the input that were recall
+correctly identiﬁed by the system. Recall is deﬁned as
+Recall =true positives
+true positives + false negatives
+Precision and recall will help solve the problem with the useless “nothing is
+pie” classiﬁer. This classiﬁer, despite having a fabulous accuracy of 99.99%, has
+a terrible recall of 0 (since there are no true positives, and 100 false negatives, the
+recall is 0/100). You should convince yourself that the precision at ﬁnding relevant
+tweets is equally problematic. Thus precision and recall, unlike accuracy, emphasizetrue positives: ﬁnding the things that we are supposed to be looking for.
+There are many ways to deﬁne a single metric that incorporates aspects of both
+precision and recall. The simplest of these combinations is the F-measure (van
+F-measure
+Rijsbergen, 1975) , deﬁned as:
+Fb=(b2+1)PR
+b2P+R
+Thebparameter differentially weights the importance of recall and precision,
+based perhaps on the needs of an application. Values of b>1 favor recall, while
+values of b<1 favor precision. When b=1, precision and recall are equally bal-
+anced; this is the most frequently used metric, and is called F b=1or just F 1: F1
+F1=2PR
+P+R(4.16)
+F-measure comes from a weighted harmonic mean of precision and recall. The
+harmonic mean of a set of numbers is the reciprocal of the arithmetic mean of recip-rocals:
+HarmonicMean(a
+1,a2,a3,a4,...,a n)=n
+1
+a1+1
+a2+1
+a3+...+1
+an(4.17)
+and hence F-measure is
+F=1
+a1
+P+(1a)1
+Ror✓
+withb2=1a
+a◆
+F=(b2+1)PR
+b2P+R(4.18) How to combine P/R from 3 classes to get one metric
+•Macro averaging:
+•compute the performance for each class, and then average over classes
+•Micro averaging:
+•collect decisions for all classes into one confusion matrix
+•compute precision and recall from that table. Macroaveraging and Microaveraging14 CHAPTER 4•NAIVE BAYES AND SENTIMENT CLASSIFICATION
+8
+811
+340true
+urgenttrue
+not
+system
+urgent
+system
+not60
+4055
+212true
+normaltrue
+not
+system
+normal
+system
+not200
+5133
+83true
+spamtrue
+not
+system
+spam
+system
+not268
+9999
+635true
+yestrue
+no
+system
+yes
+system
+no
+precision =8+118= .42 precision =200+33200= .86 precision =60+5560= .52microaverage
+precision 268+99268= .73 =
+macroaverage
+precision 3.42+.52+.86= .60 =Pooled Class 3: Spam Class 2: Normal Class 1: Urgent
+Figure 4.6 Separate confusion matrices for the 3 classes from the previous ﬁgure, showing the pooled confu-
+sion matrix and the microaveraged and macroaveraged precision.
+and in general decide what the best model is. Once we come up with what we think
+is the best model, we run it on the (hitherto unseen) test set to report its performance.
+While the use of a devset avoids overﬁtting the test set, having a ﬁxed train-
+ing set, devset, and test set creates another problem: in order to save lots of data
+for training, the test set (or devset) might not be large enough to be representative.
+Wouldn’t it be better if we could somehow use all our data for training and still useall our data for test? We can do this by cross-validation: we randomly choose a
+cross-validation
+training and test set division of our data, train our classiﬁer, and then compute theerror rate on the test set. Then we repeat with a different randomly selected trainingset and test set. We do this sampling process 10 times and average these 10 runs to
+get an average error rate. This is called 10-fold cross-validation.
+10-fold
+cross-validation
+The only problem with cross-validation is that because all the data is used for
+testing, we need the whole corpus to be blind; we can’t examine any of the data
+to suggest possible features and in general see what’s going on, because we’d be
+peeking at the test set, and such cheating would cause us to overestimate the perfor-
+mance of our system. However, looking at the corpus to understand what’s going
+on is important in designing NLP systems! What to do? For this reason, it is com-
+mon to create a ﬁxed training set and test set, then do 10-fold cross-validation insidethe training set, but compute error rate the normal way in the test set, as shown in
+Fig.4.7.
+Training Iterations
+1
+3
+4
+52
+67
+89
+10Dev
+Dev
+Dev
+Dev
+Dev
+Dev
+Dev
+Dev
+Dev
+DevTraining
+Training
+Training
+Training
+Training
+Training
+Training
+Training
+Training
+TrainingTrainingTest
+SetTesting
+Figure 4.7 10-fold cross-validation Statistical Significance Testing How do we know if one classifier is better than 
+another?
+•Given:
+•Classifier A and B
+•Metric M: M( A,x) is the performance of Aon testset x
+•𝛿(x): the performance difference between A, B on x:
+•𝛿(x) = M(A,x ) –M(B,x )
+•We want to know if 𝛿(x)>0, meaning A is better than B
+•𝛿(x) is called the effect size
+•Suppose we look and see that 𝛿(x)  is positive. Are we done?
+•No!  This might be just an accident of this one test set, or circumstance of the
+experiment.  Instead: Statistical Hypothesis Testing•Consider two hypotheses:•Null hypothesis: A isn't better than B•A is better than B•We want to rule out H0•We create a random variable X ranging over test sets•And ask, how likely, if H0is true, is it that among these test sets we would see the 𝛿(x) we did see?•Formalized as the p-value:4.9•STATISTICALSIGNIFICANCETESTING154.9 Statistical Signiﬁcance TestingIn building systems we often need to compare the performance of two systems. Howcan we know if the new system we just built is better than our old one? Or better thanthe some other system described in the literature? This is the domain of statisticalhypothesis testing, and in this section we introduce tests for statistical signiﬁcancefor NLP classiﬁers, drawing especially on the work ofDror et al. (2020)andBerg-Kirkpatrick et al. (2012).Suppose we’re comparing the performance of classiﬁersAandBon a metricMsuch as F1, or accuracy. Perhaps we want to know if our logistic regression senti-ment classiﬁerA(Chapter 5) gets a higher F1score than our naive Bayes sentimentclassiﬁerBon a particular test setx. Let’s callM(A,x)the score that systemAgetson test setx, andd(x)the performance difference betweenAandBonx:d(x)=M(A,x) M(B,x)(4.19)We would like to know ifd(x)>0, meaning that our logistic regression classiﬁerhas a higher F1than our naive Bayes classiﬁer onX.d(x)is called theeffect size;effect sizea biggerdmeans thatAseems to be way better thanB; a smalldmeansAseems tobe only a little better.Why don’t we just check ifd(x)is positive? Suppose we do, and we ﬁnd thatthe F1score ofAis higher thanBs by .04. Can we be certain thatAis better? Wecannot! That’s becauseAmight just be accidentally better thanBon this particularx.We need something more: we want to know ifA’s superiority overBis likely to holdagain if we checked another test setx0, or under some other set of circumstances.In the paradigm of statistical hypothesis testing, we test this by formalizing twohypotheses.H0:d(x)0H1:d(x)>0(4.20)The hypothesisH0, called thenull hypothesis, supposes thatd(x)is actually nega-null hypothesistive or zero, meaning thatAis not better thanB. We would like to know if we canconﬁdently rule out this hypothesis, and instead supportH1, thatAis better.We do this by creating a random variableXranging over all test sets. Now weask how likely is it, if the null hypothesisH0was correct, that among these test setswe would encounter the value ofd(x)that we found. We formalize this likelihoodas thep-value: the probability, assuming the null hypothesisH0is true, of seeingp-valuethed(x)that we saw or one even greaterP(d(X) d(x)|H0is true)(4.21)So in our example, this p-value is the probability that we would seed(x)assumingAisnotbetter thanB. Ifd(x)is huge (let’s sayAhas a very respectable F1of .9andBhas a terrible F1of only .2 onx), we might be surprised, since that would beextremely unlikely to occur ifH0were in fact true, and so the p-value would be low(unlikely to have such a largedifAis in fact not better thanB). But ifd(x)is verysmall, it might be less surprising to us even ifH0were true andAis not really betterthanB, and so the p-value would be higher.A very small p-value means that the difference we observed is very unlikelyunder the null hypothesis, and we can reject the null hypothesis. What counts as very4.9•STATISTICALSIGNIFICANCETESTING154.9 Statistical Signiﬁcance TestingIn building systems we often need to compare the performance of two systems. Howcan we know if the new system we just built is better than our old one? Or better thanthe some other system described in the literature? This is the domain of statisticalhypothesis testing, and in this section we introduce tests for statistical signiﬁcancefor NLP classiﬁers, drawing especially on the work ofDror et al. (2020)andBerg-Kirkpatrick et al. (2012).Suppose we’re comparing the performance of classiﬁersAandBon a metricMsuch as F1, or accuracy. Perhaps we want to know if our logistic regression senti-ment classiﬁerA(Chapter 5) gets a higher F1score than our naive Bayes sentimentclassiﬁerBon a particular test setx. Let’s callM(A,x)the score that systemAgetson test setx, andd(x)the performance difference betweenAandBonx:d(x)=M(A,x) M(B,x)(4.19)We would like to know ifd(x)>0, meaning that our logistic regression classiﬁerhas a higher F1than our naive Bayes classiﬁer onX.d(x)is called theeffect size;effect sizea biggerdmeans thatAseems to be way better thanB; a smalldmeansAseems tobe only a little better.Why don’t we just check ifd(x)is positive? Suppose we do, and we ﬁnd thatthe F1score ofAis higher thanBs by .04. Can we be certain thatAis better? Wecannot! That’s becauseAmight just be accidentally better thanBon this particularx.We need something more: we want to know ifA’s superiority overBis likely to holdagain if we checked another test setx0, or under some other set of circumstances.In the paradigm of statistical hypothesis testing, we test this by formalizing twohypotheses.H0:d(x)0H1:d(x)>0(4.20)The hypothesisH0, called thenull hypothesis, supposes thatd(x)is actually nega-null hypothesistive or zero, meaning thatAis not better thanB. We would like to know if we canconﬁdently rule out this hypothesis, and instead supportH1, thatAis better.We do this by creating a random variableXranging over all test sets. Now weask how likely is it, if the null hypothesisH0was correct, that among these test setswe would encounter the value ofd(x)that we found. We formalize this likelihoodas thep-value: the probability, assuming the null hypothesisH0is true, of seeingp-valuethed(x)that we saw or one even greaterP(d(X) d(x)|H0is true)(4.21)So in our example, this p-value is the probability that we would seed(x)assumingAisnotbetter thanB. Ifd(x)is huge (let’s sayAhas a very respectable F1of .9andBhas a terrible F1of only .2 onx), we might be surprised, since that would beextremely unlikely to occur ifH0were in fact true, and so the p-value would be low(unlikely to have such a largedifAis in fact not better thanB). But ifd(x)is verysmall, it might be less surprising to us even ifH0were true andAis not really betterthanB, and so the p-value would be higher.A very small p-value means that the difference we observed is very unlikelyunder the null hypothesis, and we can reject the null hypothesis. What counts as very Statistical Hypothesis Testing•In our example, this p-value is the probability that we would see δ(x) assuming H0(=A is not better than B).•If H0is true but δ(x) is huge, that is surprising!  Very low probability!•A very small p-value means that the difference we observed is very unlikely under the null hypothesis, and we can reject the null hypothesis •Very small: .05 or .01 •A result(e.g., “A is better than B”) is statistically significant if the δ we saw has a probability that is below the threshold and we therefore reject this null hypothesis. 4.9•STATISTICALSIGNIFICANCETESTING154.9 Statistical Signiﬁcance TestingIn building systems we often need to compare the performance of two systems. Howcan we know if the new system we just built is better than our old one? Or better thanthe some other system described in the literature? This is the domain of statisticalhypothesis testing, and in this section we introduce tests for statistical signiﬁcancefor NLP classiﬁers, drawing especially on the work ofDror et al. (2020)andBerg-Kirkpatrick et al. (2012).Suppose we’re comparing the performance of classiﬁersAandBon a metricMsuch as F1, or accuracy. Perhaps we want to know if our logistic regression senti-ment classiﬁerA(Chapter 5) gets a higher F1score than our naive Bayes sentimentclassiﬁerBon a particular test setx. Let’s callM(A,x)the score that systemAgetson test setx, andd(x)the performance difference betweenAandBonx:d(x)=M(A,x) M(B,x)(4.19)We would like to know ifd(x)>0, meaning that our logistic regression classiﬁerhas a higher F1than our naive Bayes classiﬁer onX.d(x)is called theeffect size;effect sizea biggerdmeans thatAseems to be way better thanB; a smalldmeansAseems tobe only a little better.Why don’t we just check ifd(x)is positive? Suppose we do, and we ﬁnd thatthe F1score ofAis higher thanBs by .04. Can we be certain thatAis better? Wecannot! That’s becauseAmight just be accidentally better thanBon this particularx.We need something more: we want to know ifA’s superiority overBis likely to holdagain if we checked another test setx0, or under some other set of circumstances.In the paradigm of statistical hypothesis testing, we test this by formalizing twohypotheses.H0:d(x)0H1:d(x)>0(4.20)The hypothesisH0, called thenull hypothesis, supposes thatd(x)is actually nega-null hypothesistive or zero, meaning thatAis not better thanB. We would like to know if we canconﬁdently rule out this hypothesis, and instead supportH1, thatAis better.We do this by creating a random variableXranging over all test sets. Now weask how likely is it, if the null hypothesisH0was correct, that among these test setswe would encounter the value ofd(x)that we found. We formalize this likelihoodas thep-value: the probability, assuming the null hypothesisH0is true, of seeingp-valuethed(x)that we saw or one even greaterP(d(X) d(x)|H0is true)(4.21)So in our example, this p-value is the probability that we would seed(x)assumingAisnotbetter thanB. Ifd(x)is huge (let’s sayAhas a very respectable F1of .9andBhas a terrible F1of only .2 onx), we might be surprised, since that would beextremely unlikely to occur ifH0were in fact true, and so the p-value would be low(unlikely to have such a largedifAis in fact not better thanB). But ifd(x)is verysmall, it might be less surprising to us even ifH0were true andAis not really betterthanB, and so the p-value would be higher.A very small p-value means that the difference we observed is very unlikelyunder the null hypothesis, and we can reject the null hypothesis. What counts as very Statistical Hypothesis Testing
+•How do we compute this probability?
+•In NLP , we don't tend to use parametric tests (like t -tests)
+•Instead, we use non -parametric tests based on sampling: artificially creating
+many versions of the setup.
+•For example, suppose we had created zillions of testsets x'.
+•Now we measure the value of 𝛿(x') on each test set
+•That gives us a distribution
+•Now set a threshold (say .01).
+•So if we see that in 99% of the test sets 𝛿(x) > 𝛿(x')
+•We conclude that our original test set delta was a real delta and not an
+artifact. Statistical Hypothesis Testing
+•Two common approaches:
+•approximate randomization
+•bootstrap test
+•Paired tests:
+•Comparing two sets of observations in which each observation in one set can
+be paired with an observation in another.
+•For example, when looking at systems A and B on the same test set , we can
+compare the performance of system A and B on each same observation xi Avoiding Harms in Classification Harms in text classifiers
+•Kiritchenko and Mohammad (2018) found that most sentiment classifiers assign
+lower sentiment and more negative emotion to sentences with African American
+names in them.
+•This perpetuates negative stereotypes that associate African Americans with
+negative emotions
+•Toxicity detection is the task of detecting hate speech, abuse, harassment, or
+other kinds of toxic language
+•But some toxicity classifiers incorrectly flag as being toxic sentences that are non -
+toxic but simply mention identities like blind people, women, or gay people.
+•This could lead to censorship of discussion about these groups. What causes these harms?
+•Can be caused by:
+•Problems in the training data; machine learning systems are known to
+amplify the biases in their training data.
+•Problems in the human labels
+•Problems in the resources used (like lexicons)
+•Problems in model architecture (like what the model is trained to
+optimized)
+•Mitigation of these harms is an open research area
+•Meanwhile: model cards Model Cards
+•For each algorithm you release, document:
+•training algorithms and parameters
+•training data sources, motivation, and preprocessing
+•evaluation data sources, motivation, and preprocessing
+•intended use and users
+•model performance across different demographic or other groups and
+environmental situations(Mitchell et al., 2019) Part2:Generative and Discriminative Classifiers2-Logistic Regression Logistic Regression•Important analytic tool in natural and social sciences•Baseline supervised machine learning tool for classification•Is also the foundation of neural networks Generative and Discriminative Classifiers•Naive Bayes is a generativeclassifier•by contrast:•Logistic regression is a discriminativeclassifier Generative and Discriminative Classifiers
+Suppose we're distinguishing cat from dog images
+imagenetimagenet Generative Classifier:
+•Build a model of what's in a cat image
+•Knows about whiskers, ears, eyes
+•Assigns a probability to any image:
+•how cat -y is this image?
+Also build a model for dog images
+Now given a new image:
+Run both models and see which one fits better  Discriminative Classifier
+Just try to distinguish dogs from catsOh look, dogs have collars!Let's ignore everything else Finding the correct class c from a document d inGenerative vs Discriminative Classifiers•Naive Bayes•Logistic Regression
+552CHAPTER5•LOGISTICREGRESSIONMore formally, recall that the naive Bayes assigns a classcto a documentdnotby directly computingP(c|d)but by computing a likelihood and a priorˆc=argmaxc2Clikelihoodz}|{P(d|c)priorz}|{P(c)(5.1)Agenerative modellike naive Bayes makes use of thislikelihoodterm, whichgenerativemodelexpresses how to generate the features of a documentif we knew it was of class c.By contrast adiscriminative modelin this text categorization scenario attemptsdiscriminativemodeltodirectlycomputeP(c|d). Perhaps it will learn to assign high weight to documentfeatures that directly improve its ability todiscriminatebetween possible classes,even if it couldn’t generate an example of one of the classes.Components of a probabilistic machine learning classiﬁer:Like naive Bayes,logistic regression is a probabilistic classiﬁer that makes use of supervised machinelearning. Machine learning classiﬁers require a training corpus ofMobservationsinput/output pairs(x(i),y(i)). (We’ll use superscripts in parentheses to refer to indi-vidual instances in the training set—for sentiment classiﬁcation each instance mightbe an individual document to be classiﬁed). A machine learning system for classiﬁ-cation then has four components:1.Afeature representationof the input. For each input observationx(i), thiswill be a vector of features[x1,x2,. . . ,xn]. We will generally refer to featureifor inputx(j)asx(j)i, sometimes simpliﬁed asxi, but we will also see thenotationfi,fi(x), or, for multiclass classiﬁcation,fi(c,x).2.A classiﬁcation function that computes ˆy, the estimated class, viap(y|x). Inthe next section we will introduce thesigmoidandsoftmaxtools for classiﬁ-cation.3.An objective function for learning, usually involving minimizing error ontraining examples. We will introduce thecross-entropy loss function4.An algorithm for optimizing the objective function. We introduce thestochas-tic gradient descentalgorithm.Logistic regression has two phases:training:we train the system (speciﬁcally the weightswandb) using stochasticgradient descent and the cross-entropy loss.test:Given a test examplexwe computep(y|x)and return the higher probabilitylabely=1 ory=0.5.1 Classiﬁcation: the sigmoidThe goal of binary logistic regression is to train a classiﬁer that can make a binarydecision about the class of a new input observation. Here we introduce thesigmoidclassiﬁer that will help us make this decision.Consider a single input observationx, which we will represent by a vector offeatures[x1,x2,. . . ,xn](we’ll show sample features in the next subsection). The clas-siﬁer outputycan be 1 (meaning the observation is a member of the class) or 0(the observation is not a member of the class). We want to know the probabilityP(y=1|x)that this observation is a member of the class. So perhaps the decision2CHAPTER5•LOGISTICREGRESSIONMore formally, recall that the naive Bayes assigns a classcto a documentdnotby directly computingP(c|d)but by computing a likelihood and a priorˆc=argmaxc2Clikelihoodz}|{P(d|c)priorz}|{P(c)(5.1)Agenerative modellike naive Bayes makes use of thislikelihoodterm, whichgenerativemodelexpresses how to generate the features of a documentif we knew it was of class c.By contrast adiscriminative modelin this text categorization scenario attemptsdiscriminativemodeltodirectlycomputeP(c|d). Perhaps it will learn to assign high weight to documentfeatures that directly improve its ability todiscriminatebetween possible classes,even if it couldn’t generate an example of one of the classes.Components of a probabilistic machine learning classiﬁer:Like naive Bayes,logistic regression is a probabilistic classiﬁer that makes use of supervised machinelearning. Machine learning classiﬁers require a training corpus ofMobservationsinput/output pairs(x(i),y(i)). (We’ll use superscripts in parentheses to refer to indi-vidual instances in the training set—for sentiment classiﬁcation each instance mightbe an individual document to be classiﬁed). A machine learning system for classiﬁ-cation then has four components:1.Afeature representationof the input. For each input observationx(i), thiswill be a vector of features[x1,x2,. . . ,xn]. We will generally refer to featureifor inputx(j)asx(j)i, sometimes simpliﬁed asxi, but we will also see thenotationfi,fi(x), or, for multiclass classiﬁcation,fi(c,x).2.A classiﬁcation function that computes ˆy, the estimated class, viap(y|x). Inthe next section we will introduce thesigmoidandsoftmaxtools for classiﬁ-cation.3.An objective function for learning, usually involving minimizing error ontraining examples. We will introduce thecross-entropy loss function4.An algorithm for optimizing the objective function. We introduce thestochas-tic gradient descentalgorithm.Logistic regression has two phases:training:we train the system (speciﬁcally the weightswandb) using stochasticgradient descent and the cross-entropy loss.test:Given a test examplexwe computep(y|x)and return the higher probabilitylabely=1 ory=0.5.1 Classiﬁcation: the sigmoidThe goal of binary logistic regression is to train a classiﬁer that can make a binarydecision about the class of a new input observation. Here we introduce thesigmoidclassiﬁer that will help us make this decision.Consider a single input observationx, which we will represent by a vector offeatures[x1,x2,. . . ,xn](we’ll show sample features in the next subsection). The clas-siﬁer outputycan be 1 (meaning the observation is a member of the class) or 0(the observation is not a member of the class). We want to know the probabilityP(y=1|x)that this observation is a member of the class. So perhaps the decisionP(c|d)posterior Components of a probabilistic machine learning classifier
+1.A feature representation of the input. For each input
+observation x(i), a vector of features [ x1, x2, ... , xn]. Feature j
+for input x(i) is xj, more completely  xj(i), or sometimes fj(x).
+2.A classification function that computes !𝑦, the estimated
+class, via p (y|x), like the sigmoid or softmax functions.
+3.An objective function for learning, like cross -entropy loss .
+4.An algorithm for optimizing the objective function:
+stochastic gradient descent .Given m input/output pairs (x(i),y(i)): The two phases of logistic regression 
+•Training : we learn weights w and busing stochastic gradient descent and
+cross -entropy loss .
+•Test: Given a test example x we compute p(y|x) using learned weights wand
+b, and return whichever label ( y = 1 or y = 0) is higher probability Logistic Regression for one observation x•Input observation: vector  x = [x1, x2,…, xn]•Weights: one per feature: W= [w1, w2,…, wn]•Sometimes we call the weights θ= [θ1, θ2,…, θn]•Output: a predicted class !𝑦Î{0,1}(multinomial logistic regression: !𝑦Î{0, 1, 2, 3, 4}) Making probabilities with sigmoids4CHAPTER5•LOGISTICREGRESSION[0,1], which is just what we want for a probability. Because it is nearly linear around0 but ﬂattens toward the ends, it tends to squash outlier values toward 0 or 1. Andit’s differentiable, which as we’ll see in Section5.8will be handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+exp( (w·x+b))P(y=0)=1 s(w·x+b)=1 11+exp( (w·x+b))=exp( (w·x+b))1+exp( (w·x+b))(5.5)The sigmoid function has the property1 s(x)=s( x)(5.6)so we could also have expressedP(y=0)ass( (w·x+b)).Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if theprobabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecisionboundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by the 6featuresx1...x6of the input shown in the following table; Fig.5.2shows the featuresin a sample mini test document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(66)=4.19Let’s assume for the moment that we’ve already learned a real-valued weight foreach of these features, and that the 6 weights corresponding to the 6 features are[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next section how4CHAPTER5•LOGISTICREGRESSION[0,1], which is just what we want for a probability. Because it is nearly linear around0 but ﬂattens toward the ends, it tends to squash outlier values toward 0 or 1. Andit’s differentiable, which as we’ll see in Section5.8will be handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+exp( (w·x+b))P(y=0)=1 s(w·x+b)=1 11+exp( (w·x+b))=exp( (w·x+b))1+exp( (w·x+b))(5.5)The sigmoid function has the property1 s(x)=s( x)(5.6)so we could also have expressedP(y=0)ass( (w·x+b)).Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if theprobabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecisionboundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by the 6featuresx1...x6of the input shown in the following table; Fig.5.2shows the featuresin a sample mini test document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(66)=4.19Let’s assume for the moment that we’ve already learned a real-valued weight foreach of these features, and that the 6 weights corresponding to the 6 features are[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next section how Sentiment example: does y=1 or y=0?
+•It's hokey . There are virtually no surprises , and the writing is second -rate .
+So why was it so enjoyable ? For one thing , the cast is
+•great . Another nice touch is the music . I was overcome with the urge to get
+off the couch and start dancing . It sucked me in , and it'll do the same to you .
+61
+ 625.1•CLASSIFICATION:THE SIGMOID5 It's hokey . There are virtually no surprises , and the writing is second-rate . So why was it so enjoyable  ? For one thing , the cast is great . Another nice touch is the music . I was overcome with the urge to get off the couch and start dancing .  It sucked me in , and it'll do the same to you  .x1=3x6=4.19x3=1x4=3x5=0x2=2
+Figure 5.2A sample mini test document showing the extracted features in the vectorx.Given these 6 features and the input reviewx,P(+|x)andP( |x)can be com-puted using Eq.5.5:p(+|x)=P(Y=1|x)=s(w·x+b)=s([2.5, 5.0, 1.2,0.5,2.0,0.7]·[3,2,1,3,0,4.19]+0.1)=s(.833)=0.70(5.6)p( |x)=P(Y=0|x)=1 s(w·x+b)=0.30Logistic regression is commonly applied to all sorts of NLP tasks, and any propertyof the input can be a feature. Consider the task ofperiod disambiguation: decidingif a period is the end of a sentence or part of a word, by classifying each periodinto one of two classes EOS (end-of-sentence) and not-EOS. We might use featureslikex1below expressing that the current word is lower case and the class is EOS(perhaps with a positive weight), or that the current word is in our abbreviationsdictionary (“Prof.”) and the class is EOS (perhaps with a negative weight). A featurecan also express a quite complex combination of properties. For example a periodfollowing an upper case word is likely to be an EOS, but if the word itself isSt.andthe previous word is capitalized, then the period is likely part of a shortening of thewordstreet.x1=⇢1 if “Case(wi)=Lower”0 otherwisex2=⇢1 if “wi2AcronymDict”0 otherwisex3=⇢1 if “wi=St. &Case(wi 1)=Cap”0 otherwiseDesigning features:Features are generally designed by examining the trainingset with an eye to linguistic intuitions and the linguistic literature on the domain. Acareful error analysis on the training set or devset of an early version of a systemoften provides insights into features.For some tasks it is especially helpful to build complex features that are combi-nations of more primitive features. We saw such a feature for period disambiguationabove, where a period on the wordSt.was less likely to be the end of the sentenceif the previous word was capitalized. For logistic regression and naive Bayes thesecombination features orfeature interactionshave to be designed by hand.featureinteractions4CHAPTER5•LOGISTICREGRESSIONnearly linear around 0 but has a sharp slope toward the ends, it tends to squash outliervalues toward 0 or 1. And it’s differentiable, which as we’ll see in Section5.8willbe handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+e (w·x+b)P(y=0)=1 s(w·x+b)=1 11+e (w·x+b)=e (w·x+b)1+e (w·x+b)(5.5)Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if the probabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecision boundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by the 6featuresx1...x6of the input shown in the following table; Fig.5.2shows the featuresin a sample mini test document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(66)=4.19Let’s assume for the moment that we’ve already learned a real-valued weight foreach of these features, and that the 6 weights corresponding to the 6 features are[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next section howthe weights are learned.) The weightw1, for example indicates how important afeature the number of positive lexicon words (great,nice,enjoyable, etc.) is toa positive sentiment decision, whilew2tells us the importance of negative lexiconwords. Note thatw1=2.5 is positive, whilew2= 5.0, meaning that negative wordsare negatively associated with a positive sentiment decision, and are about twice asimportant as positive words. Classifying sentiment for input x
+634CHAPTER5•LOGISTICREGRESSIONnearly linear around 0 but has a sharp slope toward the ends, it tends to squash outliervalues toward 0 or 1. And it’s differentiable, which as we’ll see in Section5.8willbe handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+e (w·x+b)P(y=0)=1 s(w·x+b)=1 11+e (w·x+b)=e (w·x+b)1+e (w·x+b)(5.5)Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if the probabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecision boundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by the 6featuresx1...x6of the input shown in the following table; Fig.5.2shows the featuresin a sample mini test document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(66)=4.19Let’s assume for the moment that we’ve already learned a real-valued weight foreach of these features, and that the 6 weights corresponding to the 6 features are[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next section howthe weights are learned.) The weightw1, for example indicates how important afeature the number of positive lexicon words (great,nice,enjoyable, etc.) is toa positive sentiment decision, whilew2tells us the importance of negative lexiconwords. Note thatw1=2.5 is positive, whilew2= 5.0, meaning that negative wordsare negatively associated with a positive sentiment decision, and are about twice asimportant as positive words.4CHAPTER5•LOGISTICREGRESSIONThe sigmoid has a number of advantages; it take a real-valued number and mapsit into the range[0,1], which is just what we want for a probability. Because it isnearly linear around 0 but has a sharp slope toward the ends, it tends to squash outliervalues toward 0 or 1. And it’s differentiable, which as we’ll see in Section5.8willbe handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+e (w·x+b)P(y=0)=1 s(w·x+b)=1 11+e (w·x+b)=e (w·x+b)1+e (w·x+b)(5.5)Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if theprobabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecisionboundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by thefollowing 6 featuresx1...x6of the input; Fig.5.2shows the features in a sample minitest document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(64)=4.15Let’s assume for the moment that we’ve already learned a real-valued weightfor each of these features, and that the 6 weights corresponding to the 6 featuresare[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next sectionhow the weights are learned.) The weightw1, for example indicates how importantSuppose w =b = 0.1 Classifying sentiment for input x5.1•CLASSIFICATION:THE SIGMOID5 It's hokey . There are virtually no surprises , and the writing is second-rate . So why was it so enjoyable  ? For one thing , the cast is great . Another nice touch is the music . I was overcome with the urge to get off the couch and start dancing .  It sucked me in , and it'll do the same to you  .x1=3x6=4.19x3=1x4=3x5=0x2=2
+Figure 5.2A sample mini test document showing the extracted features in the vectorx.Given these 6 features and the input reviewx,P(+|x)andP( |x)can be com-puted using Eq.5.5:p(+|x)=P(Y=1|x)=s(w·x+b)=s([2.5, 5.0, 1.2,0.5,2.0,0.7]·[3,2,1,3,0,4.19]+0.1)=s(.833)=0.70(5.6)p( |x)=P(Y=0|x)=1 s(w·x+b)=0.30Logistic regression is commonly applied to all sorts of NLP tasks, and any propertyof the input can be a feature. Consider the task ofperiod disambiguation: decidingif a period is the end of a sentence or part of a word, by classifying each periodinto one of two classes EOS (end-of-sentence) and not-EOS. We might use featureslikex1below expressing that the current word is lower case and the class is EOS(perhaps with a positive weight), or that the current word is in our abbreviationsdictionary (“Prof.”) and the class is EOS (perhaps with a negative weight). A featurecan also express a quite complex combination of properties. For example a periodfollowing an upper case word is likely to be an EOS, but if the word itself isSt.andthe previous word is capitalized, then the period is likely part of a shortening of thewordstreet.x1=⇢1 if “Case(wi)=Lower”0 otherwisex2=⇢1 if “wi2AcronymDict”0 otherwisex3=⇢1 if “wi=St. &Case(wi 1)=Cap”0 otherwiseDesigning features:Features are generally designed by examining the trainingset with an eye to linguistic intuitions and the linguistic literature on the domain. Acareful error analysis on the training set or devset of an early version of a systemoften provides insights into features.For some tasks it is especially helpful to build complex features that are combi-nations of more primitive features. We saw such a feature for period disambiguationabove, where a period on the wordSt.was less likely to be the end of the sentenceif the previous word was capitalized. For logistic regression and naive Bayes thesecombination features orfeature interactionshave to be designed by hand.featureinteractions645.1•CLASSIFICATION:THE SIGMOID5 It's hokey . There are virtually no surprises , and the writing is second-rate . So why was it so enjoyable  ? For one thing , the cast is great . Another nice touch is the music . I was overcome with the urge to get off the couch and start dancing .  It sucked me in , and it'll do the same to you  .x1=3x6=4.19x3=1x4=3x5=0x2=2
+Figure 5.2A sample mini test document showing the extracted features in the vectorx.Given these 6 features and the input reviewx,P(+|x)andP( |x)can be com-puted using Eq.5.5:p(+|x)=P(Y=1|x)=s(w·x+b)=s([2.5, 5.0, 1.2,0.5,2.0,0.7]·[3,2,1,3,0,4.19]+0.1)=s(.833)=0.70(5.6)p( |x)=P(Y=0|x)=1 s(w·x+b)=0.30Logistic regression is commonly applied to all sorts of NLP tasks, and any propertyof the input can be a feature. Consider the task ofperiod disambiguation: decidingif a period is the end of a sentence or part of a word, by classifying each periodinto one of two classes EOS (end-of-sentence) and not-EOS. We might use featureslikex1below expressing that the current word is lower case and the class is EOS(perhaps with a positive weight), or that the current word is in our abbreviationsdictionary (“Prof.”) and the class is EOS (perhaps with a negative weight). A featurecan also express a quite complex combination of properties. For example a periodfollowing an upper case word is likely to be an EOS, but if the word itself isSt.andthe previous word is capitalized, then the period is likely part of a shortening of thewordstreet.x1=⇢1 if “Case(wi)=Lower”0 otherwisex2=⇢1 if “wi2AcronymDict”0 otherwisex3=⇢1 if “wi=St. &Case(wi 1)=Cap”0 otherwiseDesigning features:Features are generally designed by examining the trainingset with an eye to linguistic intuitions and the linguistic literature on the domain. Acareful error analysis on the training set or devset of an early version of a systemoften provides insights into features.For some tasks it is especially helpful to build complex features that are combi-nations of more primitive features. We saw such a feature for period disambiguationabove, where a period on the wordSt.was less likely to be the end of the sentenceif the previous word was capitalized. For logistic regression and naive Bayes thesecombination features orfeature interactionshave to be designed by hand.featureinteractions Turning a probability into a classifier4CHAPTER5•LOGISTICREGRESSIONThe sigmoid has a number of advantages; it take a real-valued number and mapsit into the range[0,1], which is just what we want for a probability. Because it isnearly linear around 0 but has a sharp slope toward the ends, it tends to squash outliervalues toward 0 or 1. And it’s differentiable, which as we’ll see in Section5.8willbe handy for learning.We’re almost there. If we apply the sigmoid to the sum of the weighted features,we get a number between 0 and 1. To make it a probability, we just need to makesure that the two cases,p(y=1)andp(y=0), sum to 1. We can do this as follows:P(y=1)=s(w·x+b)=11+e (w·x+b)P(y=0)=1 s(w·x+b)=1 11+e (w·x+b)=e (w·x+b)1+e (w·x+b)(5.5)Now we have an algorithm that given an instancexcomputes the probabilityP(y=1|x). How do we make a decision? For a test instancex, we say yes if theprobabilityP(y=1|x)is more than .5, and no otherwise. We call .5 thedecisionboundary:decisionboundaryˆy=⇢1 ifP(y=1|x)>0.50 otherwise5.1.1 Example: sentiment classiﬁcationLet’s have an example. Suppose we are doing binary sentiment classiﬁcation onmovie review text, and we would like to know whether to assign the sentiment class+or to a review documentdoc. We’ll represent each input observation by thefollowing 6 featuresx1...x6of the input; Fig.5.2shows the features in a sample minitest document.Var Deﬁnition Value in Fig.5.2x1count(positive lexicon)2doc)3x2count(negative lexicon)2doc)2x3⇢1 if “no”2doc0 otherwise1x4count(1st and 2nd pronouns2doc)3x5⇢1 if “!”2doc0 otherwise0x6log(word count of doc)ln(64)=4.15Let’s assume for the moment that we’ve already learned a real-valued weightfor each of these features, and that the 6 weights corresponding to the 6 featuresare[2.5, 5.0, 1.2,0.5,2.0,0.7], whileb= 0.1. (We’ll discuss in the next sectionhow the weights are learned.) The weightw1, for example indicates how importantif w∙x+b> 0if w∙x+b≤ 0 Wait, where did the W’s come from?
+•Supervised classification:
+• We know the correct label y(either 0 or 1) for each x.
+• But what the system produces is an estimate, "𝑦
+•We want to set w and bto minimize the distance between our estimate "𝑦(i)and
+the true y(i).
+• We need a distance estimator: a loss function or a cost function
+• We need an optimization algorithm to update wand bto minimize the loss.
+66 Learning components•A loss function:•cross-entropy loss•An optimization algorithm:•stochastic gradient descent Hyperparameters
+•The learning rate ηis a hyperparameter
+•too high: the learner will take big steps and overshoot
+•too low: the learner will take too long
+•Hyperparameters:
+• Briefly, a special kind of parameter for an ML model
+• Instead of being learned by algorithm from supervision (like regular
+parameters), they are chosen by algorithm designer. Overfitting
+•A model that perfectly match the training data has a problem.
+•It will also overfit to the data, modeling noise
+•A random word that perfectly predicts y(it happens to only occur in one class)
+will get a very high weight.
+•Failing to generalize to a test set without this word.
+•A good model should be able to generalize Regularization
+•A solution for overfitting
+•Add a regularization term R(θ) to the loss function (for now written as maximizing 
+logprob rather than minimizing loss) 
+•Idea: choose an R(θ)that penalizes large weights
+•fitting the data well with lots of big weights not as good as fitting the data a 
+little less well, with small weights14 CHAPTER 5•LOGISTIC REGRESSION
+data to the unseen test set, but a model that overﬁts will have poor generalization.
+To avoid overﬁtting, a new regularization term R(q)is added to the objective regularization
+function in Eq. 5.13, resulting in the following objective for a batch of mexam-
+ples (slightly rewritten from Eq. 5.13 to be maximizing log probability rather than
+minimizing loss, and removing the1
+mterm which doesn’t affect the argmax):
+ˆq=argmax
+qmX
+i=1logP(y(i)|x(i)) aR(q) (5.22)
+The new regularization term R(q)is used to penalize large weights. Thus a setting
+of the weights that matches the training data perfectly— but uses many weights with
+high values to do so—will be penalized more than a setting that matches the data a
+little less well, but does so using smaller weights. There are two common ways to
+compute this regularization term R(q).L2 regularization is a quadratic function ofL2
+regularization
+the weight values, named because it uses the (square of the) L2 norm of the weightvalues. The L2 norm, ||q ||
+2, is the same as the Euclidean distance of the vector q
+from the origin. If qconsists of nweights, then:
+R(q)=||q ||2
+2=nX
+j=1q2
+j (5.23)
+The L2 regularized objective function becomes:
+ˆq=argmax
+q"mX
+i=1logP(y(i)|x(i))#
+anX
+j=1q2
+j (5.24)
+L1 regularization is a linear function of the weight values, named after the L1 normL1
+regularization
+||W||1, the sum of the absolute values of the weights, or Manhattan distance (the
+Manhattan distance is the distance you’d have to walk between two points in a city
+with a street grid like New York):
+R(q)=||q ||1=nX
+i=1|qi| (5.25)
+The L1 regularized objective function becomes:
+ˆq=argmax
+q"mX
+1=ilogP(y(i)|x(i))#
+anX
+j=1|qj| (5.26)
+These kinds of regularization come from statistics, where L1 regularization is called
+lasso regression (Tibshirani, 1996) and L2 regularization is called ridge regression, lasso
+ridge and both are commonly used in language processing. L2 regularization is easier tooptimize because of its simple derivative (the derivative of q
+2is just 2q ), while
+L1 regularization is more complex (the derivative of |q|is non-continuous at zero).
+But where L2 prefers weight vectors with many small weights, L1 prefers sparse
+solutions with some larger weights but many more weights set to zero. Thus L1
+regularization leads to much sparser weight vectors, that is, far fewer features.
+Both L1 and L2 regularization have Bayesian interpretations as constraints on
+the prior of how weights should look. L1 regularization can be viewed as a Laplaceprior on the weights. L2 regularization corresponds to assuming that weights are L2 Regularization (= ridge regression)
+• The sum of the squares of the weights
+•The name is because this is the (square of the)        L2 norm ||θ||2, = Euclidean
+distance of θ to the origin.
+•L2 regularized objective function:14 CHAPTER 5•LOGISTIC REGRESSION
+data to the unseen test set, but a model that overﬁts will have poor generalization.
+To avoid overﬁtting, a new regularization term R(q)is added to the objective regularization
+function in Eq. 5.13, resulting in the following objective for a batch of mexam-
+ples (slightly rewritten from Eq. 5.13 to be maximizing log probability rather than
+minimizing loss, and removing the1
+mterm which doesn’t affect the argmax):
+ˆq=argmax
+qmX
+i=1logP(y(i)|x(i))aR(q) (5.22)
+The new regularization term R(q)is used to penalize large weights. Thus a setting
+of the weights that matches the training data perfectly— but uses many weights with
+high values to do so—will be penalized more than a setting that matches the data a
+little less well, but does so using smaller weights. There are two common ways to
+compute this regularization term R(q).L2 regularization is a quadratic function ofL2
+regularization
+the weight values, named because it uses the (square of the) L2 norm of the weightvalues. The L2 norm, ||q ||
+2, is the same as the Euclidean distance of the vector q
+from the origin. If qconsists of nweights, then:
+R(q)=||q ||2
+2=nX
+j=1q2
+j (5.23)
+The L2 regularized objective function becomes:
+ˆq=argmax
+q"mX
+i=1logP(y(i)|x(i))#
+anX
+j=1q2
+j (5.24)
+L1 regularization is a linear function of the weight values, named after the L1 normL1
+regularization
+||W||1, the sum of the absolute values of the weights, or Manhattan distance (the
+Manhattan distance is the distance you’d have to walk between two points in a city
+with a street grid like New York):
+R(q)=||q ||1=nX
+i=1|qi| (5.25)
+The L1 regularized objective function becomes:
+ˆq=argmax
+q"mX
+1=ilogP(y(i)|x(i))#
+anX
+j=1|qj| (5.26)
+These kinds of regularization come from statistics, where L1 regularization is called
+lasso regression (Tibshirani, 1996) and L2 regularization is called ridge regression, lasso
+ridge and both are commonly used in language processing. L2 regularization is easier tooptimize because of its simple derivative (the derivative of q
+2is just 2q ), while
+L1 regularization is more complex (the derivative of |q|is non-continuous at zero).
+But where L2 prefers weight vectors with many small weights, L1 prefers sparse
+solutions with some larger weights but many more weights set to zero. Thus L1
+regularization leads to much sparser weight vectors, that is, far fewer features.
+Both L1 and L2 regularization have Bayesian interpretations as constraints on
+the prior of how weights should look. L1 regularization can be viewed as a Laplaceprior on the weights. L2 regularization corresponds to assuming that weights are14 CHAPTER 5•LOGISTIC REGRESSION
+data to the unseen test set, but a model that overﬁts will have poor generalization.
+To avoid overﬁtting, a new regularization term R(q)is added to the objective regularization
+function in Eq. 5.13, resulting in the following objective for a batch of mexam-
+ples (slightly rewritten from Eq. 5.13 to be maximizing log probability rather than
+minimizing loss, and removing the1
+mterm which doesn’t affect the argmax):
+ˆq=argmax
+qmX
+i=1logP(y(i)|x(i))aR(q) (5.22)
+The new regularization term R(q)is used to penalize large weights. Thus a setting
+of the weights that matches the training data perfectly— but uses many weights with
+high values to do so—will be penalized more than a setting that matches the data a
+little less well, but does so using smaller weights. There are two common ways to
+compute this regularization term R(q).L2 regularization is a quadratic function ofL2
+regularization
+the weight values, named because it uses the (square of the) L2 norm of the weightvalues. The L2 norm, ||q ||
+2, is the same as the Euclidean distance of the vector q
+from the origin. If qconsists of nweights, then:
+R(q)=||q ||2
+2=nX
+j=1q2
+j (5.23)
+The L2 regularized objective function becomes:
+ˆq=argmax
+q"mX
+i=1logP(y(i)|x(i))#
+ anX
+j=1q2
+j (5.24)
+L1 regularization is a linear function of the weight values, named after the L1 normL1
+regularization
+||W||1, the sum of the absolute values of the weights, or Manhattan distance (the
+Manhattan distance is the distance you’d have to walk between two points in a city
+with a street grid like New York):
+R(q)=||q ||1=nX
+i=1|qi| (5.25)
+The L1 regularized objective function becomes:
+ˆq=argmax
+q"mX
+1=ilogP(y(i)|x(i))#
+anX
+j=1|qj| (5.26)
+These kinds of regularization come from statistics, where L1 regularization is called
+lasso regression (Tibshirani, 1996) and L2 regularization is called ridge regression, lasso
+ridge and both are commonly used in language processing. L2 regularization is easier tooptimize because of its simple derivative (the derivative of q
+2is just 2q ), while
+L1 regularization is more complex (the derivative of |q|is non-continuous at zero).
+But where L2 prefers weight vectors with many small weights, L1 prefers sparse
+solutions with some larger weights but many more weights set to zero. Thus L1
+regularization leads to much sparser weight vectors, that is, far fewer features.
+Both L1 and L2 regularization have Bayesian interpretations as constraints on
+the prior of how weights should look. L1 regularization can be viewed as a Laplaceprior on the weights. L2 regularization corresponds to assuming that weights are L1 Regularization (= lasso regression)
+• The sum of the (absolute value of the) weights
+•Named after the L1 norm ||W||1, = sum of the absolute values of the weights, =
+Manhattan distance
+•L1 regularized objective function:14 CHAPTER 5•LOGISTIC REGRESSION
+data to the unseen test set, but a model that overﬁts will have poor generalization.
+To avoid overﬁtting, a new regularization term R(q)is added to the objective regularization
+function in Eq. 5.13, resulting in the following objective for a batch of mexam-
+ples (slightly rewritten from Eq. 5.13 to be maximizing log probability rather than
+minimizing loss, and removing the1
+mterm which doesn’t affect the argmax):
+ˆq=argmax
+qmX
+i=1logP(y(i)|x(i))aR(q) (5.22)
+The new regularization term R(q)is used to penalize large weights. Thus a setting
+of the weights that matches the training data perfectly— but uses many weights with
+high values to do so—will be penalized more than a setting that matches the data a
+little less well, but does so using smaller weights. There are two common ways to
+compute this regularization term R(q).L2 regularization is a quadratic function ofL2
+regularization
+the weight values, named because it uses the (square of the) L2 norm of the weightvalues. The L2 norm, ||q ||
+2, is the same as the Euclidean distance of the vector q
+from the origin. If qconsists of nweights, then:
+R(q)=||q ||2
+2=nX
+j=1q2
+j (5.23)
+The L2 regularized objective function becomes:
+ˆq=argmax
+q"mX
+i=1logP(y(i)|x(i))#
+anX
+j=1q2
+j (5.24)
+L1 regularization is a linear function of the weight values, named after the L1 normL1
+regularization
+||W||1, the sum of the absolute values of the weights, or Manhattan distance (the
+Manhattan distance is the distance you’d have to walk between two points in a city
+with a street grid like New York):
+R(q)=||q ||1=nX
+i=1|qi| (5.25)
+The L1 regularized objective function becomes:
+ˆq=argmax
+q"mX
+1=ilogP(y(i)|x(i))#
+anX
+j=1|qj| (5.26)
+These kinds of regularization come from statistics, where L1 regularization is called
+lasso regression (Tibshirani, 1996) and L2 regularization is called ridge regression, lasso
+ridge and both are commonly used in language processing. L2 regularization is easier tooptimize because of its simple derivative (the derivative of q
+2is just 2q ), while
+L1 regularization is more complex (the derivative of |q|is non-continuous at zero).
+But where L2 prefers weight vectors with many small weights, L1 prefers sparse
+solutions with some larger weights but many more weights set to zero. Thus L1
+regularization leads to much sparser weight vectors, that is, far fewer features.
+Both L1 and L2 regularization have Bayesian interpretations as constraints on
+the prior of how weights should look. L1 regularization can be viewed as a Laplaceprior on the weights. L2 regularization corresponds to assuming that weights are14 CHAPTER 5•LOGISTIC REGRESSION
+data to the unseen test set, but a model that overﬁts will have poor generalization.
+To avoid overﬁtting, a new regularization term R(q)is added to the objective regularization
+function in Eq. 5.13, resulting in the following objective for a batch of mexam-
+ples (slightly rewritten from Eq. 5.13 to be maximizing log probability rather than
+minimizing loss, and removing the1
+mterm which doesn’t affect the argmax):
+ˆq=argmax
+qmX
+i=1logP(y(i)|x(i))aR(q) (5.22)
+The new regularization term R(q)is used to penalize large weights. Thus a setting
+of the weights that matches the training data perfectly— but uses many weights with
+high values to do so—will be penalized more than a setting that matches the data a
+little less well, but does so using smaller weights. There are two common ways to
+compute this regularization term R(q).L2 regularization is a quadratic function ofL2
+regularization
+the weight values, named because it uses the (square of the) L2 norm of the weightvalues. The L2 norm, ||q ||
+2, is the same as the Euclidean distance of the vector q
+from the origin. If qconsists of nweights, then:
+R(q)=||q ||2
+2=nX
+j=1q2
+j (5.23)
+The L2 regularized objective function becomes:
+ˆq=argmax
+q"mX
+i=1logP(y(i)|x(i))#
+anX
+j=1q2
+j (5.24)
+L1 regularization is a linear function of the weight values, named after the L1 normL1
+regularization
+||W||1, the sum of the absolute values of the weights, or Manhattan distance (the
+Manhattan distance is the distance you’d have to walk between two points in a city
+with a street grid like New York):
+R(q)=||q ||1=nX
+i=1|qi| (5.25)
+The L1 regularized objective function becomes:
+ˆq=argmax
+q"mX
+1=ilogP(y(i)|x(i))#
+ anX
+j=1|qj| (5.26)
+These kinds of regularization come from statistics, where L1 regularization is called
+lasso regression (Tibshirani, 1996) and L2 regularization is called ridge regression, lasso
+ridge and both are commonly used in language processing. L2 regularization is easier tooptimize because of its simple derivative (the derivative of q
+2is just 2q ), while
+L1 regularization is more complex (the derivative of |q|is non-continuous at zero).
+But where L2 prefers weight vectors with many small weights, L1 prefers sparse
+solutions with some larger weights but many more weights set to zero. Thus L1
+regularization leads to much sparser weight vectors, that is, far fewer features.
+Both L1 and L2 regularization have Bayesian interpretations as constraints on
+the prior of how weights should look. L1 regularization can be viewed as a Laplaceprior on the weights. L2 regularization corresponds to assuming that weights are References :
+•Chapter 4 and Chapter 5 Daniel Jurafsky and James H. Martin. " Speech and
+Language Processing, 3rd edition ."2021​​‌‌​​​‌​‌​‌‌​​​​‌​​​​​‌​‌‌​‌‌​‌​‌​‌​‌​‌​‌‌‌​​‌​​‌​​‌‌​‌​‌​‌​​‌‌​‌​​‌‌‌​​‌​​‌‌‌‌​‌‌‌​​​‌​‌‌​​‌​‌​‌‌‌​​‌​​​‌‌‌​​​​​‌‌​‌‌‌​‌‌‌​‌‌​​‌​​‌​‌​​‌‌‌​‌​‌​‌​​‌​​​​‌​‌‌​​​​‌​‌​‌‌‌​​‌‌​​​​​‌‌​​​‌​​‌​​‌‌​‌

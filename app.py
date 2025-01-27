@@ -291,7 +291,10 @@ def update_username():
 
 
 
-
+#************************************************************#
+#************Steps before the encryption ********************#
+#************************************************************#
+#************************************************************#
 # Helper function: Convert files like PDF, DOCX, RTF to plain text
 def convert_to_text(file_path):
     """Convert supported file types to plain text."""
@@ -326,10 +329,6 @@ def encode_with_zero_width(message):
     encoded_message = ''.join(zero_width_mapping[bit] for bit in binary_message)
     return encoded_message
 
-#**************************************************************#
-#**********************encrypt_and_hide route*******************#
-#***************************************************************#
-
 # Ensure a temporary folder exists
 UPLOAD_FOLDER = os.path.join(app.root_path, "uploads", "temp_files")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -350,7 +349,25 @@ def decode_with_zero_width(encoded_text):
     return decoded_message
 
 
-# Updated encrypt_and_hide function
+#************************************************************#
+#*****************calculate_file_hash ***********************#
+#************************************************************#
+#********validate If any changes happened in the file********#
+#************************************************************#
+
+import hashlib
+
+def calculate_file_hash(file_path):
+    """Calculate the SHA-256 hash of a file."""
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
+
+#**************************************************************#
+#*************encrypt_and_hide route***************************#
+#**************************************************************#
 @app.route("/encrypt_and_hide", methods=["POST"])
 @login_required
 def encrypt_and_hide():
@@ -360,14 +377,8 @@ def encrypt_and_hide():
     uploaded_file = request.files.get("mediaFile")
 
     # Validation
-    if not receiver_email or not plaintext_message or not uploaded_file:
-        flash("All fields (receiver email, message, and media file) are required.", "danger")
-        return redirect(url_for("encryptionPage"))
-
-    # Check file extension
-    file_extension = os.path.splitext(uploaded_file.filename)[1].lower()
-    if file_extension not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp', '.txt', '.docx', '.pdf', '.rtf']:
-        flash("Invalid file type. Please upload a supported media file (.png, .jpg, .jpeg, .gif, .bmp, .svg, .webp) or text file (.txt, .docx, .pdf, .rtf).", "danger")
+    if not receiver_email or not plaintext_message:
+        flash("Receiver email and message are required.", "danger")
         return redirect(url_for("encryptionPage"))
 
     con = mysql.connect()
@@ -419,61 +430,68 @@ def encrypt_and_hide():
             )
         )).decode()
 
-        # Step 3: Handle file embedding
-        media_file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
-        uploaded_file.save(media_file_path)
+        hidden_filename = None
+        hidden_path = None
 
-        if file_extension in ['.txt', '.docx', '.pdf', '.rtf']:
-            # For text files, use Zero-Width Characters to hide the message
-            if file_extension == '.txt':
-                with open(media_file_path, "r", encoding="utf-8") as text_file:
-                    text_content = text_file.read()
-            else:
-                # Convert non-txt text formats to plain text
-                text_content = convert_to_text(media_file_path)
+        # Step 3: Handle file embedding if a file is uploaded
+        if uploaded_file and uploaded_file.filename:
+            file_extension = os.path.splitext(uploaded_file.filename)[1].lower()
+            if file_extension not in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp', '.txt', '.docx', '.pdf', '.rtf']:
+                flash("Invalid file type. Please upload a supported media file.", "danger")
+                return redirect(url_for("encryptionPage"))
 
-            zero_width_message = encode_with_zero_width(encrypted_message)
-            hidden_text_content = text_content + zero_width_message
+            media_file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
+            uploaded_file.save(media_file_path)
 
-            hidden_filename = f"hidden_{uploaded_file.filename}"
-            hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+            if file_extension in ['.txt', '.docx', '.pdf', '.rtf']:
+                # Handle text file embedding
+                if file_extension == '.txt':
+                    with open(media_file_path, "r", encoding="utf-8") as text_file:
+                        text_content = text_file.read()
+                else:
+                    text_content = convert_to_text(media_file_path)
 
-            with open(hidden_path, "w", encoding="utf-8") as hidden_file:
-                hidden_file.write(hidden_text_content)
+                zero_width_message = encode_with_zero_width(encrypted_message)
+                hidden_text_content = text_content + zero_width_message
 
-        elif file_extension in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp']:
-            # For image files, embed the encrypted message
-            img = Image.open(media_file_path)
-            encoded_img = img.copy()
-            width, height = img.size
-            binary_message = ''.join(format(ord(c), '08b') for c in encrypted_message) + '11111111'
+                hidden_filename = f"hidden_{uploaded_file.filename}"
+                hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
 
-            msg_idx = 0
-            for x in range(width):
-                for y in range(height):
-                    pixel = list(encoded_img.getpixel((x, y)))
-                    for i in range(3):  # RGB channels
-                        if msg_idx < len(binary_message):
-                            pixel[i] = pixel[i] & ~1 | int(binary_message[msg_idx])
-                            msg_idx += 1
-                    encoded_img.putpixel((x, y), tuple(pixel))
+                with open(hidden_path, "w", encoding="utf-8") as hidden_file:
+                    hidden_file.write(hidden_text_content)
+
+            elif file_extension in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp']:
+                # Handle image file embedding
+                img = Image.open(media_file_path)
+                encoded_img = img.copy()
+                width, height = img.size
+                binary_message = ''.join(format(ord(c), '08b') for c in encrypted_message) + '11111111'
+
+                msg_idx = 0
+                for x in range(width):
+                    for y in range(height):
+                        pixel = list(encoded_img.getpixel((x, y)))
+                        for i in range(3):  # RGB channels
+                            if msg_idx < len(binary_message):
+                                pixel[i] = pixel[i] & ~1 | int(binary_message[msg_idx])
+                                msg_idx += 1
+                        encoded_img.putpixel((x, y), tuple(pixel))
+                        if msg_idx >= len(binary_message):
+                            break
                     if msg_idx >= len(binary_message):
                         break
-                if msg_idx >= len(binary_message):
-                    break
 
-            hidden_filename = f"hidden_{uploaded_file.filename}"
-            hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
-            encoded_img.save(hidden_path)
+                hidden_filename = f"hidden_{uploaded_file.filename}"
+                hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+                encoded_img.save(hidden_path)
 
-        else:
-            flash("Unsupported file type for embedding.", "danger")
-            return redirect(url_for("encryptionPage"))
+        # Step 4: Calculate file hash if a file was embedded
+        file_hash = calculate_file_hash(hidden_path) if hidden_path else None
 
-        # Step 4: Save to database
+        # Save to database
         cur.execute("""
-            INSERT INTO message (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, MediaFile, SenderID, RecipientID, Filename)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO message (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, MediaFile, SenderID, RecipientID, Filename, FileHash)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             encrypted_key_receiver,
             encrypted_key_sender,
@@ -481,19 +499,19 @@ def encrypt_and_hide():
             hidden_filename,
             sender_id,
             receiver_id,
-            hidden_filename
+            hidden_filename,
+            file_hash
         ))
         con.commit()
 
         flash("Message encrypted, hidden, and sent successfully.", "success")
 
         # Provide a download URL for the hidden file
-        download_url = url_for("download_file", filename=hidden_filename, _external=True)
-        return render_template(
-            "encryptionPage.html",
-            download_url=download_url,
-            filename=hidden_filename
-        )
+        if hidden_filename:
+            download_url = url_for("download_file", filename=hidden_filename, _external=True)
+            return render_template("encryptionPage.html", download_url=download_url, filename=hidden_filename)
+        else:
+            return render_template("encryptionPage.html")
 
     except Exception as e:
         flash(f"An error occurred: {e}", "danger")
@@ -507,101 +525,133 @@ def encrypt_and_hide():
 
 
 
-
 #**************************************************************#
 #**********************sent_message route***********************#
 #***************************************************************#
-@app.route("/sent_messages", methods=["GET"])
+@app.route("/sent_messages", methods=["GET", "POST"])
 @login_required
- #  Display the messages sent by the user.
 def sent_messages():
-    sender_id = session.get('user_id')
+    """Display the messages sent by the user."""
+    sender_id = session.get("user_id")  # Get the logged-in user's ID
+    search_email = request.form.get("search_email", "").strip()  # Get the search input
 
     con = mysql.connect()
     cur = con.cursor()
-    cur.execute( """
-    SELECT 
-        m.MessageID,  -- Include MessageID
-        m.EncryptedSharedKeySender, 
-        m.Content AS EncryptedMessage, 
-        u.email AS ReceiverEmail
-    FROM 
-        message m
-    JOIN 
-        users u 
-    ON 
-        m.RecipientID = u.user_id
-    WHERE 
-        m.SenderID = %s
-""", (sender_id,))
-   
+
+    #  fetch sent messages
+    query = """
+        SELECT 
+            m.MessageID,
+            m.Content AS EncryptedMessage,
+            u.email AS ReceiverEmail,
+            m.Filename,
+            m.sent_date
+        FROM 
+            message m
+        JOIN 
+            users u 
+        ON 
+            m.RecipientID = u.user_id
+        WHERE 
+            m.SenderID = %s
+    """
+    params = [sender_id]
+
+    # Add search filter if search_email is provided
+    if search_email:
+        query += " AND u.email LIKE %s"
+        params.append(f"%{search_email}%")  # Use LIKE for partial matching
+
+    query += " ORDER BY m.sent_date DESC"  # Sort messages by date
+    cur.execute(query, params)
     messages = cur.fetchall()
-    # Convert to a list of dictionaries for easier template rendering
+
+    # Convert the query result to a list of dictionaries
     messages_list = [
-        {      
-        "MessageID": message[0],
-        "EncryptedSharedKeySender": message[1],
-        "EncryptedMessage": message[2],
-        "ReceiverEmail": message[3]
+        {
+            "MessageID": message[0],
+            "EncryptedMessage": message[1],
+            "ReceiverEmail": message[2],
+            "Filename": message[3],
+            "SentDate": message[4].strftime("%Y-%m-%d %H:%M:%S") if message[4] else None
         }
         for message in messages
     ]
 
     cur.close()
     con.close()
-    return render_template('sent_messages.html', messages=messages_list)
+
+    return render_template("sent_messages.html", messages=messages_list, search_email=search_email)
+
 
 
 
 #**************************************************************#
 #**********************messages route**************************#
 #***************************************************************#
-@app.route('/messages')
+@app.route('/messages', methods=["GET", "POST"])
 @login_required
 def messages():
-    user_id = session.get('user_id')  # Assuming user_id is stored in the session
+    user_id = session.get('user_id')  # Get the current user's ID
+    search_email = request.form.get("search_email", "").strip()  # Get the search input, strip extra spaces
+
     con = mysql.connect()
     cur = con.cursor()
 
-    # Query to fetch messages where the user is the recipient
-    cur.execute("""
-    SELECT 
-        m.MessageID,
-        m.EncryptedSharedKeyReceiver,
-        m.Content AS EncryptedMessage,
-        u.email AS SenderEmail,
-        m.Filename  -- Ensure Filename column exists in the table
-    FROM 
-        message m
-    JOIN 
-        users u 
-    ON 
-        m.SenderID = u.user_id
-    WHERE 
-        m.RecipientID = %s
-    """, (user_id,))
+    # fetch messages for the current user
+    query = """
+        SELECT 
+            m.MessageID,
+            m.EncryptedSharedKeyReceiver,
+            m.Content AS EncryptedMessage,
+            u.email AS SenderEmail,
+            m.Filename,
+            m.sent_date
+        FROM 
+            message m
+        JOIN 
+            users u 
+        ON 
+            m.SenderID = u.user_id
+        WHERE 
+            m.RecipientID = %s
+    """
+    params = [user_id]
+
+    # Add filtering condition if search_email is provided
+    if search_email:
+        query += " AND u.email LIKE %s"
+        params.append(f"%{search_email}%")  # Add wildcard search
+
+    query += " ORDER BY m.sent_date DESC"  # Order messages by most recent
+    cur.execute(query, params)
 
     messages = cur.fetchall()
 
-    # Convert to a list of dictionaries
+
+    # Convert results to a list of dictionaries for the template
     messages_list = [
         {
             "MessageID": message[0],
             "EncryptedSharedKeyReceiver": message[1],
             "EncryptedMessage": message[2],
             "SenderEmail": message[3],
-            "filename": message[4]  # Add the filename here
+            "Filename": message[4],
+            "SentDate": message[5].strftime("%Y-%m-%d %H:%M:%S") if message[5] else None
         }
         for message in messages
     ]
 
     cur.close()
     con.close()
-    return render_template('messages.html', messages=messages_list)
+
+    return render_template('messages.html', messages=messages_list, search_email=search_email)
+
 
 
 #**************************************************************#
-
+#**********************download route***************************#
+#**************************************************************#
 
 
 @app.route("/download_file/<filename>")
@@ -618,26 +668,39 @@ def download_file(filename):
 #**************************************************************#
 #**********************decrypt route***************************#
 #**************************************************************#
+
+def get_file_extension(filename):
+    """Extract the file extension from the filename."""
+    return os.path.splitext(filename)[1].lower()
+
+
 @app.route("/extract_and_decrypt", methods=["POST"])
 @login_required
 def extract_and_decrypt():
+    # Retrieve the message ID and uploaded private key file
     message_id = request.form.get("message_id")
-    private_key_data = request.form.get("privateKey")
-    media_file = request.files.get("mediaFile")
+    private_key_file = request.files.get("privateKey")  # Access the uploaded private key file
 
-    if not message_id or not private_key_data or not media_file:
-        flash("Message ID, private key, and media file are required.", "danger")
+    # Validate that the required inputs are provided
+    if not message_id or not private_key_file or private_key_file.filename == '':
+        flash("Message ID and private key file are required.", "danger")
         return redirect(url_for("decrypt", message_id=message_id))
 
-    # Save the uploaded file temporarily
-    temp_file_path = os.path.join(UPLOAD_FOLDER, media_file.filename)
-    media_file.save(temp_file_path)
+    temp_file_path = None
 
     try:
-        # Fetch the encrypted key and ciphertext from the database
+        # Read and decode the private key from the uploaded file
+        private_key_data = private_key_file.read().decode('utf-8')
+
+        # Validate that the private key data is not empty
+        if not private_key_data.strip():
+            flash("The private key file is empty. Please upload a valid private key.", "danger")
+            return redirect(url_for("decrypt", message_id=message_id))
+
+        # Fetch the filename, encrypted shared key, and encrypted message from the database
         con = mysql.connect()
         cur = con.cursor()
-        cur.execute("SELECT EncryptedSharedKeySender, Content FROM message WHERE MessageID = %s", (message_id,))
+        cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, Content FROM message WHERE MessageID = %s", (message_id,))
         result = cur.fetchone()
         cur.close()
         con.close()
@@ -646,19 +709,16 @@ def extract_and_decrypt():
             flash("Message not found in the database.", "danger")
             return redirect(url_for("decrypt", message_id=message_id))
 
-        encrypted_shared_key, encrypted_message = result
+        expected_filename, encrypted_shared_key, encrypted_message = result
 
         # Decrypt the symmetric key using the provided private key
-        try:
-            private_key = serialization.load_pem_private_key(
-                private_key_data.encode(), password=None, backend=default_backend()
-            )
-        except Exception as e:
-            flash("Invalid private key format or data.", "danger")
-            return redirect(url_for("decrypt", message_id=message_id))
-
+        private_key = serialization.load_pem_private_key(
+            private_key_data.encode(),  # Convert string to bytes
+            password=None,  # Assumes no password protection
+            backend=default_backend()
+        )
         symmetric_key = private_key.decrypt(
-            base64.b64decode(encrypted_shared_key),
+            base64.b64decode(encrypted_shared_key),  # Decode the base64-encoded shared key
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -666,34 +726,33 @@ def extract_and_decrypt():
             )
         )
 
-        # Decrypt the ciphertext using the symmetric key
-        try:
-            cipher_text_bytes = base64.b64decode(encrypted_message)
-            iv, ciphertext = cipher_text_bytes[:16], cipher_text_bytes[16:]
-            cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
-            decryptor = cipher.decryptor()
-            plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
-        except Exception as e:
-            flash("Failed to decrypt the message. Please check the media file and private key.", "danger")
-            return redirect(url_for("decrypt", message_id=message_id))
+        # Decrypt the encrypted message using the symmetric key
+        cipher_text_bytes = base64.b64decode(encrypted_message)
+        iv, ciphertext = cipher_text_bytes[:16], cipher_text_bytes[16:]  # Extract the IV and ciphertext
+        cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
+        decryptor = cipher.decryptor()
+        plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
-        # Success! Display  decrypted messages
-        flash("Message decrypted successfully!", "success")
+        # Display the decrypted message to the user
+        flash("Message decrypted successfully.", "success")
         return render_template(
             "decrypt.html",
-            plaintext_message=plaintext_message.decode(),
+            plaintext_message=plaintext_message.decode(),  # Pass the decrypted message
             encrypted_message=encrypted_message,
             message_id=message_id
         )
 
     except Exception as e:
-        flash(f"An unexpected error occurred: {str(e)}", "danger")
+        # Handle exceptions and provide feedback to the user
+        flash(f"An error occurred during decryption: {str(e)}", "danger")
         return redirect(url_for("decrypt", message_id=message_id))
 
     finally:
-        # Clean up temporary file
-        if os.path.exists(temp_file_path):
+        # Clean up temporary files if any were created
+        if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)
+
+
 
 
 #**************************************************************#

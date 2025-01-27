@@ -39,19 +39,21 @@
     <div class="container">
         <h2>Extract and Decrypt Hidden Message</h2>
     
-        <!-- Form for uploading media and private key -->
         <form action="{{ url_for('extract_and_decrypt') }}" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="message_id" value="{{ message_id }}">
-    
-            <label for="mediaFile">Upload Media File:</label>
-            <input type="file" id="mediaFile" name="mediaFile" accept=".png, .jpg, .jpeg, .gif, .bmp, .svg, .webp, .txt, .docx, .pdf, .rtf" required>
             
-    
-            <label for="privateKey">Enter Your Private Key (PEM Format):</label>
-            <textarea id="privateKey" name="privateKey" rows="6" placeholder="Paste your private key here..." required></textarea>
-    
-            <button type="submit">Extract and Decrypt</button>
+            <!-- File input for private key -->
+             <hr>
+             <p>Upload your private key file that saved in your device in (PEM format)</p>
+            <label for="privateKey">Click here to Upload Private Key File</label>
+            <input type="file" name="privateKey" id="privateKey" accept=".pem" required>
+            <hr>
+            
+            <button type="submit">Decrypt</button>
         </form>
+        
+        
+        
     
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}

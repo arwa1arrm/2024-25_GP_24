@@ -52,9 +52,26 @@
   </nav>
 </header>
 
+
+
+
 <!-- Messages Container -->
 <div class="messages-container">
   <h2>Received Messages</h2>
+  <div class="search-container">
+    <form action="{{ url_for('messages') }}" method="POST">
+        <label for="search_email">Search by Sender's Email:</label>
+        <input
+            type="text"
+            id="search_email"
+            name="search_email"
+            placeholder="Enter email"
+            value="{{ search_email }}"  
+        >
+        <button type="submit">Search</button>
+    </form>
+</div>
+
   <div class="messages-wrapper">
     <!-- Messages Go Here -->
     {% if messages %}
@@ -62,6 +79,8 @@
         <div class="message-item">
           <p><strong>Sender Email:</strong> {{ message.SenderEmail }}</p>
           <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
+          <p><strong>Sent Date:</strong> {{ message.SentDate }}</p> <!-- Display the SentDate -->
+
           <a href="{{ url_for('decrypt', message_id=message.MessageID) }}">
             <button class="decrypt-btn">Decrypt</button>
           </a>
