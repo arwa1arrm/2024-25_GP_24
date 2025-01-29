@@ -78,11 +78,10 @@
       {% for message in messages %}
         <div class="message-item">
           <p><strong>Sender Email:</strong> {{ message.SenderEmail }}</p>
-          <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
           <p><strong>Sent Date:</strong> {{ message.SentDate }}</p> <!-- Display the SentDate -->
 
           <a href="{{ url_for('decrypt', message_id=message.MessageID) }}">
-            <button class="decrypt-btn">Decrypt</button>
+            <button class="decrypt-btn">Extract & Decrypt</button>
           </a>
           <form action="{{ url_for('download_file', filename=message['Filename']) }}" method="GET" style="display: inline;">
             <button class="decrypt-btn">Download File</button>

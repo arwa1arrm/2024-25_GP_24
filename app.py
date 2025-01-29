@@ -288,38 +288,10 @@ def update_username():
 
     return redirect(url_for("viewprofile"))
 
-
-
-
 #************************************************************#
 #************Steps before the encryption ********************#
 #************************************************************#
 #************************************************************#
-# Helper function: Convert files like PDF, DOCX, RTF to plain text
-def convert_to_text(file_path):
-    """Convert supported file types to plain text."""
-    file_extension = os.path.splitext(file_path)[1].lower()
-    
-    if file_extension == '.pdf':
-        # Extract text from PDF using PyPDF2
-        from PyPDF2 import PdfReader
-        reader = PdfReader(file_path)
-        return ' '.join(page.extract_text() for page in reader.pages)
-
-    elif file_extension == '.docx':
-        # Extract text from DOCX using python-docx
-        import docx
-        doc = docx.Document(file_path)
-        return ' '.join(paragraph.text for paragraph in doc.paragraphs)
-
-    elif file_extension == '.rtf':
-        # Extract text from RTF using striprtf
-        import striprtf
-        with open(file_path, 'r', encoding='utf-8') as rtf_file:
-            return striprtf.rtf_to_text(rtf_file.read())
-
-    else:
-        raise ValueError("Unsupported file type for text extraction.")
 
 # Helper function: Encode a message with Zero-Width Characters
 def encode_with_zero_width(message):
@@ -334,20 +306,12 @@ UPLOAD_FOLDER = os.path.join(app.root_path, "uploads", "temp_files")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Utility functions for Zero-Width Encoding
-def encode_with_zero_width(message):
-    """Encodes a binary message using Zero-Width Characters."""
-    zero_width_mapping = {'0': '\u200b', '1': '\u200c'}
-    binary_message = ''.join(format(ord(char), '08b') for char in message)
-    encoded_message = ''.join(zero_width_mapping[bit] for bit in binary_message)
-    return encoded_message
-
 def decode_with_zero_width(encoded_text):
     """Decodes a Zero-Width encoded message back to plaintext."""
     zero_width_mapping = {'\u200b': '0', '\u200c': '1'}
     binary_message = ''.join(zero_width_mapping[char] for char in encoded_text if char in zero_width_mapping)
     decoded_message = ''.join(chr(int(binary_message[i:i+8], 2)) for i in range(0, len(binary_message), 8))
     return decoded_message
-
 
 #************************************************************#
 #*****************calculate_file_hash ***********************#
@@ -367,7 +331,7 @@ def calculate_file_hash(file_path):
 
 #**************************************************************#
 #*************encrypt_and_hide route***************************#
-#**************************************************************#
+
 @app.route("/encrypt_and_hide", methods=["POST"])
 @login_required
 def encrypt_and_hide():
@@ -443,22 +407,35 @@ def encrypt_and_hide():
             media_file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
             uploaded_file.save(media_file_path)
 
-            if file_extension in ['.txt', '.docx', '.pdf', '.rtf']:
-                # Handle text file embedding
-                if file_extension == '.txt':
-                    with open(media_file_path, "r", encoding="utf-8") as text_file:
-                        text_content = text_file.read()
-                else:
-                    text_content = convert_to_text(media_file_path)
-
+            if file_extension == '.txt':
+                with open(media_file_path, "r", encoding="utf-8") as text_file:
+                    text_content = text_file.read()
                 zero_width_message = encode_with_zero_width(encrypted_message)
                 hidden_text_content = text_content + zero_width_message
-
                 hidden_filename = f"hidden_{uploaded_file.filename}"
                 hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
-
                 with open(hidden_path, "w", encoding="utf-8") as hidden_file:
                     hidden_file.write(hidden_text_content)
+
+            elif file_extension == '.pdf':
+                from PyPDF2 import PdfReader, PdfWriter
+                reader = PdfReader(media_file_path)
+                writer = PdfWriter()
+                for page in reader.pages:
+                    writer.add_page(page)
+                writer.add_metadata({'/HiddenMessage': encrypted_message})
+                hidden_filename = f"hidden_{uploaded_file.filename}"
+                hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+                with open(hidden_path, "wb") as hidden_pdf:
+                    writer.write(hidden_pdf)
+
+            elif file_extension == '.docx':
+                import docx
+                doc = docx.Document(media_file_path)
+                doc.add_paragraph(encrypted_message).runs[0].font.hidden = True
+                hidden_filename = f"hidden_{uploaded_file.filename}"
+                hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+                doc.save(hidden_path)
 
             elif file_extension in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp']:
                 # Handle image file embedding
@@ -485,7 +462,16 @@ def encrypt_and_hide():
                 hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
                 encoded_img.save(hidden_path)
 
-        # Step 4: Calculate file hash if a file was embedded
+            elif file_extension in ['.rtf']:
+                import striprtf
+                with open(media_file_path, "r", encoding="utf-8") as rtf_file:
+                    text_content = striprtf.rtf_to_text(rtf_file.read())
+                hidden_text_content = f"{text_content}\n[HIDDEN MESSAGE]: {encrypted_message}"
+                hidden_filename = f"hidden_{uploaded_file.filename}"
+                hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
+                with open(hidden_path, "w", encoding="utf-8") as hidden_file:
+                    hidden_file.write(hidden_text_content)
+
         file_hash = calculate_file_hash(hidden_path) if hidden_path else None
 
         # Save to database
@@ -506,7 +492,6 @@ def encrypt_and_hide():
 
         flash("Message encrypted, hidden, and sent successfully.", "success")
 
-        # Provide a download URL for the hidden file
         if hidden_filename:
             download_url = url_for("download_file", filename=hidden_filename, _external=True)
             return render_template("encryptionPage.html", download_url=download_url, filename=hidden_filename)
@@ -521,8 +506,6 @@ def encrypt_and_hide():
     finally:
         cur.close()
         con.close()
-
-
 
 
 #**************************************************************#

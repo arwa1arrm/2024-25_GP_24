@@ -70,12 +70,11 @@
         {% for message in messages %}
           <div class="message-item">
             <p><strong>Recipient Email:</strong> {{ message.ReceiverEmail }}</p>
-            <p><strong>Encrypted Message:</strong> {{ message.EncryptedMessage }}</p>
             <p><strong>Sent Date:</strong> {{ message.SentDate }}</p>
             
             <!-- Decrypt Button -->
             <a href="{{ url_for('decrypt', message_id=message.MessageID) }}">
-              <button class="decrypt-btn">Decrypt</button>
+              <button class="decrypt-btn">Extract And Decrypt</button>
             </a>
 
             <!-- Download Button -->

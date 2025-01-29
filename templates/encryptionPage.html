@@ -76,7 +76,7 @@
     {% endif %}
     {% endwith %}
 
-    <!-- Download and Share Buttons -->
+    <!-- Download Button -->
     {% if download_url %}
     <div class="download-section" style="margin-top: 20px; text-align: center;">
         <h2>Your Hidden File is Ready</h2>
@@ -86,23 +86,8 @@
             <button type="submit" class="btn btn-primary">Download Hidden File</button>
         </form>
 
-        <!-- Share Button -->
-        <button class="btn btn-secondary" onclick="copyShareableLink(this)" data-link="{{ download_url }}">
-            Share File
-        </button>
     </div>
-    <script>
-    function copyShareableLink(button) {
-        const shareableLink = button.getAttribute("data-link");
-        navigator.clipboard.writeText(shareableLink)
-            .then(function() {
-                alert("Shareable link copied to clipboard!");
-            })
-            .catch(function(err) {
-                alert("Failed to copy the link: " + err);
-            });
-    }
-    </script>
+   
     {% endif %}
   </div>
 
