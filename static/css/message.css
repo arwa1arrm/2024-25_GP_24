@@ -1,256 +1,313 @@
-
-  
-      /* Welcome section */
-      .welcome {
-        padding: 100px 50px;
-        text-align: center;
-      }
-  
-      .welcome h1 {
-        font-size: 50px;
-        color: #26367B;
-        margin-bottom: 20px;
-      }
-  
-      .welcome p {
-        font-size: 22px;
-        color: #26367B;
-      }
-  
-      .welcome button {
-        background-color: #f4b942;
-        color: white;
-        padding: 15px 30px;
-        border: none;
-        border-radius: 25px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-  
-      .welcome button:hover {
-        background-color: #26367B;
-        color: #f4b942;
-
-      }
-            
-  
-      .features-section h2 {
-        font-size: 40px;
-        color: #26367B;
-        margin-bottom: 20px;
-      }
-  
-      .features-section p {
-        font-size: 18px;
-        color: #555;
-        line-height: 1.6;
-        margin-bottom: 40px;
-      }
-  
-      .features-section button {
-        background-color: #26367B;
-        color: white;
-        padding: 15px 30px;
-        border: none;
-        border-radius: 25px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-  
-      .features-section button:hover {
-        background-color: #f4b942;
-        color: #26367B;
-      }
-  /* Search container */
-.search-container {
-  margin-bottom: 20px;
+/* Welcome section */
+.welcome {
+  padding: 100px 50px;
   text-align: center;
-  padding: 10px 20px;
-  background-color: #26367b24; /* Light background color */
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for the container */
+}
+
+.welcome h1 {
+  font-size: 50px;
+  color: #26367B;
+  margin-bottom: 20px;
+}
+
+.welcome p {
+  font-size: 22px;
+  color: #26367B;
+}
+
+.welcome button {
+  background-color: #f4b942;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.welcome button:hover {
+  background-color: #26367B;
+  color: #f4b942;
+
+}
+      
+
+.features-section h2 {
+  font-size: 40px;
+  color: #26367B;
+  margin-bottom: 20px;
+}
+
+.features-section p {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.features-section button {
+  background-color: #26367B;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.features-section button:hover {
+  background-color: #f4b942;
+  color: #26367B;
+}
+/* Search container */
+.search-container {
+
+margin-bottom: 20px;
+text-align: center;
+padding: 15px 20px 10px 20px;
+background-color: #26367b24; /* Light background color */
+border-radius: 10px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for the container */
 }
 
 /* Search input field */
 .search-container input[type="text"] {
-  padding: 10px;
-  width: 250px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
-  font-size: 16px;
-  outline: none;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+padding: 10px;
+width: 250px;
+border: 1px solid #ccc;
+border-radius: 5px;
+margin-right: 10px;
+font-size: 16px;
+outline: none;
+transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .search-container input[type="text"]:focus {
-  border-color: #26367B; /* Blue border on focus */
-  box-shadow: 0 0 5px rgba(38, 54, 123, 0.5); /* Subtle glow */
+border-color: #26367B; /* Blue border on focus */
+box-shadow: 0 0 5px rgba(38, 54, 123, 0.5); /* Subtle glow */
 }
 
 /* Search button */
 .search-container button {
-  background-color: #26367B;
-  color: white;
-  padding: 10px 15px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+background-color: #26367B;
+color: white;
+padding: 10px 15px;
+font-size: 16px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .search-container button:hover {
-  background-color: #f4b942; /* Yellow on hover */
-  color: #26367B; /* Blue text */
+background-color: #f4b942; /* Yellow on hover */
+color: #26367B; /* Blue text */
 }
 
-      .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; 
-        height: 100%; 
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); 
-        background-color: rgba(0,0,0,0.4); 
-        padding-top: 60px;
-      }
-      
-      .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto; 
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; 
-        max-width: 400px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-      #confirmLogoutBtn, #cancelLogoutBtn{
-        background-color: #f4b942dc;
-        border: none;
-        padding: 3%;
-        margin-left: 2%;
-        border-radius: 15px;
-        cursor: pointer;
-        color: #26367B;
-        transition: background-color 0.3s ease; 
-  
-      }
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); 
+  background-color: rgba(0,0,0,0.4); 
+  padding-top: 60px;
+}
 
-    
-      /* Messages container */
-      .messages-container {
-        max-width: 800px;
-        margin: 10% auto;
-        padding: 20px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-  
-      .messages-container h2 {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      .message-item p {
-        word-wrap: break-word; /* Break long strings onto the next line */
-        overflow-wrap: break-word; /* Ensures compatibility across browsers */
-        white-space: normal; /* Enables line breaking */
-        overflow: hidden; /* Prevents any overflow */
-        text-overflow: ellipsis; /* Adds ellipsis for aesthetic truncation if necessary */
-      }
-      
-      .messages-container {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      }
-      
-      /* Individual message item */
-      .message-item {
-        padding: 20px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-  
-      .message-item:hover {
-        background-color: #f1f1f1;
-      }
-  
-      /* Hidden content of the message */
-      .message-content {
-        display: none;
-        margin-top: 10px;
-      }
-  
-      .message-content p {
-        font-size: 16px;
-        line-height: 1.5;
-        color: #555;
-      }
-
-      
-      .messages-wrapper .message-item {
-        display: none; /* Hide all messages by default */
-      }
-      
-      .messages-wrapper .message-item:nth-child(-n+2) {
-        display: block; /* Display only the first two messages */
-      }
-      
-      .show-more-btn {
-        display: block;
-        margin: 20px auto;
-        background-color: #26367B;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-      }
-      
-      .show-more-btn:hover {
-        background-color: #e7a832;
-        color: #26367B; /* White text */
-
-      }
-      
-
-      /* Button for decryption */
-.decrypt-btn {
-  background-color: #26367B; /* Default yellow */
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto; 
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; 
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+#confirmLogoutBtn, #cancelLogoutBtn{
+  background-color: #f4b942dc;
   border: none;
-  color: white; /* White text */
-  padding: 10px 20px;
+  padding: 3%;
+  margin-left: 2%;
+  border-radius: 15px;
+  cursor: pointer;
+  color: #26367B;
+  transition: background-color 0.3s ease; 
+
+}
+
+
+/* Messages container */
+.messages-container {
+  max-width: 800px;
+  margin: 10% auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.messages-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.message-item p {
+  word-wrap: break-word; /* Break long strings onto the next line */
+  overflow-wrap: break-word; /* Ensures compatibility across browsers */
+  white-space: normal; /* Enables line breaking */
+  overflow: hidden; /* Prevents any overflow */
+  text-overflow: ellipsis; /* Adds ellipsis for aesthetic truncation if necessary */
+}
+
+.messages-container {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Individual message item */
+.message-item {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.message-item:hover {
+  background-color: #f1f1f1;
+}
+
+/* Hidden content of the message */
+.message-content {
+  display: none;
   margin-top: 10px;
+}
+
+.message-content p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+}
+
+
+.messages-wrapper .message-item {
+  display: none; /* Hide all messages by default */
+}
+
+.messages-wrapper .message-item:nth-child(-n+2) {
+  display: block; /* Display only the first two messages */
+}
+
+.show-more-btn {
+  display: block;
+  margin: 20px auto;
+  background-color: #26367B;
+  border: none;
+  color: white;
+  padding: 10px 20px;
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
 
-.decrypt-btn:hover {
-  background-color: #f4b942; /* Blue background on hover */
+.show-more-btn:hover {
+  background-color: #e7a832;
   color: #26367B; /* White text */
 
 }
 
 
-      @media (max-width: 768px) {
+/* Button for decryption */
+.decrypt-btn {
+background-color: #26367B; 
+border: none;
+color: white; /* White text */
+padding: 10px 20px;
+margin-top: 10px;
+cursor: pointer;
+border-radius: 5px;
+transition: background-color 0.3s ease;
+}
 
-        .messages-container  {
-          margin: 40% 10%;
-          padding: 10px;
-       
-    
-    }
-      }
-      
+.decrypt-btn:hover {
+background-color: #f4b942; /* Blue background on hover */
+color: #26367B; /* White text */
+}
+
+.delete-btn {
+background-color: #a10000c0; /* Default yellow */
+border: none;
+color: white; /* White text */
+padding: 10px 20px;
+margin-top: 10px;
+cursor: pointer;
+border-radius: 5px;
+transition: background-color 0.3s ease;
+margin-left: 50%;
+}
+
+.delete-btn:hover {
+background-color: #a10000f5; /* Blue background on hover */
+color: #ffffff; /* White text */
+}
+
+.sortby{
+background-color: #ffffff; /* Default yellow */
+border: none;
+color: #26367B; /* White text */
+padding: 10px 10px;
+margin-top: 0px;
+margin-right: 42%;
+cursor: pointer;
+border-radius: 5px;
+transition: background-color 0.3s ease; 
+}
+
+
+
+/* Status indicators */
+.status {
+padding: 5px 2px;
+font-size: 14px;
+font-weight: bold;
+}
+
+/* Opened (Green) */
+.status.opened {
+font-size: medium;
+color:#005c15 ;
+border-radius: 35%;
+
+}
+
+/* Unread (Red) */
+.status.unread {
+font-size: medium;
+color:#a70000;
+border-radius: 35%;
+
+}
+
+.message-item.read {
+background-color: #0055141e; /* Light blue for read messages */
+}
+
+/*.message-item.unread {
+background-color: #b1001215; /* Light red for unread messages 
+}*/
+
+
+
+@media (max-width: 768px) {
+
+  .messages-container  {
+    margin: 40% 10%;
+    padding: 10px;     }
+}

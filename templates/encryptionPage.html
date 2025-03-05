@@ -26,15 +26,18 @@
     </a>
     <nav>
       <a href="{{ url_for('encryptionPage') }}" style="text-decoration: none;">Encrypt & Hide</a>
-      <div class="profile">
-        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
-          <i class="fas fa-envelope" style="font-size: 20px;"></i>
-        </a>
-        <div class="dropdown">
-          <a href="{{ url_for('messages') }}" style="text-decoration: none;">Received messages</a>
-          <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
-        </div>
-      </div>
+         <!-- Messages -->
+<div class="profile">
+  <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px; position: relative;">
+    <i class="fas fa-envelope" style="font-size: 20px;"></i>
+    <span id="unreadCount" class="unread-badge" style="display: none; color:#a70000;"></span>
+  </a>
+  <div class="dropdown">
+    <a href="{{ url_for('messages') }}" style="text-decoration: none;">Received messages</a>
+    <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
+  </div>
+</div>
+
       <div class="profile">
         <i class="fas fa-user-circle profile-icon"></i>
         <div class="dropdown">
@@ -53,13 +56,15 @@
       <input type="email" id="receiverEmail" name="receiverEmail" placeholder="Receiver's Email" required>
 
       <label for="message">Enter your message:</label>
-      <textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt" required></textarea>
+      <p id="charCount">5000 characters remaining</p>
+
+<textarea id="message" name="message" rows="4" placeholder="Enter the message you want to encrypt. maxlength=5000 characters" maxlength="5000" required></textarea>
 
       <label for="mediaFile" class="upload">
-        Upload media file (supported formats: .png, .jpg, .jpeg, .gif, .bmp, .webp, .txt, .docx, .pdf, .rtf):
+        Upload media file (supported formats: .png, .jpg, .jpeg, .gif, .bmp, .webp, .txt, .docx, .pdf, .rtf, .mp4, .avi, .mov, .mkv, .mp3, .wav, .flac, .ogg, .m4a):
     </label>
       <input type="file" id="mediaFile" name="mediaFile" 
-            accept=".png, .jpg, .jpeg, .gif, .bmp, .webp, .txt, .docx, .pdf, .rtf" required>
+            accept=".png, .jpg, .jpeg, .gif, .bmp, .webp, .txt, .docx, .pdf, .rtf, .mp4, .avi, .mov, .mkv, .mp3, .wav, .flac, .ogg, .m4a" required>
       
 
       <button type="submit" id="sendButton">Encrypt and Send</button>
@@ -111,9 +116,63 @@
   </footer>
   <script>
     document.getElementById("encryptHideForm").onsubmit = function(event) {
+      console.log("🚀 Form submitted!");
       const sendButton = document.getElementById("sendButton");
       sendButton.disabled = true;
     };
   </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const messageInput = document.getElementById("message");
+      const charCountDisplay = document.getElementById("charCount");
+      const maxChars = 5000;
+  
+      // Hide counter initially
+      charCountDisplay.style.display = "none";
+  
+      messageInput.addEventListener("input", function () {
+        const remaining = maxChars - messageInput.value.length;
+  
+        // Show counter when user starts typing
+        if (messageInput.value.length > 0) {
+          charCountDisplay.style.display = "block";
+        } else {
+          charCountDisplay.style.display = "none";
+        }
+  
+        charCountDisplay.textContent = remaining + " characters remaining";
+  
+        // Change color if character limit is exceeded
+        if (remaining < 0) {
+          charCountDisplay.style.color = "red";
+        } else {
+          charCountDisplay.style.color = "";
+        }
+      });
+    });
+  </script>
+  
+<script>
+  function fetchUnreadMessages() {
+    fetch("{{ url_for('get_unread_messages_count') }}") 
+      .then(response => response.json())
+      .then(data => {
+        let unreadCount = data.unread_count;
+        let badge = document.getElementById("unreadCount");
+
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      })
+      .catch(error => console.error("Error fetching unread messages:", error));
+  }
+
+  // Call the function when the page loads
+  document.addEventListener("DOMContentLoaded", fetchUnreadMessages);
+</script>
+  
 </body>
 </html>
