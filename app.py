@@ -39,6 +39,7 @@ import numpy as np
 import subprocess
 import hashlib
 
+from werkzeug.utils import quote
 
 
 # Initialize Flask app and MySQL
