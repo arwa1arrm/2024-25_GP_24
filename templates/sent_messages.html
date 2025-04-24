@@ -20,17 +20,18 @@
     </a>
     <nav>
       <a href="{{ url_for('encryptionPage') }}" style="text-decoration: none;">Encrypt & Hide</a>
-
-      <!-- Messages -->
-      <div class="profile">
-        <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px;">
-          <i class="fas fa-envelope" style="font-size: 20px;"></i>
-        </a>
-        <div class="dropdown">
-          <a href="{{ url_for('messages') }}" style="text-decoration: none;">Received messages</a>
-          <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
-        </div>
-      </div>
+   <!-- Messages -->
+   <div class="profile">
+    <a href="{{ url_for('messages') }}" style="text-decoration: none; margin-left: 10px; position: relative;">
+      <i class="fas fa-envelope" style="font-size: 20px;"></i>
+      <span id="unreadCount" class="unread-badge" style="display: none; color:#a70000;"></span>
+    </a>
+    <div class="dropdown">
+      <a href="{{ url_for('messages') }}" style="text-decoration: none;">Received messages</a>
+      <a href="{{ url_for('sent_messages') }}" style="text-decoration: none;">Sent messages</a>
+    </div>
+  </div>
+  
 
       <!-- Profile -->
       <div class="profile">
@@ -61,17 +62,43 @@
           value="{{ search_email }}"
         >
         <button type="submit">Search</button>
-      </form>
+      </form><br>
+      
+      <label for="sort_by">Sort by:</label>
+      <select id="sort_by" name="sort_by" class="sortby" onchange="applySorting()">
+        <option value="" {% if not sort_by %}selected{% endif %}>...</option>
+        <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Filter by (Newest First)</option>
+        <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Filter by (Oldest First)</option>
+        <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>Filter by Recipient Name (A-Z)</option>
+        <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Filter by Recipient Name (Z-A)</option>
+        <option value="status_asc" {% if sort_by == 'status_asc' %}selected{% endif %}>Filter by Status (Unread First)</option>
+        <option value="status_desc" {% if sort_by == 'status_desc' %}selected{% endif %}>Status Filter by (Read First)</option>
+      </select>
+      
+      
     </div>
+    
+    
+    
 
     <div class="messages-wrapper">
       <!-- Display messages -->
       {% if messages %}
         {% for message in messages %}
-          <div class="message-item">
-            <p><strong>Recipient Email:</strong> {{ message.ReceiverEmail }}</p>
+        <div class="message-item {% if message.IsRead %}read{% else %}unread{% endif %}">
+          <p><strong>Recipient Email:</strong> {{ message.ReceiverEmail }}</p>
             <p><strong>Sent Date:</strong> {{ message.SentDate }}</p>
             
+             <!-- Status Indicator -->
+        <p>
+          <strong>Status:</strong>
+          {% if message.IsRead %}
+            <span class="status opened">Opened</span>
+          {% else %}
+            <span class="status unread">Unread</span>
+          {% endif %}
+        </p>
+
             <!-- Decrypt Button -->
             <a href="{{ url_for('decrypt', message_id=message.MessageID) }}">
               <button class="decrypt-btn">Extract And Decrypt</button>
@@ -81,7 +108,10 @@
             <form action="{{ url_for('download_file', filename=message.Filename) }}" method="GET" style="display: inline;">
               <button class="decrypt-btn">Download File</button>
             </form>
+            <button class="delete-btn"  onclick="confirmDelete({{ message.MessageID }})">Delete</button>
+
           </div>
+          
         {% endfor %}
       {% else %}
         <p>No messages found.</p>
@@ -122,6 +152,42 @@
 
       button.style.display = 'none'; // Hide "Show More" button
     }
+
+    
+    function applySorting() {
+      const sortBy = document.getElementById('sort_by').value;
+      window.location.href = "{{ url_for('sent_messages') }}?sort_by=" + sortBy;
+    }
+
+    function confirmDelete(messageId) {
+      if (confirm("Are you sure you want to delete this message?")) {
+        window.location.href = "{{ url_for('delete_message', message_id=0) }}".replace('0', messageId);
+      }
+    }
+
   </script>
+
+  
+<script>
+  function fetchUnreadMessages() {
+    fetch("{{ url_for('get_unread_messages_count') }}") 
+      .then(response => response.json())
+      .then(data => {
+        let unreadCount = data.unread_count;
+        let badge = document.getElementById("unreadCount");
+
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
+      })
+      .catch(error => console.error("Error fetching unread messages:", error));
+  }
+
+  // Call the function when the page loads
+  document.addEventListener("DOMContentLoaded", fetchUnreadMessages);
+</script>
 </body>
 </html>

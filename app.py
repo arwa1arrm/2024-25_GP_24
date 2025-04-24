@@ -1021,7 +1021,7 @@ def signupsafe1():
         existing_user = cur.fetchone()
 
         if existing_user:
-            return render_template('signupsafe1.html', error="Email is already registered!")
+            return render_template('signupsafe1.html', error="Email is already registered!. Please log in directly")
 
         # Generate keys and certificate
         private_key, certificate = generate_keys_and_certificate(user_name)
