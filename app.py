@@ -119,6 +119,14 @@ else:
 mysql = MySQL(app)
 
 
+# Test the database connection
+@app.before_first_request
+def test_db_connection():
+    con = mysql.connection
+    if con:
+        app.logger.info("Database connected successfully")
+    else:
+        app.logger.error("Database connection failed")
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
@@ -1095,6 +1103,11 @@ def signupsafe1():
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
     con = mysql.connection
+    if con is None:
+        app.logger.error("Failed to connect to the database.")
+        flash('Unable to connect to the database.', 'danger')
+        return redirect(url_for('index'))  # Or whatever route is appropriate
+
     cur = con.cursor()
 
     if request.method == "POST":
