@@ -2,14 +2,15 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-import pymysql 
+from flask_mysqldb import MySQL
+import pymysql
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 import datetime  # For datetime.datetime.utcnow()
-from datetime import timedelta  # For timed elta
+from datetime import timedelta  # For timedelta
 import io
 import base64
 import bcrypt
@@ -88,34 +89,31 @@ def send_otp_email(to_email, otp):
 
 from urllib.parse import urlparse
 
-# Get the database URL from environment variable (for JawsDB)
+
+# Get the database URL from the environment variable (for JawsDB)
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 
-# If DATABASE_URL exists, parse it
 if DATABASE_URL:
     result = urlparse(DATABASE_URL)
     mysql_user = result.username
     mysql_password = result.password
     mysql_host = result.hostname
     mysql_dbname = result.path[1:]
-    mysql = MySQL(app)  # Initialize MySQL for Heroku
 
+    app.config['MYSQL_USER'] = mysql_user
+    app.config['MYSQL_PASSWORD'] = mysql_password
+    app.config['MYSQL_HOST'] = mysql_host
+    app.config['MYSQL_DB'] = mysql_dbname
 else:
-    # If DATABASE_URL is not set, use local MySQL for testing
-    mysql_user = 'root'
-    mysql_password = 'root'
-    mysql_host = 'localhost'
-    mysql_dbname = 'concealsafe'
+    app.config['MYSQL_HOST'] = 'localhost'
+    app.config['MYSQL_USER'] = 'root'
+    app.config['MYSQL_PASSWORD'] = 'root'
+    app.config['MYSQL_DB'] = 'concealsafe'
 
-# Initialize MySQL connection using PyMySQL (replace flaskext.mysql)
-pymysql.install_as_MySQLdb()
+# Initialize MySQL connection
+mysql = MySQL(app)
 
-# Your app configuration for MySQL
-app.config['MYSQL_DATABASE_USER'] = mysql_user
-app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
-app.config['MYSQL_DATABASE_DB'] = mysql_dbname
-app.config['MYSQL_DATABASE_HOST'] = mysql_host
-mysql = MySQL(app)  # Initialize MySQL for Heroku
+
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
