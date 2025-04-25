@@ -86,25 +86,35 @@ def send_otp_email(to_email, otp):
 
 
 
-# Get the database URL from environment variable
+from urllib.parse import urlparse
+
+
+# Get the database URL from the environment variable (for JawsDB)
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 
-# Parse the database URL
+# If DATABASE_URL exists, parse it
 if DATABASE_URL:
-    mysql_user, mysql_password, mysql_host, mysql_dbname = parse_database_url(DATABASE_URL)
+    result = urlparse(DATABASE_URL)
+    mysql_user = result.username
+    mysql_password = result.password
+    mysql_host = result.hostname
+    mysql_dbname = result.path[1:]
 else:
-    # If DATABASE_URL is not set, use local MySQL (for local testing)
+    # If DATABASE_URL is not set, use local MySQL for testing
     mysql_user = 'root'
     mysql_password = 'root'
     mysql_host = 'localhost'
     mysql_dbname = 'concealsafe'
 
+# Set the MySQL configuration (no need for MYSQL_DATABASE_SOCKET)
 app.config['MYSQL_DATABASE_USER'] = mysql_user
 app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
 app.config['MYSQL_DATABASE_DB'] = mysql_dbname
 app.config['MYSQL_DATABASE_HOST'] = mysql_host
 
+# Initialize the MySQL connection
 mysql.init_app(app)
+
 
 
 # Set the timeout period in seconds (15 minutes)
