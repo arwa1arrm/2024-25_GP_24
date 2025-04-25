@@ -2,8 +2,10 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-from flask_mysqldb import MySQL
+#from flask_mysqldb import MySQL
 import pymysql
+from flask_mysql import MySQL
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
@@ -94,43 +96,40 @@ from urllib.parse import urlparse
 from urllib.parse import urlparse
 import os
 
-# Get the database URL from the environment variable (for JawsDB)
+
+# Get database connection info from JawsDB
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 
 if DATABASE_URL:
     result = urlparse(DATABASE_URL)
-    mysql_user = result.username
-    mysql_password = result.password
-    mysql_host = result.hostname
-    mysql_dbname = result.path[1:]
-
-    # إعداد الاتصال بقاعدة البيانات في Heroku
-    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')  # تأكد من أن هذه المتغيرات بيئة صحيحة
-    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-    app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
-
+    app.config['MYSQL_HOST'] = result.hostname
+    app.config['MYSQL_USER'] = result.username
+    app.config['MYSQL_PASSWORD'] = result.password
+    app.config['MYSQL_DB'] = result.path[1:]
 else:
+    # Local Development Configuration
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_USER'] = 'root'
     app.config['MYSQL_PASSWORD'] = 'root'
     app.config['MYSQL_DB'] = 'concealsafe'
 
-
 # Initialize MySQL connection
-mysql = MySQL(app)
+mysql.init_app(app)
 
 
-# Test the database connection
+# Test database connection on first request
 @app.before_first_request
 def test_db_connection():
-    con = mysql.connection
-    if con:
-        app.logger.info("Database connected successfully")
-    else:
-        app.logger.error("Database connection failed")
+    try:
+        con = mysql.connection
+        if con:
+            app.logger.info("Database connected successfully")
+        else:
+            app.logger.error("Database connection failed")
+    except Exception as e:
+        app.logger.error(f"Error while connecting to the database: {e}")
 
-# Set the timeout period in seconds (15 minutes)
+# Set the session timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
 
 
@@ -1104,7 +1103,8 @@ def signupsafe1():
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    con = mysql.connection
+    con = mysql.connect()  # Using the flask-mysql connector
+
     if con is None:
         app.logger.error("Failed to connect to the database.")
         flash('Unable to connect to the database.', 'danger')
