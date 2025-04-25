@@ -104,10 +104,12 @@ if DATABASE_URL:
     mysql_host = result.hostname
     mysql_dbname = result.path[1:]
 
-    app.config['MYSQL_USER'] = mysql_user
-    app.config['MYSQL_PASSWORD'] = mysql_password
-    app.config['MYSQL_HOST'] = mysql_host
-    app.config['MYSQL_DB'] = mysql_dbname
+    # إعداد الاتصال بقاعدة البيانات في Heroku
+    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')  # تأكد من أن هذه المتغيرات بيئة صحيحة
+    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
+    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+    app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
+
 else:
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_USER'] = 'root'
