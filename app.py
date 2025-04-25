@@ -2,7 +2,6 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-#from flaskext.mysql import MySQL
 import pymysql 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -87,7 +86,6 @@ def send_otp_email(to_email, otp):
 
 
 
-import pymysql
 from urllib.parse import urlparse
 
 # Get the database URL from environment variable (for JawsDB)
@@ -108,7 +106,6 @@ else:
     mysql_dbname = 'concealsafe'
 
 # Initialize MySQL connection using PyMySQL (replace flaskext.mysql)
-import pymysql
 pymysql.install_as_MySQLdb()
 
 # Your app configuration for MySQL
@@ -116,7 +113,6 @@ app.config['MYSQL_DATABASE_USER'] = mysql_user
 app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
 app.config['MYSQL_DATABASE_DB'] = mysql_dbname
 app.config['MYSQL_DATABASE_HOST'] = mysql_host
-
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
