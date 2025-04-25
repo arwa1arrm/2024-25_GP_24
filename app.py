@@ -276,7 +276,8 @@ def viewprofile():
     """Render the user profile view."""
     user_id = session.get('user_id')  # Get the user_id from the session
     
-    con = mysql.connect()
+    # Instead of mysql.connect(), use:
+    con = mysql.connection
     cur = con.cursor()
     cur.execute("SELECT user_name, email FROM users WHERE user_id=%s", (user_id,))
     user_data = cur.fetchone()
@@ -308,7 +309,8 @@ def update_username():
 
     try:
         # Update the username in the database
-        con = mysql.connect()
+        # Instead of mysql.connect(), use:
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
         con.commit()
@@ -393,7 +395,7 @@ def encrypt_and_hide():
         flash("Receiver email and message are required.", "danger")
         return redirect(url_for("encryptionPage"))
 
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     try:
@@ -617,7 +619,7 @@ def sent_messages():
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")  # Default sorting by date descending
 
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     
@@ -691,7 +693,7 @@ def delete_message(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
     
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
     con.commit()
@@ -711,7 +713,7 @@ def delete_message_rec(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
     
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
     con.commit()
@@ -732,7 +734,7 @@ def delete_message_rec(message_id):
 def get_unread_messages_count():
     user_id = session.get("user_id")  
 
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     # Query to count unread messages
@@ -759,7 +761,7 @@ def messages():
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")
 
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     # Base query
@@ -896,7 +898,7 @@ def extract_and_decrypt():
             return redirect(url_for("decrypt", message_id=message_id))
 
         # Fetch the filename, encrypted shared key, and encrypted message from the database
-        con = mysql.connect()
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, Content FROM message WHERE MessageID = %s", (message_id,))
         result = cur.fetchone()
@@ -932,7 +934,7 @@ def extract_and_decrypt():
         plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
         # *** Mark the message as read (seen) in the database ***
-        con = mysql.connect()
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("UPDATE message SET IsRead = TRUE WHERE MessageID = %s", (message_id,))
         con.commit()
@@ -995,7 +997,7 @@ def encryptionPage():
 
 
         # Retrieve the recipient's user ID from the database
-        con = mysql.connect()
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (recipient_email,))
         recipient_data = cur.fetchone()
@@ -1014,7 +1016,7 @@ def encryptionPage():
             encrypted_symmetric_key = encrypt_with_public_key(key, recipient_public_key)
 
             # Store the encrypted message in the database
-            con = mysql.connect()
+            con = mysql.connection
             cur = con.cursor()
             cur.execute(
                 "INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",
@@ -1037,7 +1039,7 @@ def encryptionPage():
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 #Handle user resistration
 def signupsafe1():
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     if request.method == "POST":
@@ -1087,7 +1089,7 @@ def signupsafe1():
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
 
     if request.method == "POST":
@@ -1237,7 +1239,7 @@ def verify_otp():
 
         if otp_entered == session["otp"]:
             # OTP is correct, now store the user data in the database
-            con = mysql.connect()
+            con = mysql.connection
             cur = con.cursor()
 
             # Hash the password
@@ -1364,7 +1366,7 @@ def request_reset():
     email = request.form["email"]
 
     # Check if the user exists
-    con = mysql.connect()
+    con = mysql.connection
     cur = con.cursor()
     cur.execute("SELECT user_id FROM users WHERE email=%s", (email,))
     user = cur.fetchone()
@@ -1423,7 +1425,7 @@ def reset_password(user_id):
         # Hash and update the password
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        con = mysql.connect()
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
         con.commit()
@@ -1445,7 +1447,7 @@ def edit_password(user_id):
         confirm_password = request.form["confirm_password"]
 
         # Validate the current password by checking it against the stored one
-        con = mysql.connect()
+        con = mysql.connection
         cur = con.cursor()
         cur.execute("SELECT password FROM users WHERE user_id=%s", (user_id,))
         stored_password = cur.fetchone()
