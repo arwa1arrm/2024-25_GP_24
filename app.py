@@ -79,23 +79,37 @@ def send_otp_email(to_email, otp):
 
 
 
-# Read JAWSDB_URL environment variable set by Heroku
-db_url = os.environ.get('JAWSDB_URL')
 
-if db_url:
-    app.config['MYSQL_DATABASE_URI'] = db_url  # Set the MySQL connection URI from the Heroku environment variable
+# Get the database URL from environment variable
+DATABASE_URL = os.environ.get('JAWSDB_URL')
+
+# Parse the database URL
+if DATABASE_URL:
+    mysql_user, mysql_password, mysql_host, mysql_dbname = parse_database_url(DATABASE_URL)
 else:
-    app.config['MYSQL_DATABASE_USER'] = 'root'
-    app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-    app.config['MYSQL_DATABASE_DB'] = 'concealsafe'
-    app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+    # If DATABASE_URL is not set, use local MySQL (for local testing)
+    mysql_user = 'root'
+    mysql_password = 'root'
+    mysql_host = 'localhost'
+    mysql_dbname = 'concealsafe'
 
+app.config['MYSQL_DATABASE_USER'] = mysql_user
+app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
+app.config['MYSQL_DATABASE_DB'] = mysql_dbname
+app.config['MYSQL_DATABASE_HOST'] = mysql_host
+
+mysql.init_app(app)
 
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
 
 
+from urllib.parse import urlparse
+
+def parse_database_url(url):
+    result = urlparse(url)
+    return result.username, result.password, result.hostname, result.path[1:]
 
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
@@ -1012,6 +1026,7 @@ def encryptionPage():
 #**********************Signup route************************#
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
+#Handle user resistration
 def signupsafe1():
     con = mysql.connect()
     cur = con.cursor()
@@ -1033,18 +1048,24 @@ def signupsafe1():
         private_key, certificate = generate_keys_and_certificate(user_name)
 
         # Hash the password using bcrypt
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
 
-        # Store user details in the session for OTP verification (no password)
-        session['user_id'] = cur.lastrowid
+
+        # Store private key in the session
+        session['private_key'] = base64.b64encode(private_key).decode()
+        session['user_id'] = cur.lastrowid  # Store user ID in session
+        
+        # Store user details in session instead of the database
         session['user_name'] = user_name
         session['email'] = email
+        session['password'] = password
         session['certificate'] = certificate
-
+        
         # Generate and send OTP
         otp = generate_otp()
-        session['otp'] = otp
-        send_otp_email(email, otp)
+        session['otp'] = otp  # Store OTP in session
+        session['email'] = email  # Store email in session
+        send_otp_email(email, otp)  # Your function to send OTP
 
         flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
         return redirect(url_for('verify_otp'))
