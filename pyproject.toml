@@ -1,0 +1,2 @@
+[tool.poetry.dependencies]
+pyaudio = {version = "0.2.11", extras = [], source = "pypi", allow-prereleases = false}
