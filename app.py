@@ -2,14 +2,15 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-from flaskext.mysql import MySQL
+#from flaskext.mysql import MySQL
+import pymysql 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 import datetime  # For datetime.datetime.utcnow()
-from datetime import timedelta  # For timedelta
+from datetime import timedelta  # For timed elta
 import io
 import base64
 import bcrypt
@@ -86,10 +87,10 @@ def send_otp_email(to_email, otp):
 
 
 
+import pymysql
 from urllib.parse import urlparse
 
-
-# Get the database URL from the environment variable (for JawsDB)
+# Get the database URL from environment variable (for JawsDB)
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 
 # If DATABASE_URL exists, parse it
@@ -106,15 +107,15 @@ else:
     mysql_host = 'localhost'
     mysql_dbname = 'concealsafe'
 
-# Set the MySQL configuration (no need for MYSQL_DATABASE_SOCKET)
+# Initialize MySQL connection using PyMySQL (replace flaskext.mysql)
+import pymysql
+pymysql.install_as_MySQLdb()
+
+# Your app configuration for MySQL
 app.config['MYSQL_DATABASE_USER'] = mysql_user
 app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
 app.config['MYSQL_DATABASE_DB'] = mysql_dbname
 app.config['MYSQL_DATABASE_HOST'] = mysql_host
-
-# Initialize the MySQL connection
-mysql.init_app(app)
-
 
 
 # Set the timeout period in seconds (15 minutes)
