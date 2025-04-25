@@ -1012,7 +1012,6 @@ def encryptionPage():
 #**********************Signup route************************#
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
-#Handle user resistration
 def signupsafe1():
     con = mysql.connect()
     cur = con.cursor()
@@ -1034,24 +1033,18 @@ def signupsafe1():
         private_key, certificate = generate_keys_and_certificate(user_name)
 
         # Hash the password using bcrypt
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-
-        # Store private key in the session
-        session['private_key'] = base64.b64encode(private_key).decode()
-        session['user_id'] = cur.lastrowid  # Store user ID in session
-        
-        # Store user details in session instead of the database
+        # Store user details in the session for OTP verification (no password)
+        session['user_id'] = cur.lastrowid
         session['user_name'] = user_name
         session['email'] = email
-        session['password'] = password
         session['certificate'] = certificate
-        
+
         # Generate and send OTP
         otp = generate_otp()
-        session['otp'] = otp  # Store OTP in session
-        session['email'] = email  # Store email in session
-        send_otp_email(email, otp)  # Your function to send OTP
+        session['otp'] = otp
+        send_otp_email(email, otp)
 
         flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
         return redirect(url_for('verify_otp'))
