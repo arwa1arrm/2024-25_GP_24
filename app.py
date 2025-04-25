@@ -91,6 +91,10 @@ from urllib.parse import urlparse
 
 
 # Get the database URL from the environment variable (for JawsDB)
+from urllib.parse import urlparse
+import os
+
+# Get the database URL from the environment variable (for JawsDB)
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 
 if DATABASE_URL:
@@ -109,6 +113,7 @@ else:
     app.config['MYSQL_USER'] = 'root'
     app.config['MYSQL_PASSWORD'] = 'root'
     app.config['MYSQL_DB'] = 'concealsafe'
+
 
 # Initialize MySQL connection
 mysql = MySQL(app)
