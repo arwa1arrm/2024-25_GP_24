@@ -41,6 +41,12 @@ import hashlib
 
 from werkzeug.utils import quote
 
+from urllib.parse import urlparse
+
+def parse_database_url(url):
+    result = urlparse(url)
+    return result.username, result.password, result.hostname, result.path[1:]
+
 
 # Initialize Flask app  and MySQL
 app = Flask(__name__)
@@ -105,11 +111,6 @@ mysql.init_app(app)
 SESSION_TIMEOUT = 900
 
 
-from urllib.parse import urlparse
-
-def parse_database_url(url):
-    result = urlparse(url)
-    return result.username, result.password, result.hostname, result.path[1:]
 
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
