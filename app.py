@@ -42,7 +42,7 @@ import hashlib
 from werkzeug.utils import quote
 
 
-# Initialize Flask app and MySQL
+# Initialize Flask app  and MySQL
 app = Flask(__name__)
 mysql = MySQL()
 
@@ -79,12 +79,18 @@ def send_otp_email(to_email, otp):
 
 
 
-# Configure MySQL with Flask app 
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-app.config['MYSQL_DATABASE_DB'] = 'concealsafe'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
+# Read JAWSDB_URL environment variable set by Heroku
+db_url = os.environ.get('JAWSDB_URL')
+
+if db_url:
+    app.config['MYSQL_DATABASE_URI'] = db_url  # Set the MySQL connection URI from the Heroku environment variable
+else:
+    app.config['MYSQL_DATABASE_USER'] = 'root'
+    app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
+    app.config['MYSQL_DATABASE_DB'] = 'concealsafe'
+    app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+
+
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
