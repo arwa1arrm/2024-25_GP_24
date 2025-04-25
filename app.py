@@ -98,6 +98,8 @@ if DATABASE_URL:
     mysql_password = result.password
     mysql_host = result.hostname
     mysql_dbname = result.path[1:]
+    mysql = MySQL(app)  # Initialize MySQL for Heroku
+
 else:
     # If DATABASE_URL is not set, use local MySQL for testing
     mysql_user = 'root'
@@ -113,6 +115,7 @@ app.config['MYSQL_DATABASE_USER'] = mysql_user
 app.config['MYSQL_DATABASE_PASSWORD'] = mysql_password
 app.config['MYSQL_DATABASE_DB'] = mysql_dbname
 app.config['MYSQL_DATABASE_HOST'] = mysql_host
+mysql = MySQL(app)  # Initialize MySQL for Heroku
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
