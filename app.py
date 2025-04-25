@@ -1106,7 +1106,7 @@ def loginsafe():
     if con is None:
         app.logger.error("Failed to connect to the database.")
         flash('Unable to connect to the database.', 'danger')
-        return redirect(url_for('index'))  # Or whatever route is appropriate
+        return redirect(url_for('homepage'))  # Or whatever route is appropriate
 
     cur = con.cursor()
 
