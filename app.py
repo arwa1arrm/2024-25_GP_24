@@ -1131,9 +1131,9 @@ def loginsafe():
         app.config['MYSQL_DB'] = mysql_db
 
         # SSL certificates for JawsDB connection
-        app.config['MYSQL_SSL_CA'] = '/path/to/ca-cert.pem'  # Update with actual file path
-        app.config['MYSQL_SSL_CERT'] = '/path/to/client-cert.pem'  # Update with actual file path
-        app.config['MYSQL_SSL_KEY'] = '/path/to/client-key.pem'  # Update with actual file path
+        app.config['MYSQL_SSL_CA'] = 'C:\Users\Said Mesloub\Desktop\global-bundle.pem.txt'  # Update with actual file path
+        app.config['MYSQL_SSL_CERT'] = 'C:\Users\Said Mesloub\Desktop\global-bundle.pem.txt'  # Update with actual file path
+        app.config['MYSQL_SSL_KEY'] = 'C:\Users\Said Mesloub\Desktop\global-bundle.pem.txt'  # Update with actual file path
 
     try:
         # Using flask_mysqldb to create connection using configured settings
