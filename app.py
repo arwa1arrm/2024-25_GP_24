@@ -101,10 +101,16 @@ DATABASE_URL = os.environ.get('JAWSDB_URL')
 
 if DATABASE_URL:
     result = urlparse(DATABASE_URL)
+    print(f"Database URL parsed: {result}")
     app.config['MYSQL_HOST'] = result.hostname
     app.config['MYSQL_USER'] = result.username
     app.config['MYSQL_PASSWORD'] = result.password
     app.config['MYSQL_DB'] = result.path[1:]
+    print(f"Host: {result.hostname}")
+    print(f"User: {result.username}")
+    print(f"Password: {result.password}")
+    print(f"DB Name: {result.path[1:]}")
+
 else:
     # Local Development Configuration
     app.config['MYSQL_HOST'] = 'localhost'
@@ -201,6 +207,16 @@ def add_no_cache_headers(response):
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
+@app.route("/testdb")
+def test_db():
+    try:
+        con = mysql.connection
+        if con:
+            return "Connected to MySQL!"
+        else:
+            return "Failed to connect to MySQL."
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 #**********************************************************#
