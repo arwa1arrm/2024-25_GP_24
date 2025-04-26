@@ -116,17 +116,9 @@ else:
 mysql.init_app(app)
 
 
-# Test database connection on first request
 @app.before_first_request
-def test_db_connection():
-    try:
-        con = mysql.connection
-        if con:
-            app.logger.info("Database connected successfully")
-        else:
-            app.logger.error("Database connection failed")
-    except Exception as e:
-        app.logger.error(f"Error while connecting to the database: {e}")
+def before_first_request_func():
+    print("This runs before the first request.")
 
 # Set the session timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
