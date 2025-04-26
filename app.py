@@ -90,23 +90,21 @@ def send_otp_email(to_email, otp):
 
 from urllib.parse import urlparse
 
+# إنشاء كائن MySQL
+mysql = MySQL()
 
-# Get the database URL from the environment variable (for JawsDB)
-from urllib.parse import urlparse
-import os
-
-
-# Database connection function to avoid repetition
+# دالة للحصول على إعدادات الاتصال بقاعدة البيانات من المتغير البيئي
 def get_database_config():
-    DATABASE_URL = os.environ.get('JAWSDB_URL')
+    DATABASE_URL = os.environ.get('JAWSDB_URL')  # الحصول على المتغير البيئي
     if DATABASE_URL:
         result = urlparse(DATABASE_URL)
         return {
             'MYSQL_HOST': result.hostname,
             'MYSQL_USER': result.username,
             'MYSQL_PASSWORD': result.password,
-            'MYSQL_DB': result.path[1:]
+            'MYSQL_DB': result.path[1:]  # حذف الفاصل / من بداية اسم قاعدة البيانات
         }
+    # في حالة عدم وجود المتغير البيئي، نستخدم الإعدادات الافتراضية
     return {
         'MYSQL_HOST': 'localhost',
         'MYSQL_USER': 'root',
@@ -114,17 +112,11 @@ def get_database_config():
         'MYSQL_DB': 'concealsafe'
     }
 
-# Configure the MySQL connection settings for the app
+# تحديث إعدادات الاتصال مع قاعدة البيانات
 app.config.update(get_database_config())
+
+# تهيئة MySQL
 mysql.init_app(app)
-
-
-
-# Set the session timeout period in seconds (15 minutes)
-SESSION_TIMEOUT = 900
-
-
-
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
@@ -1119,7 +1111,6 @@ def signupsafe1():
 #**********************************************************#
 #**********************loginsafe route*******************#
 #**********************************************************#    
-import ssl
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
     con = mysql.connection
