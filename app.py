@@ -1118,13 +1118,19 @@ def loginsafe():
         mysql_password = result.password
         mysql_db = result.path[1:]
 
+        # Log the parsed database details for debugging
+        app.logger.info(f"Database URL parsed: {result}")
+        app.logger.info(f"Host: {mysql_host}")
+        app.logger.info(f"User: {mysql_user}")
+        app.logger.info(f"DB Name: {mysql_db}")
+
         # Set the MySQL connection settings in Flask configuration
         app.config['MYSQL_HOST'] = mysql_host
         app.config['MYSQL_USER'] = mysql_user
         app.config['MYSQL_PASSWORD'] = mysql_password
         app.config['MYSQL_DB'] = mysql_db
 
-        # Ensure SSL is enabled for JawsDB
+        # SSL certificates for JawsDB connection
         app.config['MYSQL_SSL_CA'] = '/path/to/ca-cert.pem'  # Update with actual file path
         app.config['MYSQL_SSL_CERT'] = '/path/to/client-cert.pem'  # Update with actual file path
         app.config['MYSQL_SSL_KEY'] = '/path/to/client-key.pem'  # Update with actual file path
