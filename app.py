@@ -122,9 +122,6 @@ else:
 mysql= MySQL(app)
 
 
-@app.before_first_request
-def before_first_request_func():
-    print("This runs before the first request.")
 
 # Set the session timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
@@ -1110,14 +1107,29 @@ def signupsafe1():
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    con = mysql.connection  # Using the flask-mysql connector
+    DATABASE_URL = os.environ.get('JAWSDB_URL')
 
-    if con is None:
-        app.logger.error("Failed to connect to the database.")
-        flash('Unable to connect to the database.', 'danger')
-        return redirect(url_for('homepage'))  # Or whatever route is appropriate
+    if DATABASE_URL:
+        result = urlparse(DATABASE_URL)
+        mysql_host = result.hostname
+        mysql_user = result.username
+        mysql_password = result.password
+        mysql_db = result.path[1:]
 
-    cur = con.cursor()
+        # Connect to the MySQL database with SSL
+        try:
+            # Connection with SSL enabled
+            con = mysql.connect(
+                host=mysql_host,
+                user=mysql_user,
+                password=mysql_password,
+                db=mysql_db,
+                ssl={'ssl_ca': '/path/to/ca-cert.pem', 'ssl_cert': '/path/to/client-cert.pem', 'ssl_key': '/path/to/client-key.pem'}
+            )
+        except MySQLdb.OperationalError as e:
+            app.logger.error(f"Failed to connect to MySQL database: {e}")
+            flash('Failed to connect to the database. Please try again later.', 'danger')
+            return redirect(url_for('homepage'))
 
     if request.method == "POST":
         email = request.form['email']
