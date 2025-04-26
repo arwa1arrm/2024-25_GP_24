@@ -1129,11 +1129,17 @@ def loginsafe():
         app.config['MYSQL_SSL_CERT'] = '/path/to/client-cert.pem'  # Update with actual file path
         app.config['MYSQL_SSL_KEY'] = '/path/to/client-key.pem'  # Update with actual file path
 
-    # Using flask_mysqldb to create connection using configured settings
     try:
+        # Using flask_mysqldb to create connection using configured settings
         con = mysql.connection
+
+        if con is None:
+            app.logger.error("Failed to connect to the database. The connection object is None.")
+            flash('Failed to connect to the database. Please try again later.', 'danger')
+            return redirect(url_for('homepage'))
+
     except Exception as e:
-        app.logger.error(f"Failed to get database connection: {e}")
+        app.logger.error(f"Error establishing connection: {e}")
         flash('Failed to connect to the database. Please try again later.', 'danger')
         return redirect(url_for('homepage'))
 
@@ -1141,35 +1147,39 @@ def loginsafe():
         email = request.form['email']
         password = request.form['password']
 
-        cur = con.cursor()
+        try:
+            cur = con.cursor()
+            # Check if the user exists in the database
+            cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+            user = cur.fetchone()
 
-        # Check if the user exists in the database
-        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-        user = cur.fetchone()
+            if user:
+                stored_hashed_password = user[3]  # the password is stored in the 3rd column (index 3)
 
-        if user:
-            stored_hashed_password = user[3]  # the password is stored in the 3rd column (index 3)
+                # Check if the hashed password matches the entered password
+                if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
+                    session['user_id'] = user[0]
+                    session['user_name'] = user[1]
+                    
+                    # Generate and send OTP
+                    otp = generate_otp()
+                    send_otp_email(email, otp)
+                    session['otp'] = otp
+                    session['email'] = email
+                    
+                    flash('OTP has been sent to your email. Please verify to log in.', 'info')
+                    return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
+                else:
+                    flash('Invalid email or password.', 'danger')
 
-            # Check if the hashed password matches the entered password
-            if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                session['user_id'] = user[0]
-                session['user_name'] = user[1]
-                
-                # Generate and send OTP
-                otp = generate_otp()
-                send_otp_email(email, otp)
-                session['otp'] = otp
-                session['email'] = email
-                
-                flash('OTP has been sent to your email. Please verify to log in.', 'info')
-                return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
             else:
                 flash('Invalid email or password.', 'danger')
 
-        else:
-            flash('Invalid email or password.', 'danger')
+            cur.close()
 
-        cur.close()
+        except Exception as e:
+            app.logger.error(f"Database error: {e}")
+            flash('An error occurred while accessing the database. Please try again later.', 'danger')
 
     # Ensure con is not None before trying to close it
     if con:
