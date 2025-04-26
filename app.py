@@ -96,30 +96,27 @@ from urllib.parse import urlparse
 import os
 
 
-# Get database connection info from JawsDB
-DATABASE_URL = os.environ.get('JAWSDB_URL')
+# Database connection function to avoid repetition
+def get_database_config():
+    DATABASE_URL = os.environ.get('JAWSDB_URL')
+    if DATABASE_URL:
+        result = urlparse(DATABASE_URL)
+        return {
+            'MYSQL_HOST': result.hostname,
+            'MYSQL_USER': result.username,
+            'MYSQL_PASSWORD': result.password,
+            'MYSQL_DB': result.path[1:]
+        }
+    return {
+        'MYSQL_HOST': 'localhost',
+        'MYSQL_USER': 'root',
+        'MYSQL_PASSWORD': 'root',
+        'MYSQL_DB': 'concealsafe'
+    }
 
-if DATABASE_URL:
-    result = urlparse(DATABASE_URL)
-    print(f"Database URL parsed: {result}")
-    app.config['MYSQL_HOST'] = result.hostname
-    app.config['MYSQL_USER'] = result.username
-    app.config['MYSQL_PASSWORD'] = result.password
-    app.config['MYSQL_DB'] = result.path[1:]
-    print(f"Host: {result.hostname}")
-    print(f"User: {result.username}")
-    print(f"Password: {result.password}")
-    print(f"DB Name: {result.path[1:]}")
-
-else:
-    # Local Development Configuration
-    app.config['MYSQL_HOST'] = 'localhost'
-    app.config['MYSQL_USER'] = 'root'
-    app.config['MYSQL_PASSWORD'] = 'root'
-    app.config['MYSQL_DB'] = 'concealsafe'
-
-# Initialize MySQL connection
-mysql= MySQL(app)
+# Configure the MySQL connection settings for the app
+app.config.update(get_database_config())
+mysql.init_app(app)
 
 
 
@@ -1056,29 +1053,7 @@ def encryptionPage():
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 def signupsafe1():
-    DATABASE_URL = os.environ.get('JAWSDB_URL')  # Get database URL from environment variables
-
-    if DATABASE_URL:
-        result = urlparse(DATABASE_URL)
-        mysql_host = result.hostname
-        mysql_user = result.username
-        mysql_password = result.password
-        mysql_db = result.path[1:]
-
-        # Log the parsed database details for debugging
-        app.logger.info(f"Database URL parsed: {result}")
-        app.logger.info(f"Host: {mysql_host}")
-        app.logger.info(f"User: {mysql_user}")
-        app.logger.info(f"DB Name: {mysql_db}")
-
-        # Set the MySQL connection settings in Flask configuration
-        app.config['MYSQL_HOST'] = mysql_host
-        app.config['MYSQL_USER'] = mysql_user
-        app.config['MYSQL_PASSWORD'] = mysql_password
-        app.config['MYSQL_DB'] = mysql_db
-
-    con = mysql.connection  # Establish the connection
-
+    con = mysql.connection
     if request.method == "POST":
         user_name = request.form['user_name']
         email = request.form['email']
@@ -1127,7 +1102,7 @@ def signupsafe1():
             otp = generate_otp()
             session['otp'] = otp  # Store OTP in session
             session['email'] = email  # Store email in session
-            send_otp_email(email, otp)  # Your function to send OTP
+            send_otp_email(email, otp)
 
             flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
             return redirect(url_for('verify_otp'))
@@ -1137,7 +1112,6 @@ def signupsafe1():
             flash("An error occurred while registering. Please try again.", 'danger')
 
         finally:
-            # Ensure cursor and connection are closed after operation
             cur.close()
             con.close()
 
@@ -1148,45 +1122,7 @@ def signupsafe1():
 import ssl
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    DATABASE_URL = os.environ.get('JAWSDB_URL')
-
-    if DATABASE_URL:
-        result = urlparse(DATABASE_URL)
-        mysql_host = result.hostname
-        mysql_user = result.username
-        mysql_password = result.password
-        mysql_db = result.path[1:]
-
-        # Log the parsed database details for debugging
-        app.logger.info(f"Database URL parsed: {result}")
-        app.logger.info(f"Host: {mysql_host}")
-        app.logger.info(f"User: {mysql_user}")
-        app.logger.info(f"DB Name: {mysql_db}")
-
-        # Set the MySQL connection settings in Flask configuration
-        app.config['MYSQL_HOST'] = mysql_host
-        app.config['MYSQL_USER'] = mysql_user
-        app.config['MYSQL_PASSWORD'] = mysql_password
-        app.config['MYSQL_DB'] = mysql_db
-
-        # SSL certificates for JawsDB connection
-        app.config['MYSQL_SSL_CA'] = base64.b64decode(os.environ.get('MYSQL_SSL_CA')).decode('utf-8')
-        app.config['MYSQL_SSL_CERT'] = base64.b64decode(os.environ.get('MYSQL_SSL_CERT')).decode('utf-8')
-        app.config['MYSQL_SSL_KEY'] = base64.b64decode(os.environ.get('MYSQL_SSL_KEY')).decode('utf-8')
-    try:
-        # Using flask_mysqldb to create connection using configured settings
-        con = mysql.connection
-
-        if con is None:
-            app.logger.error("Failed to connect to the database. The connection object is None.")
-            flash('Failed to connect to the database. Please try again later.', 'danger')
-            return redirect(url_for('homepage'))
-
-    except Exception as e:
-        app.logger.error(f"Error establishing connection: {e}")
-        flash('Failed to connect to the database. Please try again later.', 'danger')
-        return redirect(url_for('homepage'))
-
+    con = mysql.connection
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
@@ -1224,10 +1160,6 @@ def loginsafe():
         except Exception as e:
             app.logger.error(f"Database error: {e}")
             flash('An error occurred while accessing the database. Please try again later.', 'danger')
-
-    # Ensure con is not None before trying to close it
-    if con:
-        con.close()  # Close the connection when done
 
     return render_template('loginsafe.html')
 
