@@ -90,21 +90,23 @@ def send_otp_email(to_email, otp):
 
 from urllib.parse import urlparse
 
-# إنشاء كائن MySQL
-mysql = MySQL()
 
-# دالة للحصول على إعدادات الاتصال بقاعدة البيانات من المتغير البيئي
+# Get the database URL from the environment variable (for JawsDB)
+from urllib.parse import urlparse
+import os
+
+
+# Database connection function to avoid repetition
 def get_database_config():
-    DATABASE_URL = os.environ.get('JAWSDB_URL')  # الحصول على المتغير البيئي
+    DATABASE_URL = os.environ.get('JAWSDB_URL')
     if DATABASE_URL:
         result = urlparse(DATABASE_URL)
         return {
             'MYSQL_HOST': result.hostname,
             'MYSQL_USER': result.username,
             'MYSQL_PASSWORD': result.password,
-            'MYSQL_DB': result.path[1:]  # حذف الفاصل / من بداية اسم قاعدة البيانات
+            'MYSQL_DB': result.path[1:]
         }
-    # في حالة عدم وجود المتغير البيئي، نستخدم الإعدادات الافتراضية
     return {
         'MYSQL_HOST': 'localhost',
         'MYSQL_USER': 'root',
@@ -112,11 +114,17 @@ def get_database_config():
         'MYSQL_DB': 'concealsafe'
     }
 
-# تحديث إعدادات الاتصال مع قاعدة البيانات
+# Configure the MySQL connection settings for the app
 app.config.update(get_database_config())
-
-# تهيئة MySQL
 mysql.init_app(app)
+
+
+
+# Set the session timeout period in seconds (15 minutes)
+SESSION_TIMEOUT = 900
+
+
+
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
