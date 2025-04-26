@@ -113,7 +113,7 @@ else:
     app.config['MYSQL_DB'] = 'concealsafe'
 
 # Initialize MySQL connection
-mysql= MySQL()
+mysql= MySQL(app)
 
 
 @app.before_first_request
@@ -1094,7 +1094,7 @@ def signupsafe1():
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    con = mysql.connection()  # Using the flask-mysql connector
+    con = mysql.connection  # Using the flask-mysql connector
 
     if con is None:
         app.logger.error("Failed to connect to the database.")
