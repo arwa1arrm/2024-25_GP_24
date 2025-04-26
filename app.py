@@ -1048,120 +1048,58 @@ def encryptionPage():
 
     return render_template('encryptionPage.html')  
 
+
+###############################################################################################################
+# Error handling when trying to fetch or decode missing values
+def fetch_and_decode_from_db(query, params):
+    result = fetch_from_db(query, params)
+    check_for_none(result, "Database result")
+    return base64.b64decode(result[0])
 #**********************************************************#
 #**********************Signup route************************#
 #**********************************************************#
+# Main route for testing OTP and other functionalities
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 def signupsafe1():
-    con = mysql.connection
     if request.method == "POST":
         user_name = request.form['user_name']
         email = request.form['email']
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
-        # Ensure passwords match
         if password != confirmPassword:
             flash("Passwords do not match.", 'danger')
             return redirect(url_for('signupsafe1'))
 
         try:
-            cur = con.cursor()
-            
-            # Check if the email already exists in the DB
+            cur = mysql.connection.cursor()
             cur.execute("SELECT email FROM users WHERE email=%s", (email,))
             existing_user = cur.fetchone()
-
             if existing_user:
-                flash("Email is already registered! Please log in directly.", 'danger')
+                flash("Email is already registered! Please log in.", 'danger')
                 return redirect(url_for('signupsafe1'))
 
-            # Generate keys and certificate
             private_key, certificate = generate_keys_and_certificate(user_name)
-
-            # Hash the password using bcrypt
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            cur.execute("INSERT INTO users (user_name, email, password, private_key, certificate) VALUES (%s, %s, %s, %s, %s)",
+                        (user_name, email, hashed_password, base64.b64encode(private_key).decode(), certificate))
+            mysql.connection.commit()
 
-            # Store user details in the DB
-            cur.execute(
-                "INSERT INTO users (user_name, email, password, private_key, certificate) VALUES (%s, %s, %s, %s, %s)",
-                (user_name, email, hashed_password, base64.b64encode(private_key).decode(), certificate)
-            )
-            con.commit()
-
-            # Store private key in the session
-            session['private_key'] = base64.b64encode(private_key).decode()
-            session['user_id'] = cur.lastrowid  # Store user ID in session
-
-            # Store user details in session
+            session['user_id'] = cur.lastrowid
             session['user_name'] = user_name
             session['email'] = email
             session['certificate'] = certificate
-
-            # Generate and send OTP
             otp = generate_otp()
-            session['otp'] = otp  # Store OTP in session
-            session['email'] = email  # Store email in session
+            session['otp'] = otp
             send_otp_email(email, otp)
 
             flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
             return redirect(url_for('verify_otp'))
 
         except Exception as e:
-            app.logger.error(f"Error during registration: {e}")
-            flash("An error occurred while registering. Please try again.", 'danger')
-
-        finally:
-            cur.close()
-            con.close()
+            flash(f"Error: {str(e)}", 'danger')
 
     return render_template('signupsafe1.html')
-#**********************************************************#
-#**********************loginsafe route*******************#
-#**********************************************************#    
-import ssl
-@app.route("/loginsafe", methods=['GET', 'POST'])
-def loginsafe():
-    con = mysql.connection
-    if request.method == "POST":
-        email = request.form['email']
-        password = request.form['password']
-
-        try:
-            cur = con.cursor()
-            # Check if the user exists in the database
-            cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-            user = cur.fetchone()
-
-            if user:
-                stored_hashed_password = user[3]  # the password is stored in the 3rd column (index 3)
-
-                # Check if the hashed password matches the entered password
-                if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                    session['user_id'] = user[0]
-                    session['user_name'] = user[1]
-                    
-                    # Generate and send OTP
-                    otp = generate_otp()
-                    send_otp_email(email, otp)
-                    session['otp'] = otp
-                    session['email'] = email
-                    
-                    flash('OTP has been sent to your email. Please verify to log in.', 'info')
-                    return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
-                else:
-                    flash('Invalid email or password.', 'danger')
-
-            else:
-                flash('Invalid email or password.', 'danger')
-
-            cur.close()
-
-        except Exception as e:
-            app.logger.error(f"Database error: {e}")
-            flash('An error occurred while accessing the database. Please try again later.', 'danger')
-
-    return render_template('loginsafe.html')
 
 #**********************************************************#
 #*****************verify_login_otp route*******************#
