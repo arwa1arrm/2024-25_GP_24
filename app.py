@@ -1055,10 +1055,29 @@ def encryptionPage():
 #**********************Signup route************************#
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
-#Handle user resistration
 def signupsafe1():
-    con = mysql.connection
-    cur = con.cursor()
+    DATABASE_URL = os.environ.get('JAWSDB_URL')  # Get database URL from environment variables
+
+    if DATABASE_URL:
+        result = urlparse(DATABASE_URL)
+        mysql_host = result.hostname
+        mysql_user = result.username
+        mysql_password = result.password
+        mysql_db = result.path[1:]
+
+        # Log the parsed database details for debugging
+        app.logger.info(f"Database URL parsed: {result}")
+        app.logger.info(f"Host: {mysql_host}")
+        app.logger.info(f"User: {mysql_user}")
+        app.logger.info(f"DB Name: {mysql_db}")
+
+        # Set the MySQL connection settings in Flask configuration
+        app.config['MYSQL_HOST'] = mysql_host
+        app.config['MYSQL_USER'] = mysql_user
+        app.config['MYSQL_PASSWORD'] = mysql_password
+        app.config['MYSQL_DB'] = mysql_db
+
+    con = mysql.connection  # Establish the connection
 
     if request.method == "POST":
         user_name = request.form['user_name']
@@ -1066,41 +1085,62 @@ def signupsafe1():
         password = request.form['password']
         confirmPassword = request.form['confirmPassword']
 
-        # Check if the email already exists in the DB
-        cur.execute("SELECT email FROM users WHERE email=%s", (email,))
-        existing_user = cur.fetchone()
+        # Ensure passwords match
+        if password != confirmPassword:
+            flash("Passwords do not match.", 'danger')
+            return redirect(url_for('signupsafe1'))
 
-        if existing_user:
-            return render_template('signupsafe1.html', error="Email is already registered!. Please log in directly")
+        try:
+            cur = con.cursor()
+            
+            # Check if the email already exists in the DB
+            cur.execute("SELECT email FROM users WHERE email=%s", (email,))
+            existing_user = cur.fetchone()
 
-        # Generate keys and certificate
-        private_key, certificate = generate_keys_and_certificate(user_name)
+            if existing_user:
+                flash("Email is already registered! Please log in directly.", 'danger')
+                return redirect(url_for('signupsafe1'))
 
-        # Hash the password using bcrypt
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
+            # Generate keys and certificate
+            private_key, certificate = generate_keys_and_certificate(user_name)
 
+            # Hash the password using bcrypt
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-        # Store private key in the session
-        session['private_key'] = base64.b64encode(private_key).decode()
-        session['user_id'] = cur.lastrowid  # Store user ID in session
-        
-        # Store user details in session instead of the database
-        session['user_name'] = user_name
-        session['email'] = email
-        session['password'] = password
-        session['certificate'] = certificate
-        
-        # Generate and send OTP
-        otp = generate_otp()
-        session['otp'] = otp  # Store OTP in session
-        session['email'] = email  # Store email in session
-        send_otp_email(email, otp)  # Your function to send OTP
+            # Store user details in the DB
+            cur.execute(
+                "INSERT INTO users (user_name, email, password, private_key, certificate) VALUES (%s, %s, %s, %s, %s)",
+                (user_name, email, hashed_password, base64.b64encode(private_key).decode(), certificate)
+            )
+            con.commit()
 
-        flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
-        return redirect(url_for('verify_otp'))
+            # Store private key in the session
+            session['private_key'] = base64.b64encode(private_key).decode()
+            session['user_id'] = cur.lastrowid  # Store user ID in session
 
-    cur.close()
-    con.close()
+            # Store user details in session
+            session['user_name'] = user_name
+            session['email'] = email
+            session['certificate'] = certificate
+
+            # Generate and send OTP
+            otp = generate_otp()
+            session['otp'] = otp  # Store OTP in session
+            session['email'] = email  # Store email in session
+            send_otp_email(email, otp)  # Your function to send OTP
+
+            flash('OTP has been sent to your email. Please verify to complete registration.', 'info')
+            return redirect(url_for('verify_otp'))
+
+        except Exception as e:
+            app.logger.error(f"Error during registration: {e}")
+            flash("An error occurred while registering. Please try again.", 'danger')
+
+        finally:
+            # Ensure cursor and connection are closed after operation
+            cur.close()
+            con.close()
+
     return render_template('signupsafe1.html')
 #**********************************************************#
 #**********************loginsafe route*******************#
