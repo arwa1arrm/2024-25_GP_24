@@ -1130,7 +1130,12 @@ def loginsafe():
         app.config['MYSQL_SSL_KEY'] = '/path/to/client-key.pem'  # Update with actual file path
 
     # Using flask_mysqldb to create connection using configured settings
-    con = mysql.connection
+    try:
+        con = mysql.connection
+    except Exception as e:
+        app.logger.error(f"Failed to get database connection: {e}")
+        flash('Failed to connect to the database. Please try again later.', 'danger')
+        return redirect(url_for('homepage'))
 
     if request.method == "POST":
         email = request.form['email']
@@ -1165,10 +1170,13 @@ def loginsafe():
             flash('Invalid email or password.', 'danger')
 
         cur.close()
-    
-    con.close()  # Close the connection when done
+
+    # Ensure con is not None before trying to close it
+    if con:
+        con.close()  # Close the connection when done
 
     return render_template('loginsafe.html')
+
 #**********************************************************#
 #*****************verify_login_otp route*******************#
 #**********************************************************#    
