@@ -312,7 +312,6 @@ def viewprofile():
 #**********************************************************#
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 def signupsafe1():
-    con = mysql.connection
     if request.method == "POST":
         user_name = request.form['user_name']
         email = request.form['email']
@@ -325,6 +324,8 @@ def signupsafe1():
             return redirect(url_for('signupsafe1'))
 
         try:
+            # Get the database connection using pymysql
+            con = get_db_connection()
             cur = con.cursor()
             
             # Check if the email already exists in the DB
@@ -372,9 +373,10 @@ def signupsafe1():
 
         finally:
             cur.close()
-            con.close()
+            con.close()  # Close the connection
 
     return render_template('signupsafe1.html')
+
 #**********************************************************#
 #**********************loginsafe route*******************#
 #**********************************************************#    
@@ -501,8 +503,13 @@ MAX_OTP_ATTEMPTS = 3
 INITIAL_COOLDOWN_PERIOD = 1 
 COOLDOWN_INCREMENT = 2       
 
+# Constants
+MAX_OTP_ATTEMPTS = 3
+INITIAL_COOLDOWN_PERIOD = 1
+COOLDOWN_INCREMENT = 2
+
 @app.route("/verify_otp", methods=["GET", "POST"])
-#Hnadle OTP verification for registration
+# Handle OTP verification for registration
 def verify_otp():
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
@@ -537,26 +544,37 @@ def verify_otp():
 
         if otp_entered == session["otp"]:
             # OTP is correct, now store the user data in the database
-            con = mysql.connection
-            cur = con.cursor()
+            try:
+                # Get the database connection using pymysql
+                con = get_db_connection()
+                cur = con.cursor()
 
-            # Hash the password
-            hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
+                # Hash the password
+                hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
 
-            # Insert the user data into the database
-            cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
-            con.commit()
+                # Insert the user data into the database
+                cur.execute("INSERT INTO users (user_name, email, password, certificate) VALUES (%s, %s, %s, %s)",
+                            (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
+                con.commit()
 
-            # Store the user ID in the session
-            session['user_id'] = cur.lastrowid
-            session.pop("otp", None)
-            session.pop("otp_attempts", None)
-            session.pop("otp_block_until", None)
-            session.pop("cooldown_multiplier", None)
-            session.pop("otp_resend_count", None)
+                # Store the user ID in the session
+                session['user_id'] = cur.lastrowid
+                session.pop("otp", None)
+                session.pop("otp_attempts", None)
+                session.pop("otp_block_until", None)
+                session.pop("cooldown_multiplier", None)
+                session.pop("otp_resend_count", None)
 
-            return render_template("registration_confirmation.html")
+                return render_template("registration_confirmation.html")
+
+            except Exception as e:
+                flash(f"Error during registration: {str(e)}", "danger")
+                return redirect(url_for("signupsafe1"))
+
+            finally:
+                cur.close()
+                con.close()  # Ensure the connection is closed
+
         else:
             # Increment attempt count
             session["otp_attempts"] += 1
@@ -574,15 +592,15 @@ def verify_otp():
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
                 flash(f"<span style='color:red;'>Invalid OTP. You have {remaining_attempts} attempts left.</span>", "warning")
 
-
     return render_template("verify_otp.html")
+
 
 
 #**********************************************************#
 #*********************resend_otp route*******************#
 #**********************************************************#    
 @app.route("/resend_login_otp")
-#Handle OTP resend requests for login verification.
+# Handle OTP resend requests for login verification.
 def resend_login_otp():
     # Check if the user is allowed to request a new OTP
     if session.get("otp_block_until") and datetime.datetime.utcnow() < session["otp_block_until"]:
@@ -593,7 +611,7 @@ def resend_login_otp():
         remaining_seconds = remaining_time.seconds % 60
 
         if remaining_minutes == 0 and remaining_seconds > 0:
-            remaining_message = f" '<span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
+            remaining_message = f"'<span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
         else:
             remaining_message = f"<span style='color:red;'> Please wait for the remaining time: {remaining_minutes} minutes.</span>"
 
@@ -611,16 +629,15 @@ def resend_login_otp():
     else:
         flash("Error: Email not found. Please try logging in again.", 'danger')
         return redirect(url_for('loginsafe'))  
-    
-    return redirect(url_for('verify_login_otp'))
 
+    return redirect(url_for('verify_login_otp'))
 
 
 #**********************************************************#
 #*********************resend_otp route*********************#
 #**********************************************************#  
 @app.route("/resend_registration_otp")
-#Handle OTP resend requests for registration verification.
+# Handle OTP resend requests for registration verification.
 def resend_registration_otp():
     """Handle OTP resend requests for registration verification."""
     # Check if the user is allowed to request a new OTP
@@ -633,7 +650,6 @@ def resend_registration_otp():
 
         if remaining_minutes == 0 and remaining_seconds > 0:
             remaining_message = f" <span style='color:red;'> Please wait for the remaining time: {remaining_seconds} seconds.</span>"
-
         else:
             remaining_message = f" <span style='color:red;'> Please wait for the remaining time: {remaining_minutes} seconds.</span>"
 
@@ -653,6 +669,7 @@ def resend_registration_otp():
         return redirect(url_for('signupsafe1'))  
 
     return redirect(url_for('verify_otp'))
+
 
 
 
