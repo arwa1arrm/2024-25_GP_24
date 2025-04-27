@@ -246,7 +246,7 @@ def download_keys_zip():
         return send_file(
             zip_buffer,
             as_attachment=True,
-            attachment_filename='keys.zip',  # Change this line
+            download_name='keys.zip',  # استخدام download_name بدلاً من attachment_filename
             mimetype='application/zip'
         )
     else:
