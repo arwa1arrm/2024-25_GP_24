@@ -887,12 +887,9 @@ def encrypt_and_hide():
             return redirect(url_for("encryptionPage"))
 
         receiver_id, receiver_certificate_pem = receiver_data
-    try:
         receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
         receiver_public_key = receiver_certificate.public_key()
-    except Exception as e:
-        flash(f"Error loading PEM file for receiver: {str(e)}", "danger")
-        return redirect(url_for("encryptionPage"))
+
 
         # Retrieve sender details
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
