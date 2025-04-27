@@ -194,6 +194,36 @@ def add_no_cache_headers(response):
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
+from cryptography.hazmat.primitives import serialization
+
+def validate_pem(pem_data):
+    try:
+        # Try loading the PEM file content
+        cert = serialization.load_pem_x509_certificate(pem_data.encode(), default_backend())
+        print("PEM file is valid")
+    except Exception as e:
+        print(f"Invalid PEM file: {str(e)}")
+
+# Example usage
+pem_data = '''-----BEGIN CERTIFICATE-----
+MIICqjCCAZKgAwIBAgIUPPAMjG7X/BynqEM0Wk0kNAJBw8wwDQYJKoZIhvcNAQEL
+BQAwDzENMAsGA1UEAwwEYXJ3YTAeFw0yNTA0MjcxNDEzMTFaFw0yNjA0MjcxNDEz
+MTFaMA8xDTALBgNVBAMMBGFyd2EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQDR8E9BjOl0dZL5FFpPL6pF+F2OzslvXEIBiEUQQwvdU0Sg3UY7CUrmhpRT
+J8m2LQOBsScrbDZdEOM2YLeJYCvz1Dy3PA+iEXQJlGQhs1RUAZEVPCq2fsukVY5y
+njvj793Of+APMoej2WPwu3m35QuRG00RIu/N4Bi0nMOg9IdT0DhltYWFuOiD8vgM
+PmdrkcTpGkj7AQKWROgp/wrdYqqSB7murjOIy/HdpodL1bmVGvOz3VRd5sxMDyxy
+1u5InsLV3LVh2oKRQsiWScO7c43F//7cq4Ll1zRu+CP1Oc0KqnVzSHNFYGoSDr7m
+povg+7BrmR5KJ9zG89Jxmn4YpI9BAgMBAAEwDQYJKoZIhvcNAQELBQADggEBALql
+GUHJj6BoWibau54NmJ9pmplDmUkVlhKYgOmWBWOK2/RymMUwxbvzejZbKHjfaUmh
+hZjhmzVuRT4881SiZXXkB/Ei1D09xQsq3aZl3L+Da/+WkXp9Rft1eJLuH9novM8t
+0BLD8/fi0gjd3XOnoIjcTwSa0H/9TX8T/uaCQkdT7rrL21VAulQqlj4FIZDVligt
+8xk68/mNtSByIfa+hCBr5mkooMThIPivIUzpEk4lLPjtDw23qrZTLcBwIn3XV3nb
+3JwaDfTIB+O5kbj08uZbHKrC6utHPMU0ekvxFdgR81xB/8jwTOIwjM7A2aK5u3sj
+H2N58KVSCgL5rwqCD/M=
+-----END CERTIFICATE-----'''
+
+validate_pem(pem_data)
 
 
 #**********************************************************#
