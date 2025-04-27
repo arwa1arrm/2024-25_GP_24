@@ -887,6 +887,9 @@ def encrypt_and_hide():
             return redirect(url_for("encryptionPage"))
 
         receiver_id, receiver_certificate_pem = receiver_data
+        # Validate the PEM format before loading it
+        validate_pem_format(receiver_certificate_pem)
+        
         receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
         receiver_public_key = receiver_certificate.public_key()
 
@@ -1445,7 +1448,11 @@ def extract_and_decrypt():
         if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
-
+# Helper function to validate PEM format
+def validate_pem_format(pem_data):
+    """Validate if the PEM file format is correct."""
+    if not pem_data.startswith("-----BEGIN") or not pem_data.endswith("-----END"):
+        raise ValueError("Invalid PEM file format. Ensure the file begins with '-----BEGIN' and ends with '-----END'")
 
 
 #**************************************************************#
