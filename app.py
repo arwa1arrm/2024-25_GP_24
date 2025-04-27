@@ -1226,8 +1226,10 @@ def get_unread_messages_count():
     WHERE RecipientID = %s AND IsRead = 0
     """
     cur.execute(query, (user_id,))
-    unread_count = cur.fetchone()[0]  # Fetch the count
-
+    if result:
+        unread_count = result[0]   
+    else:
+        unread_count = 0  
     cur.close()
     con.close()
 
