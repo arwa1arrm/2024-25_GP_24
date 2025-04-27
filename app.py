@@ -1091,42 +1091,50 @@ def signupsafe1():
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    con = get_db_connection()
-    cur = con.cursor()
-
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
 
-        # Check if the user exists in the database
-        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-        user = cur.fetchone()
+        try:
+            # Get the database connection using pymysql
+            con = get_db_connection()
+            cur = con.cursor()
+            
+            # Check if the user exists in the database
+            cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+            user = cur.fetchone()
 
-        if user:
-            stored_hashed_password = user[3]  #the password is stored in the 3rd column (index 3)
+            if user:
+                stored_hashed_password = user['password']  # the password is stored in the 'password' column
 
-            # Check if the hashed password matches the entered password
-            if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                session['user_id'] = user[0]  
-                session['user_name'] = user[1]  
-                
-                # Generate and send OTP
-                otp = generate_otp()
-                send_otp_email(email, otp)
-                session['otp'] = otp 
-                session['email'] = email  
-                
-                flash('OTP has been sent to your email. Please verify to log in.', 'info')
-                return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
+                # Check if the hashed password matches the entered password
+                if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
+                    session['user_id'] = user['user_id']
+                    session['user_name'] = user['user_name']
+                    
+                    # Generate and send OTP
+                    otp = generate_otp()
+                    send_otp_email(email, otp)
+                    session['otp'] = otp
+                    session['email'] = email
+                    
+                    flash('OTP has been sent to your email. Please verify to log in.', 'info')
+                    return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
+                else:
+                    flash('Invalid email or password.', 'danger')
+
             else:
                 flash('Invalid email or password.', 'danger')
 
-        else:
-            flash('Invalid email or password.', 'danger')
+            cur.close()
+            con.close()  # Close the connection
 
-    cur.close()
-    con.close()
+        except Exception as e:
+            app.logger.error(f"Database error: {e}")
+            flash('An error occurred while accessing the database. Please try again later.', 'danger')
+
     return render_template('loginsafe.html')
+
 
 #**********************************************************#
 #*****************verify_login_otp route*******************#
