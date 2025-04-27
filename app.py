@@ -58,6 +58,7 @@ app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False  # الجلسات غير دائمة
 app.config['SESSION_USE_SIGNER'] = True  # توقيع الجلسة
 app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  # تخصيص اسم مسبق للمفاتيح
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
 
 # قم بتغيير رابط Redis ليكون متاحًا في متغير البيئة UPSTASH_REDIS_URL
 app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'), ssl=True)
