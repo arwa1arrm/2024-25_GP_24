@@ -18,10 +18,9 @@ from flask_mail import Mail, Message
 import random
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import os
-from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
+from cryptography.x509 import load_pem_x509_certificate
 from stegano import lsb
 from PIL import Image
 from flask import send_from_directory
@@ -196,34 +195,62 @@ def add_no_cache_headers(response):
 #**********************************************************#
 from cryptography.hazmat.primitives import serialization
 
-def validate_pem(pem_data):
-    try:
-        # Try loading the PEM file content
-        cert = serialization.load_pem_x509_certificate(pem_data.encode(), default_backend())
-        print("PEM file is valid")
-    except Exception as e:
-        print(f"Invalid PEM file: {str(e)}")
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+from cryptography.x509 import load_pem_x509_certificate
+import base64
 
-# Example usage
-pem_data = '''-----BEGIN CERTIFICATE-----
-MIICqjCCAZKgAwIBAgIUPPAMjG7X/BynqEM0Wk0kNAJBw8wwDQYJKoZIhvcNAQEL
-BQAwDzENMAsGA1UEAwwEYXJ3YTAeFw0yNTA0MjcxNDEzMTFaFw0yNjA0MjcxNDEz
-MTFaMA8xDTALBgNVBAMMBGFyd2EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
-AoIBAQDR8E9BjOl0dZL5FFpPL6pF+F2OzslvXEIBiEUQQwvdU0Sg3UY7CUrmhpRT
-J8m2LQOBsScrbDZdEOM2YLeJYCvz1Dy3PA+iEXQJlGQhs1RUAZEVPCq2fsukVY5y
-njvj793Of+APMoej2WPwu3m35QuRG00RIu/N4Bi0nMOg9IdT0DhltYWFuOiD8vgM
-PmdrkcTpGkj7AQKWROgp/wrdYqqSB7murjOIy/HdpodL1bmVGvOz3VRd5sxMDyxy
-1u5InsLV3LVh2oKRQsiWScO7c43F//7cq4Ll1zRu+CP1Oc0KqnVzSHNFYGoSDr7m
-povg+7BrmR5KJ9zG89Jxmn4YpI9BAgMBAAEwDQYJKoZIhvcNAQELBQADggEBALql
-GUHJj6BoWibau54NmJ9pmplDmUkVlhKYgOmWBWOK2/RymMUwxbvzejZbKHjfaUmh
-hZjhmzVuRT4881SiZXXkB/Ei1D09xQsq3aZl3L+Da/+WkXp9Rft1eJLuH9novM8t
-0BLD8/fi0gjd3XOnoIjcTwSa0H/9TX8T/uaCQkdT7rrL21VAulQqlj4FIZDVligt
-8xk68/mNtSByIfa+hCBr5mkooMThIPivIUzpEk4lLPjtDw23qrZTLcBwIn3XV3nb
-3JwaDfTIB+O5kbj08uZbHKrC6utHPMU0ekvxFdgR81xB/8jwTOIwjM7A2aK5u3sj
-H2N58KVSCgL5rwqCD/M=
+def validate_private_key(pem_data):
+    """تحقق من صحة المفتاح الخاص"""
+    try:
+        private_key = serialization.load_pem_private_key(
+            pem_data.encode(),
+            password=None,
+            backend=default_backend()
+        )
+        print("المفتاح الخاص صالح")
+    except Exception as e:
+        print(f"المفتاح الخاص غير صالح: {str(e)}")
+
+def validate_certificate(pem_data):
+    """تحقق من صحة الشهادة"""
+    try:
+        certificate = load_pem_x509_certificate(pem_data.encode(), default_backend())
+        print("الشهادة صالحة")
+    except Exception as e:
+        print(f"الشهادة غير صالحة: {str(e)}")
+
+def validate_pem_format(pem_data):
+    """تحقق من صحة تنسيق PEM"""
+    if not pem_data.startswith("-----BEGIN") or not pem_data.endswith("-----END"):
+        raise ValueError("تنسيق ملف PEM غير صالح. تأكد من أن الملف يبدأ بـ '-----BEGIN' وينتهي بـ '-----END'")
+    
+    # فحص صحة تنسيق البيانات باستخدام Base64
+    try:
+        # محاولة فك تشفير البيانات باستخدام Base64
+        decoded_data = base64.b64decode(pem_data.splitlines()[1:-1])
+        print("الملف تم فك تشفيره بنجاح باستخدام Base64")
+    except Exception as e:
+        print(f"فشل فك التشفير باستخدام Base64: {str(e)}")
+
+
+# بيانات للمثال (استبدل بالبيانات الحقيقية)
+private_key_pem = '''-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAsauW2mdM716KpcyfZYy8nqx1Kn6rOjdq7UIGRSlcQwhK1pUU
+...
+-----END RSA PRIVATE KEY-----'''
+
+certificate_pem = '''-----BEGIN CERTIFICATE-----
+MIICqTCCAZGgAwIBAgITH1DzjlZJH8RyXRIvSLaQd4dSdjANBgkqhkiG9w0BAQsF
+...
 -----END CERTIFICATE-----'''
 
-validate_pem(pem_data)
+# التحقق من صحة البيانات
+validate_private_key(private_key_pem)
+validate_certificate(certificate_pem)
+validate_pem_format(private_key_pem)
+validate_pem_format(certificate_pem)
+
 
 
 #**********************************************************#
