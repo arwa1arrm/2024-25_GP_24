@@ -251,7 +251,7 @@ def download_keys_zip():
         return send_file(
             zip_buffer,
             as_attachment=True,
-            attachment_filename='keys.zip',  # Change this line
+            download_name='keys.zip',  # Updated this line
             mimetype='application/zip'
         )
     else:
@@ -484,10 +484,6 @@ def verify_login_otp():
 #**********************************************************#
 #**********************verify_otp route*******************#
 #**********************************************************#    
-# Constants
-MAX_OTP_ATTEMPTS = 3
-INITIAL_COOLDOWN_PERIOD = 1 
-COOLDOWN_INCREMENT = 2       
 
 # Constants
 MAX_OTP_ATTEMPTS = 3
