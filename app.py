@@ -277,7 +277,7 @@ def viewprofile():
     user_id = session.get('user_id')  # Get the user_id from the session
     
     # Instead of mysql.connect(), use:
-    con = mysql.connection
+    con = get_db_connection()
     cur = con.cursor()
     cur.execute("SELECT user_name, email FROM users WHERE user_id=%s", (user_id,))
     user_data = cur.fetchone()
@@ -291,6 +291,47 @@ def viewprofile():
         flash('User not found in the database.', 'danger')
         return redirect(url_for('userHomePage'))
 
+
+#**************************************************************#
+#**********************update_username route*******************#
+#***************************************************************#
+
+@app.route("/update_username", methods=["POST"])
+@login_required
+def update_username():
+    """Handle updating the user's username."""
+    user_id = session.get("user_id")  # Get the logged-in user's ID
+    new_username = request.form.get("new_username")  # Fetch the new username from the form
+
+    # Validate the input
+    if not new_username or len(new_username) < 3:
+        flash("Your name must be at least 3 characters long.", "warning")
+        return redirect(url_for("viewprofile"))
+
+    try:
+        # Update the username in the database
+        con = get_db_connection()
+        cur = con.cursor()
+        cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
+        con.commit()
+        
+        # Check if the update was successful
+        if cur.rowcount > 0:  # `rowcount` indicates the number of rows affected
+            # Update the session with the new username
+            session["user_name"] = new_username
+            flash("Your name updated successfully!", "success")
+        else:
+            flash("No changes were made. Please try again.", "warning")
+        
+        cur.close()
+        con.close()
+
+    except Exception as e:
+        # Handle database errors
+        flash(f"An error occurred: {str(e)}. Please try again.", "danger")
+        return redirect(url_for("viewprofile"))
+
+    return redirect(url_for("viewprofile"))
 
 #**********************************************************#
 #**********************Signup route************************#
@@ -660,7 +701,7 @@ def request_reset():
     email = request.form["email"]
 
     # Check if the user exists
-    con = mysql.connection
+    con = get_db_connection()
     cur = con.cursor()
     cur.execute("SELECT user_id FROM users WHERE email=%s", (email,))
     user = cur.fetchone()
@@ -719,7 +760,7 @@ def reset_password(user_id):
         # Hash and update the password
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        con = mysql.connection
+        con = get_db_connection()
         cur = con.cursor()
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
         con.commit()
@@ -741,7 +782,7 @@ def edit_password(user_id):
         confirm_password = request.form["confirm_password"]
 
         # Validate the current password by checking it against the stored one
-        con = mysql.connection
+        con = get_db_connection()
         cur = con.cursor()
         cur.execute("SELECT password FROM users WHERE user_id=%s", (user_id,))
         stored_password = cur.fetchone()
@@ -1151,7 +1192,7 @@ def delete_message(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
     
-    con = mysql.connect()
+    con = get_db_connection()
     cur = con.cursor()
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
     con.commit()
