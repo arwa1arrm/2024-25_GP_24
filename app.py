@@ -165,6 +165,29 @@ def generate_keys_and_certificate(user_name):
     return private_key_bytes, certificate_bytes
 
 
+
+def load_private_key(pem_data):
+    try:
+        # تأكد من أن البيانات مشفرة بشكل صحيح باستخدام PEM
+        private_key = serialization.load_pem_private_key(
+            pem_data.encode(),  # تحويل السلسلة إلى بايت
+            password=None,  # إذا كان المفتاح الخاص بدون حماية كلمة مرور
+            backend=default_backend()  # استخدام الخلفية الافتراضية لـ cryptography
+        )
+        return private_key
+    except Exception as e:
+        print(f"Error loading private key: {e}")
+        return None
+
+
+        def load_certificate(cert_pem_data):
+    try:
+        # تحميل الشهادة باستخدام PEM
+        certificate = x509.load_pem_x509_certificate(cert_pem_data.encode(), default_backend())
+        return certificate
+    except Exception as e:
+        print(f"Error loading certificate: {e}")
+        return None
 #**************************************#
 #**********session management**********#
 #**************************************#
