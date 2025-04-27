@@ -1374,7 +1374,7 @@ def extract_and_decrypt():
         # *** Mark the message as read (seen) in the database ***
         con = mysql.connect()
         cur = con.cursor()
-        cur.execute("UPDATE message SET IsRead = TRUE WHERE MessageID = %s", (message_id,))
+        cur.execute("UPDATE message SET IsRead = 1 WHERE MessageID = %s", (message_id,))
         con.commit()
         cur.close()
         con.close()
