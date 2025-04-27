@@ -19,12 +19,9 @@ def test_db_connection():
         # Print to check connection
         print("Trying to connect to MySQL database...")
         
-        # Check if mysql.connection is properly initialized
-        if mysql.connection is None:
-            raise Exception("Failed to connect to the database: mysql.connection is None")
-        
-        # Test the connection by pinging the MySQL server
-        mysql.connection.ping()
+        # Attempt to get a connection and ping it
+        connection = mysql.connect  # Establish the connection object
+        connection.ping(reconnect=True)  # Pinging to check if the connection is alive
         print("Connected to database successfully!")
         
     except Exception as e:
@@ -35,10 +32,6 @@ def test_db_connection():
 @app.route('/')
 def index():
     try:
-        # Check if the connection is valid
-        if mysql.connection is None:
-            return "Failed to connect to the database!"
-        
         # Attempt to get a cursor object and execute a query
         cur = mysql.connection.cursor()
         cur.execute('SELECT * FROM message')
