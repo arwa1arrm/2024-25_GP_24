@@ -159,7 +159,6 @@ def generate_keys_and_certificate(user_name):
 
     return private_key_bytes, certificate_bytes
 
-
 #**************************************#
 #**********session management**********#
 #**************************************#
@@ -201,17 +200,6 @@ def add_no_cache_headers(response):
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
-@app.route("/testdb")
-def test_db():
-    try:
-        con = mysql.connection
-        if con:
-            return "Connected to MySQL!"
-        else:
-            return "Failed to connect to MySQL."
-    except Exception as e:
-        return f"Error: {str(e)}"
-
 
 #**********************************************************#
 #**********************Homepage route**********************#
@@ -327,7 +315,11 @@ def signupsafe1():
             # Get the database connection using pymysql
             con = get_db_connection()
             cur = con.cursor()
-            
+            if request.method == "POST":
+                user_name = request.form['user_name']
+                email = request.form['email']
+                password = request.form['password']
+                confirmPassword = request.form['confirmPassword']
             # Check if the email already exists in the DB
             cur.execute("SELECT email FROM users WHERE email=%s", (email,))
             existing_user = cur.fetchone()
@@ -342,13 +334,6 @@ def signupsafe1():
             # Hash the password using bcrypt
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-            # Store user details in the DB
-            cur.execute(
-                "INSERT INTO users (user_name, email, password, private_key, certificate) VALUES (%s, %s, %s, %s, %s)",
-                (user_name, email, hashed_password, base64.b64encode(private_key).decode(), certificate)
-            )
-            con.commit()
-
             # Store private key in the session
             session['private_key'] = base64.b64encode(private_key).decode()
             session['user_id'] = cur.lastrowid  # Store user ID in session
@@ -356,6 +341,7 @@ def signupsafe1():
             # Store user details in session
             session['user_name'] = user_name
             session['email'] = email
+            session['password'] = password
             session['certificate'] = certificate
 
             # Generate and send OTP
