@@ -18,9 +18,10 @@ from flask_mail import Mail, Message
 import random
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import os
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.primitives import hashes
 from stegano import lsb
 from PIL import Image
 from flask import send_from_directory
@@ -193,72 +194,6 @@ def add_no_cache_headers(response):
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
-from cryptography.hazmat.primitives import serialization
-
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.backends import default_backend
-from cryptography.x509 import load_pem_x509_certificate
-import base64
-
-def validate_private_key(pem_data):
-    """تحقق من صحة المفتاح الخاص"""
-    try:
-        private_key = serialization.load_pem_private_key(
-            pem_data.encode(),
-            password=None,
-            backend=default_backend()
-        )
-        print("المفتاح الخاص صالح")
-    except Exception as e:
-        print(f"المفتاح الخاص غير صالح: {str(e)}")
-
-def validate_certificate(pem_data):
-    """تحقق من صحة الشهادة"""
-    try:
-        certificate = load_pem_x509_certificate(pem_data.encode(), default_backend())
-        print("الشهادة صالحة")
-    except Exception as e:
-        print(f"الشهادة غير صالحة: {str(e)}")
-
-def validate_pem_format(pem_data):
-    """تحقق من صحة تنسيق PEM"""
-    if not pem_data.startswith("-----BEGIN") or not pem_data.endswith("-----END"):
-        raise ValueError("تنسيق ملف PEM غير صالح. تأكد من أن الملف يبدأ بـ '-----BEGIN' وينتهي بـ '-----END'")
-    
-    # فحص صحة تنسيق البيانات باستخدام Base64
-    try:
-        # محاولة فك تشفير البيانات باستخدام Base64
-        decoded_data = base64.b64decode(pem_data.splitlines()[1:-1])
-        print("الملف تم فك تشفيره بنجاح باستخدام Base64")
-    except Exception as e:
-        print(f"فشل فك التشفير باستخدام Base64: {str(e)}")
-        raise ValueError(f"تنسيق ملف PEM غير صالح: {str(e)}")
-
-
-# بيانات للمثال (استبدل بالبيانات الحقيقية)
-private_key_pem = '''-----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEAsauW2mdM716KpcyfZYy8nqx1Kn6rOjdq7UIGRSlcQwhK1pUU
-...
------END RSA PRIVATE KEY-----'''
-
-certificate_pem = '''-----BEGIN CERTIFICATE-----
-MIICqTCCAZGgAwIBAgITH1DzjlZJH8RyXRIvSLaQd4dSdjANBgkqhkiG9w0BAQsF
-...
------END CERTIFICATE-----'''
-
-# التحقق من صحة البيانات
-validate_private_key(private_key_pem)
-validate_certificate(certificate_pem)
-validate_pem_format(private_key_pem)
-validate_pem_format(certificate_pem)
-
-
-private_key_pem = session.get('private_key')
-certificate_pem = session.get('certificate')
-
-# تحقق من البيانات المخزنة في الـ session
-print(f"Private Key PEM: {private_key_pem[:100]}")  # عرض أول 100 حرف للتأكد
-print(f"Certificate PEM: {certificate_pem[:100]}")
 
 
 #**********************************************************#
