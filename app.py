@@ -232,6 +232,7 @@ def validate_pem_format(pem_data):
         print("الملف تم فك تشفيره بنجاح باستخدام Base64")
     except Exception as e:
         print(f"فشل فك التشفير باستخدام Base64: {str(e)}")
+        raise ValueError(f"تنسيق ملف PEM غير صالح: {str(e)}")
 
 
 # بيانات للمثال (استبدل بالبيانات الحقيقية)
@@ -251,6 +252,13 @@ validate_certificate(certificate_pem)
 validate_pem_format(private_key_pem)
 validate_pem_format(certificate_pem)
 
+
+private_key_pem = session.get('private_key')
+certificate_pem = session.get('certificate')
+
+# تحقق من البيانات المخزنة في الـ session
+print(f"Private Key PEM: {private_key_pem[:100]}")  # عرض أول 100 حرف للتأكد
+print(f"Certificate PEM: {certificate_pem[:100]}")
 
 
 #**********************************************************#
