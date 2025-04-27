@@ -1105,7 +1105,8 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = certificate
+        session['certificate'] = base64.b64encode(certificate).decode('utf-8')
+
         
         # Generate and send OTP
         otp = generate_otp()
