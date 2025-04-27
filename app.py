@@ -230,28 +230,48 @@ def download_keys_zip():
     private_key_b64 = session.get('private_key')
     certificate = session.get('certificate')
 
+    # Check if both the private key and certificate are available in session
     if private_key_b64 and certificate:
-        # Decode the private key from base64
-        private_key = base64.b64decode(private_key_b64)
+        try:
+            # Decode the private key from base64
+            private_key = base64.b64decode(private_key_b64)
+            
+            # Verify the private key and certificate format if necessary
+            if not private_key.startswith(b'-----BEGIN PRIVATE KEY-----') or not private_key.endswith(b'-----END PRIVATE KEY-----'):
+                flash("Error: The private key is not in the correct PEM format.", "danger")
+                return redirect(url_for('userHomePage'))
 
-        # Create a ZIP file in memory
-        zip_buffer = io.BytesIO()
-        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-            # Add private key to zip
-            zip_file.writestr('private_key.pem', private_key)
-            # Add certificate (public key) to zip
-            zip_file.writestr('public_key.pem', certificate)
+            if not certificate.startswith(b'-----BEGIN CERTIFICATE-----') or not certificate.endswith(b'-----END CERTIFICATE-----'):
+                flash("Error: The certificate is not in the correct PEM format.", "danger")
+                return redirect(url_for('userHomePage'))
 
-        zip_buffer.seek(0)
-        return send_file(
-            zip_buffer,
-            as_attachment=True,
-            download_name='keys.zip',  # استخدام download_name بدلاً من attachment_filename
-            mimetype='application/zip'
-        )
+            # Create a ZIP file in memory
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                # Add private key to zip
+                zip_file.writestr('private_key.pem', private_key)
+                # Add certificate (public key) to zip
+                zip_file.writestr('public_key.pem', certificate)
+
+            zip_buffer.seek(0)  # Reset pointer to the start of the zip buffer
+
+            # Send the zip file to the user
+            return send_file(
+                zip_buffer,
+                as_attachment=True,
+                download_name='keys.zip',  # Use download_name instead of attachment_filename
+                mimetype='application/zip'
+            )
+
+        except Exception as e:
+            # Catch any errors during the process
+            flash(f"An error occurred while preparing your download: {str(e)}", "danger")
+            return redirect(url_for('userHomePage'))
+
     else:
         flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
         return redirect(url_for('userHomePage'))
+
 
 #**********************************************************#
 #**********************ForgotPassword route****************#
