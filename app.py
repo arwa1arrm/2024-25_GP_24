@@ -38,10 +38,9 @@ from pydub.utils import which
 import numpy as np
 import subprocess
 import hashlib
-
 from werkzeug.utils import quote
-
 from urllib.parse import urlparse
+
 
 def parse_database_url(url):
     result = urlparse(url)
@@ -81,11 +80,6 @@ def send_otp_email(to_email, otp):
     msg = Message('Your OTP Code', recipients=[to_email])
     msg.body = f'Your OTP code is: {otp}'
     mail.send(msg)
-
-
-
-
-from urllib.parse import urlparse
 
 
 def get_database_config():
@@ -814,6 +808,10 @@ def edit_password(user_id):
 #************************************************************#
 #************************************************************#
 
+# Ensure a temporary folder exists
+UPLOAD_FOLDER = os.path.join(app.root_path, "uploads", "temp_files")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 # Helper function: Encode a message with Zero-Width Characters
 def encode_with_zero_width(message):
     """Encodes a binary message using Zero-Width Characters."""
@@ -821,10 +819,6 @@ def encode_with_zero_width(message):
     binary_message = ''.join(format(ord(char), '08b') for char in message)
     encoded_message = ''.join(zero_width_mapping[bit] for bit in binary_message)
     return encoded_message
-
-# Ensure a temporary folder exists
-UPLOAD_FOLDER = os.path.join(app.root_path, "uploads", "temp_files")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Utility functions for Zero-Width Encoding
 def decode_with_zero_width(encoded_text):
@@ -865,6 +859,7 @@ def calculate_file_hash(file_path):
 
 #**************************************************************#
 #*************encrypt_and_hide route***************************#
+#*****************************************************#
 
 @app.route("/encrypt_and_hide", methods=["POST"])
 @login_required
@@ -958,16 +953,7 @@ def encrypt_and_hide():
                 with open(media_file_path, "r", encoding="utf-8") as text_file:
                     text_content = text_file.read()
 
-                # Check if the text file has enough characters to hide the message
-             #   text_length = len(text_content)  # Length of the text in characters
-                message_length = len(binary_message)  # Length of the encrypted message in bits
-
-                # Ensure the file is long enough to hide the message
-              #  if text_length * 8 < message_length:  # text_length * 8 converts characters to bits
-               #     flash("The text file is too short to hide the message, try a bigger file.", "danger")
-                #    return redirect(url_for("encryptionPage"))
-                
-                # Encode message using zero-width characters (this is a placeholder function)
+               # Encode message using zero-width characters (this is a placeholder function)
                 zero_width_message = encode_with_zero_width(encrypted_message)
                 hidden_text_content = text_content + zero_width_message
                 
@@ -1013,10 +999,7 @@ def encrypt_and_hide():
                 with wave.open(wav_path, "rb") as audio_file:
                     params = audio_file.getparams()
                     frames = bytearray(audio_file.readframes(audio_file.getnframes()))
-                # Check if there are enough samples (each byte can hide 1 bit)
-               # if len(frames) < len(binary_message):
-                #    flash("The selected audio file does not have enough capacity to hide the message.", "danger")
-                 #   return redirect(url_for("encryptionPage"))
+                
                 msg_idx = 0
                 for i in range(len(frames)):
                     if msg_idx < len(binary_message):
@@ -1186,7 +1169,9 @@ def sent_messages():
 
     return render_template("sent_messages.html", messages=messages_list, search_email=search_email, sort_by=sort_by)
 
-
+#****************************************************#
+#******* delete_message route for sent messages *****#
+#****************************************************#
 @app.route("/delete_message/<int:message_id>", methods=["GET"])
 @login_required
 def delete_message(message_id):
@@ -1203,7 +1188,50 @@ def delete_message(message_id):
     flash("Message deleted successfully", "success")
     return redirect(url_for("sent_messages"))
 
+#****************************************************#
+#******* delete_message route for messages **********#
+#****************************************************#
 
+@app.route("/delete_message_rec/<int:message_id>", methods=["GET"])
+@login_required
+def delete_message_rec(message_id):
+    """Delete a sent message."""
+    sender_id = session.get("user_id")
+    
+    con = get_db_connection()
+    cur = con.cursor()
+    cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
+    con.commit()
+    cur.close()
+    con.close()
+    
+    flash("Message deleted successfully", "success")
+    return redirect(url_for("messages"))
+
+#**************************************************************#
+#****************get_unread_messages route*********************#
+#**************************************************************#
+@app.route('/get_unread_messages_count')
+@login_required
+def get_unread_messages_count():
+    user_id = session.get("user_id")  
+
+    con = get_db_connection()
+    cur = con.cursor()
+
+    # Query to count unread messages
+    query = """
+    SELECT COUNT(*) 
+    FROM message 
+    WHERE RecipientID = %s AND IsRead = 0
+    """
+    cur.execute(query, (user_id,))
+    unread_count = cur.fetchone()[0]  # Fetch the count
+
+    cur.close()
+    con.close()
+
+    return jsonify({"unread_count": unread_count})
 
 #**************************************************************#
 #**********************messages route**************************#
@@ -1211,45 +1239,58 @@ def delete_message(message_id):
 @app.route('/messages', methods=["GET", "POST"])
 @login_required
 def messages():
-    user_id = session.get('user_id')  # Get the current user's ID
-    search_email = request.form.get("search_email", "").strip()  # Get the search input, strip extra spaces
-    sort_by = request.args.get("sort_by", "date_desc")  # Default sorting by date descending
+    user_id = session.get('user_id')  
+    search_email = request.form.get("search_email", "").strip()
+    sort_by = request.args.get("sort_by", "date_desc")
 
     con = get_db_connection()
     cur = con.cursor()
 
-
-    # fetch messages for the current user
+    # Base query
     query = """
-        SELECT 
-            m.MessageID,
-            m.EncryptedSharedKeyReceiver,
-            m.Content AS EncryptedMessage,
-            u.email AS SenderEmail,
-            m.Filename,
-            m.sent_date,
-        m.IsRead  
-        FROM 
-            message m
-        JOIN 
-            users u 
-        ON 
-            m.SenderID = u.user_id
-        WHERE 
-            m.RecipientID = %s
+    SELECT 
+        m.MessageID,
+        m.EncryptedSharedKeyReceiver,
+        m.Content AS EncryptedMessage,
+        u.email AS SenderEmail,
+        m.Filename,
+        m.sent_date,
+        m.IsRead
+    FROM 
+        message m
+    JOIN 
+        users u 
+    ON 
+        m.SenderID = u.user_id
+    WHERE 
+        m.RecipientID = %s
     """
     params = [user_id]
 
-    # Add filtering condition if search_email is provided
+    # Add search filter correctly
     if search_email:
         query += " AND u.email LIKE %s"
-        params.append(f"%{search_email}%")  # Add wildcard search
+        params.append(f"%{search_email}%")
 
-    query += " ORDER BY m.sent_date DESC"  # Order messages by most recent
+    # Sorting logic
+    sort_column = "m.sent_date"
+    sort_order = "DESC" if sort_by == "date_desc" else "ASC"
+
+    if sort_by == "name_asc":
+        sort_column, sort_order = "u.email", "ASC"
+    elif sort_by == "name_desc":
+        sort_column, sort_order = "u.email", "DESC"
+    elif sort_by == "status_asc":
+        sort_column, sort_order = "m.IsRead", "ASC"
+    elif sort_by == "status_desc":
+        sort_column, sort_order = "m.IsRead", "DESC"
+
+    # Append ORDER BY once
+    query += f" ORDER BY {sort_column} {sort_order}"
+
+    # Execute query
     cur.execute(query, params)
-
     messages = cur.fetchall()
-
 
     # Convert results to a list of dictionaries for the template
     messages_list = [
@@ -1259,7 +1300,8 @@ def messages():
             "EncryptedMessage": message[2],
             "SenderEmail": message[3],
             "Filename": message[4],
-            "SentDate": message[5].strftime("%Y-%m-%d %H:%M:%S") if message[5] else None
+            "SentDate": message[5].strftime("%Y-%m-%d %H:%M:%S") if message[5] else None,
+            "IsRead": message[6]
         }
         for message in messages
     ]
@@ -1267,7 +1309,7 @@ def messages():
     cur.close()
     con.close()
 
-    return render_template('messages.html', messages=messages_list, search_email=search_email)
+    return render_template('messages.html', messages=messages_list, search_email=search_email, sort_by=sort_by)
 
 
 
@@ -1373,7 +1415,7 @@ def extract_and_decrypt():
         plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
         # *** Mark the message as read (seen) in the database ***
-        con = mysql.connect()
+        con = get_db_connection()
         cur = con.cursor()
         cur.execute("UPDATE message SET IsRead = 1 WHERE MessageID = %s", (message_id,))
         con.commit()
@@ -1457,7 +1499,7 @@ def encryptionPage():
             encrypted_symmetric_key = encrypt_with_public_key(key, recipient_public_key)
 
             # Store the encrypted message in the database
-            con = mysql.connect()
+            con = get_db_connection()
             cur = con.cursor()
             cur.execute(
                 "INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",

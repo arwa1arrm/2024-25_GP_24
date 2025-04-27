@@ -195,7 +195,7 @@
 
   function confirmDelete(messageId) {
     if (confirm("Are you sure you want to delete this message?")) {
-      window.location.href = "{{ url_for('delete_message_rec', message_id=0) }}".replace('0', messageId);
+      window.location.href = "{{ url_for('delete_message', message_id=0) }}".replace('0', messageId);
     }
   }
 
