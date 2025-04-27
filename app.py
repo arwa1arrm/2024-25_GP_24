@@ -134,60 +134,64 @@ SESSION_TIMEOUT = 900
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
 
+dfrom cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.x509 import x509
+from cryptography.hazmat.backends import default_backend
+import datetime
+
 def generate_keys_and_certificate(user_name):
     """Generate RSA keys and self-signed certificate for the user."""
     private_key = rsa.generate_private_key(
-        public_exponent=65537, #commonly used
-        key_size=2048, #considered safe
+        public_exponent=65537,  # commonly used
+        key_size=2048,  # considered safe
         backend=default_backend()
     )
     
-    public_key = private_key.public_key() #Public Key Extraction
-    subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, user_name)]) #Certificate Subject and Issuer
+    public_key = private_key.public_key()  # Public Key Extraction
+    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])  # Certificate Subject and Issuer
     
     certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
         datetime.datetime.utcnow()
     ).not_valid_after(
         datetime.datetime.utcnow() + datetime.timedelta(days=365)
     ).serial_number(
-        x509.random_serial_number() #Assigns a unique serial number to the certificate
-    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend()) #Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
+        x509.random_serial_number()  # Assigns a unique serial number to the certificate
+    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())  # Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
     
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,
-        encryption_algorithm=serialization.NoEncryption() # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
-        # no encryption is applied to the private key
+        encryption_algorithm=serialization.NoEncryption()  # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
     )
     
-    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM) # Similarly, converts the certificate into PEM-encoded bytes
+    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
 
     return private_key_bytes, certificate_bytes
 
-
-
 def load_private_key(pem_data):
     try:
-        # تأكد من أن البيانات مشفرة بشكل صحيح باستخدام PEM
+        # Load the private key from PEM data
         private_key = serialization.load_pem_private_key(
-            pem_data.encode(),  # تحويل السلسلة إلى بايت
-            password=None,  # إذا كان المفتاح الخاص بدون حماية كلمة مرور
-            backend=default_backend()  # استخدام الخلفية الافتراضية لـ cryptography
+            pem_data,  # Ensure it's already in bytes, no need to encode
+            password=None,  # If the private key is not password-protected
+            backend=default_backend()  # Use the default backend for cryptography
         )
         return private_key
     except Exception as e:
         print(f"Error loading private key: {e}")
         return None
 
-
-        def load_certificate(cert_pem_data):
+def load_certificate(cert_pem_data):
     try:
-        # تحميل الشهادة باستخدام PEM
-        certificate = x509.load_pem_x509_certificate(cert_pem_data.encode(), default_backend())
+        # Load the certificate from PEM data
+        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
         return certificate
     except Exception as e:
         print(f"Error loading certificate: {e}")
         return None
+
 #**************************************#
 #**********session management**********#
 #**************************************#
