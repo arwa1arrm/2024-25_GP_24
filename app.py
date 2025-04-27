@@ -40,6 +40,8 @@ import subprocess
 import hashlib
 from werkzeug.utils import quote
 from urllib.parse import urlparse
+from flask_session import Session
+import redis
 
 
 def parse_database_url(url):
@@ -50,9 +52,31 @@ def parse_database_url(url):
 # Initialize Flask app  and MySQL
 app = Flask(__name__)
 
-# Configure the secret key for session management
-app.secret_key = 'g5$8^bG*dfK4&2e3yH!Q6j@z'  # Change this before deploying
 
+# تكوين الجلسات لتخزينها في Redis
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False  # الجلسات غير دائمة
+app.config['SESSION_USE_SIGNER'] = True  # توقيع الجلسة
+app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  # تخصيص اسم مسبق للمفاتيح
+
+# قم بتغيير رابط Redis ليكون متاحًا في متغير البيئة UPSTASH_REDIS_URL
+app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'), ssl=True)
+
+# تفعيل الجلسات
+Session(app)
+
+
+
+
+@app.route("/test_redis")
+def test_redis():
+    try:
+        r = redis.Redis.from_url(os.getenv('UPSTASH_REDIS_URL'), ssl=True)
+        r.set('foo', 'bar')
+        result = r.get('foo')
+        return f"Redis connection is working: {result.decode()}"
+    except Exception as e:
+        return f"Error connecting to Redis: {str(e)}"
 
 
 #*********************** Configure your Flask-Mail****************************#
@@ -228,6 +252,7 @@ def download_keys_zip():
 
     # Retrieve the private key and certificate from session
     private_key_b64 = session.get('private_key')
+    
     certificate = session.get('certificate')
 
     # Check if both the private key and certificate are available in session
