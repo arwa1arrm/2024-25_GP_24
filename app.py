@@ -137,7 +137,7 @@ SESSION_TIMEOUT = 900
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from cryptography.x509 import x509
+from cryptography.x509 import *
 from cryptography.hazmat.backends import default_backend
 import datetime
 
