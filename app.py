@@ -1141,6 +1141,7 @@ def sent_messages():
     WHERE 
         m.SenderID = %s
     """
+    
 
     params = [sender_id]
 
@@ -1226,8 +1227,8 @@ def messages():
             m.Content AS EncryptedMessage,
             u.email AS SenderEmail,
             m.Filename,
-            m.sent_date
-        m.IsRead  -- Make sure you include IsRead here
+            m.sent_date,
+        m.IsRead  
         FROM 
             message m
         JOIN 
