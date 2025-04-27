@@ -134,7 +134,7 @@ SESSION_TIMEOUT = 900
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
 
-dfrom cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 from cryptography.x509 import x509
