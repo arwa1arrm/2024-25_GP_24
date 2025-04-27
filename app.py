@@ -61,23 +61,10 @@ app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  # تخصيص اسم مسبق 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
 
 # قم بتغيير رابط Redis ليكون متاحًا في متغير البيئة UPSTASH_REDIS_URL
-app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'), ssl=True)
+app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))
 
 # تفعيل الجلسات
 Session(app)
-
-
-
-
-@app.route("/test_redis")
-def test_redis():
-    try:
-        r = redis.Redis.from_url(os.getenv('UPSTASH_REDIS_URL'), ssl=True)
-        r.set('foo', 'bar')
-        result = r.get('foo')
-        return f"Redis connection is working: {result.decode()}"
-    except Exception as e:
-        return f"Error connecting to Redis: {str(e)}"
 
 
 #*********************** Configure your Flask-Mail****************************#
