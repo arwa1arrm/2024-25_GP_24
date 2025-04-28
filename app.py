@@ -42,7 +42,7 @@ from werkzeug.utils import quote
 from urllib.parse import urlparse
 from flask_session import Session
 import redis
-
+import logging
 
 def parse_database_url(url):
     result = urlparse(url)
@@ -52,7 +52,7 @@ def parse_database_url(url):
 # Initialize Flask app  and MySQL
 app = Flask(__name__)
 
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)  
 #Redis
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False  
@@ -443,6 +443,25 @@ def calculate_file_hash(file_path):
 #*****************************************************#
 #*************encrypt_and_hide route******************#
 #*****************************************************#
+import os
+import base64
+import logging
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import serialization
+from cryptography.x509 import load_pem_x509_certificate
+from flask import Flask, request, redirect, flash, url_for, render_template, session
+from flask_login import login_required
+from PIL import Image
+from PyPDF2 import PdfReader, PdfWriter
+import wave
+from pydub import AudioSegment
+import docx
+
+# إعداد الـ logging في تطبيق Flask
+logging.basicConfig(level=logging.DEBUG)  # يمكنك تخصيص المستوى إلى DEBUG أو ERROR حسب الحاجة
+
 @app.route("/encrypt_and_hide", methods=["POST"])
 @login_required
 def encrypt_and_hide():
@@ -468,13 +487,13 @@ def encrypt_and_hide():
             return redirect(url_for("encryptionPage"))
 
         receiver_id, receiver_certificate_pem = receiver_data
-        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
+        receiver_certificate = load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
         receiver_public_key = receiver_certificate.public_key()
 
         # Retrieve sender details
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
         sender_certificate_pem = cur.fetchone()[0]
-        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode(), default_backend())
+        sender_certificate = load_pem_x509_certificate(sender_certificate_pem.encode(), default_backend())
         sender_public_key = sender_certificate.public_key()
 
         # Step 1: Encrypt the message with AES symmetric encryption
@@ -541,7 +560,6 @@ def encrypt_and_hide():
                     hidden_file.write(hidden_text_content)
 
             elif file_extension == '.pdf':
-                from PyPDF2 import PdfReader, PdfWriter
                 reader = PdfReader(media_file_path)
                 writer = PdfWriter()
                 for page in reader.pages:
@@ -554,7 +572,6 @@ def encrypt_and_hide():
                     writer.write(hidden_pdf)
 
             elif file_extension == '.docx':
-                import docx
                 doc = docx.Document(media_file_path)
                 # Capacity is generally not an issue in DOCX, so we add the message as a hidden paragraph.
                 para = doc.add_paragraph(encrypted_message)
@@ -592,7 +609,6 @@ def encrypt_and_hide():
                     hidden_audio_file.writeframes(frames)
 
             elif file_extension in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.svg', '.webp']:
-                from PIL import Image
                 img = Image.open(media_file_path)
                 encoded_img = img.copy()
                 width, height = img.size
@@ -633,6 +649,7 @@ def encrypt_and_hide():
                 hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
                 # Embed the encrypted message in video metadata
                 hidden_path = embed_message_in_metadata(media_file_path, encrypted_message, hidden_path)
+
         # Calculate the file hash if a hidden file was created
         file_hash = calculate_file_hash(hidden_path) if hidden_path else None
 
@@ -661,12 +678,15 @@ def encrypt_and_hide():
             return render_template("encryptionPage.html")
 
     except Exception as e:
-        flash(f"An error occurred: {e}", "danger")
+        error_message = f"An error occurred: {str(e)}"
+        flash(error_message, "danger")
+        app.logger.error(f"Error occurred in encrypt_and_hide: {str(e)}")  # تسجيل الخطأ في السجل
         con.rollback()
         return redirect(url_for("encryptionPage"))
     finally:
         cur.close()
         con.close()
+
 
 
 #**************************************************************#
@@ -1133,7 +1153,7 @@ def signupsafe1():
         session['password'] = password
         session['certificate'] = base64.b64encode(certificate).decode('utf-8')
 
-        
+
         # Generate and send OTP
         otp = generate_otp()
         session['otp'] = otp  # Store OTP in session
