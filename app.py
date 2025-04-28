@@ -265,9 +265,7 @@ def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
 
     # Retrieve the private key and certificate from session
-    private_key_bytes = session.get('private_key').encode('utf-8')  # تحويل النص إلى بايتات
-    private_key = serialization.load_pem_private_key(private_key_bytes, password=None, backend=default_backend())
-
+    private_key_b64 = session.get('private_key')
     
     certificate = session.get('certificate')
 
@@ -1126,8 +1124,7 @@ def signupsafe1():
 
 
         # Store private key in the session
-        session['private_key'] = private_key_bytes.decode('utf-8')  # تحويل بايت إلى نص
-
+        session['private_key'] = base64.b64encode(private_key).decode()
         session['user_id'] = cur.lastrowid  # Store user ID in session
         
         # Store user details in session instead of the database
@@ -1320,7 +1317,7 @@ def verify_otp():
 
             # Insert the user data into the database
             cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                        (session['user_name'], session['email'], hashed_password, session['certificate']))
+                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
             con.commit()
 
             # Store the user ID in the session
