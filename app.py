@@ -65,6 +65,7 @@ app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))
 # 
 Session(app)
 
+r = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))  # تأكد من أن هذه البيئة تحتوي على الرابط الصحيح لـ Redis
 
 #*********************** Configure your Flask-Mail****************************#
 #************* we used TLC, which is a cryptographic protocol designed to provide secure *******************#
