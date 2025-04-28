@@ -1,3 +1,234 @@
+import re  # Regular expressions
+import time
+import zipfile
+from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+import datetime  # For datetime.datetime.utcnow()
+from datetime import timedelta  # For timedelta
+import io
+import pymysql  # Correct import of PyMySQL
+import base64
+import bcrypt
+from functools import wraps
+from flask_mail import Mail, Message
+import random
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import os
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from stegano import lsb
+from PIL import Image
+from flask import send_from_directory
+import mutagen
+from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
+from mutagen.oggvorbis import OggVorbis
+from mutagen.easymp4 import EasyMP4
+from mutagen.id3 import ID3, COMM
+import wave
+import struct
+from pydub import AudioSegment
+from pydub.utils import which
+import numpy as np
+import subprocess
+import hashlib
+from werkzeug.utils import quote
+from urllib.parse import urlparse
+from flask_session import Session
+import redis
+
+
+def parse_database_url(url):
+    result = urlparse(url)
+    return result.username, result.password, result.hostname, result.path[1:]
+
+
+# Initialize Flask app  and MySQL
+app = Flask(__name__)
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
+#Redis
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False  
+app.config['SESSION_USE_SIGNER'] = True 
+app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
+
+app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))
+
+# 
+Session(app)
+
+
+#*********************** Configure your Flask-Mail****************************#
+#************* we used TLC, which is a cryptographic protocol designed to provide secure *******************#
+# ******************* communication over a computer network ******************* #
+app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'concealsafe@gmail.com' 
+app.config['MAIL_PASSWORD'] = 'logqznxrmktpxtva'
+app.config['MAIL_DEFAULT_SENDER'] = 'concealsafe@gmail.com'  
+mail = Mail(app)
+
+
+#**************************************************************#
+#*********************OTP GENERATION***************************#
+#**************************************************************#
+
+def generate_otp():
+    """Generate a random OTP."""
+    return str(random.randint(100000, 999999)) #generate string of 6 digits
+
+def send_otp_email(to_email, otp):
+    """Send the OTP to the user's email."""
+    msg = Message('Your OTP Code', recipients=[to_email])
+    msg.body = f'Your OTP code is: {otp}'
+    mail.send(msg)
+
+
+def get_database_config():
+    """Get database configuration from environment variables or fallback to default."""
+    DATABASE_URL = os.environ.get('JAWSDB_URL')
+    if DATABASE_URL:
+        result = urlparse(DATABASE_URL)
+        return {
+            'MYSQL_HOST': result.hostname,
+            'MYSQL_USER': result.username,
+            'MYSQL_PASSWORD': result.password,
+            'MYSQL_DB': result.path[1:]  # Removing leading '/' from database name
+        }
+    return {
+        'MYSQL_HOST': 'localhost',
+        'MYSQL_USER': 'root',
+        'MYSQL_PASSWORD': 'root',
+        'MYSQL_DB': 'concealsafe'
+    }
+
+# Configure the MySQL connection settings for the app
+app.config.update(get_database_config())
+
+def get_db_connection():
+    """Function to connect to the MySQL database using PyMySQL."""
+    connection = pymysql.connect(
+        host=app.config['MYSQL_HOST'],
+        user=app.config['MYSQL_USER'],
+        password=app.config['MYSQL_PASSWORD'],
+        database=app.config['MYSQL_DB'],
+        cursorclass=pymysql.cursors.DictCursor  # This ensures that results are returned as dictionaries
+    )
+    return connection
+# Set the timeout period in seconds (15 minutes)
+SESSION_TIMEOUT = 900
+
+
+
+#**************************************************************#
+#*********************CERTIFICATE GENERATION*******************#
+#**************************************************************#
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.x509 import *
+from cryptography.hazmat.backends import default_backend
+import datetime
+
+def generate_keys_and_certificate(user_name):
+    """Generate RSA keys and self-signed certificate for the user."""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,  # commonly used
+        key_size=2048,  # considered safe
+        backend=default_backend()
+    )
+    
+    public_key = private_key.public_key()  # Public Key Extraction
+    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])  # Certificate Subject and Issuer
+    
+    certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
+        datetime.datetime.utcnow()
+    ).not_valid_after(
+        datetime.datetime.utcnow() + datetime.timedelta(days=365)
+    ).serial_number(
+        x509.random_serial_number()  # Assigns a unique serial number to the certificate
+    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())  # Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
+    
+    private_key_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()  # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
+    )
+    
+    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
+
+    return private_key_bytes, certificate_bytes
+
+def load_private_key(pem_data):
+    try:
+        # Load the private key from PEM data
+        private_key = serialization.load_pem_private_key(
+            pem_data,  # Ensure it's already in bytes, no need to encode
+            password=None,  # If the private key is not password-protected
+            backend=default_backend()  # Use the default backend for cryptography
+        )
+        return private_key
+    except Exception as e:
+        print(f"Error loading private key: {e}")
+        return None
+
+def load_certificate(cert_pem_data):
+    try:
+        # Load the certificate from PEM data
+        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
+        return certificate
+    except Exception as e:
+        print(f"Error loading certificate: {e}")
+        return None
+
+#**************************************#
+#**********session management**********#
+#**************************************#
+
+@app.before_request
+def check_session_timeout():
+    """This function checks whether a user's session has expired before every request:"""
+    if 'last_activity' in session: #Checks if there is a recorded last activity timestamp
+        elapsed_time = time.time() - session['last_activity']
+        if elapsed_time > SESSION_TIMEOUT:
+            session.clear()  # Clear the session
+            flash('Session timed out. Please log in again.', 'warning')
+            return redirect(url_for('loginsafe'))
+        #If the user has been inactive for longer than the timeout,
+        # the session is cleared, and they’re redirected to the login page.
+
+    session['last_activity'] = time.time()  # Update last activity time, This timestamp will be checked on the user’s next request.
+
+def login_required(f):
+    """to ensure users are authenticated before accessing certain views"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:  # Check if the user is logged in
+            #flash('You need to log in first.', 'warning')
+            return redirect(url_for('loginsafe'))  # Redirect to login page if not logged in
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Prevents browser caching of sensitive pages
+#tion adds headers to prevent the browser from caching sensitive pages after a request is processed
+@app.after_request
+def add_no_cache_headers(response):
+    """Ensure pages are not cached."""
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 
 #**********************************************************#
 #**********************routes******************************#
@@ -1324,3 +1555,5 @@ def logout():
     session.clear()  # Clear all session data
     flash('You have been logged out.', 'info')
     return redirect(url_for('loginsafe'))
+
+
