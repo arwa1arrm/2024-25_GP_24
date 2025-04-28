@@ -132,14 +132,6 @@ SESSION_TIMEOUT = 900
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
-
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.x509 import *
-from cryptography.hazmat.backends import default_backend
-import datetime
-
 def generate_keys_and_certificate(user_name):
     """Generate RSA keys and self-signed certificate for the user."""
     private_key = rsa.generate_private_key(
@@ -228,6 +220,7 @@ def add_no_cache_headers(response):
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
 
 #**********************************************************#
 #**********************routes******************************#
@@ -1131,8 +1124,7 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = base64.b64encode(certificate).decode('utf-8')
-
+        session['certificate'] = certificate
         
         # Generate and send OTP
         otp = generate_otp()
@@ -1555,13 +1547,5 @@ def logout():
     session.clear()  # Clear all session data
     flash('You have been logged out.', 'info')
     return redirect(url_for('loginsafe'))
-
-
-
-
-# Run the application
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 
