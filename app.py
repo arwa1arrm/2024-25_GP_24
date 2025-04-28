@@ -1321,7 +1321,7 @@ def verify_otp():
 
             # Insert the user data into the database
             cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
+            (session['user_name'], session['email'], hashed_password, session['certificate']))
             con.commit()
 
             # Store the user ID in the session
