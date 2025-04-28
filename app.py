@@ -229,7 +229,6 @@ def add_no_cache_headers(response):
     response.headers["Expires"] = "0"
     return response
 
-
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
@@ -1132,7 +1131,8 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = certificate
+        session['certificate'] = base64.b64encode(certificate).decode('utf-8')
+
         
         # Generate and send OTP
         otp = generate_otp()
@@ -1555,5 +1555,13 @@ def logout():
     session.clear()  # Clear all session data
     flash('You have been logged out.', 'info')
     return redirect(url_for('loginsafe'))
+
+
+
+
+# Run the application
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 
