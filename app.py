@@ -144,56 +144,35 @@ import datetime
 def generate_keys_and_certificate(user_name):
     """Generate RSA keys and self-signed certificate for the user."""
     private_key = rsa.generate_private_key(
-        public_exponent=65537,  # commonly used
-        key_size=2048,  # considered safe
+        public_exponent=65537,
+        key_size=2048,
         backend=default_backend()
     )
     
-    public_key = private_key.public_key()  # Public Key Extraction
-    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])  # Certificate Subject and Issuer
+    public_key = private_key.public_key()
+    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])
     
     certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
         datetime.datetime.utcnow()
     ).not_valid_after(
         datetime.datetime.utcnow() + datetime.timedelta(days=365)
     ).serial_number(
-        x509.random_serial_number()  # Assigns a unique serial number to the certificate
-    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())  # Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
+        x509.random_serial_number()
+    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())
     
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,
-        encryption_algorithm=serialization.NoEncryption()  # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
+        encryption_algorithm=serialization.NoEncryption()
     )
     
-    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
+    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)
 
+    # Store the private key and certificate as base64 encoded strings in Redis
     r.set('private_key', base64.b64encode(private_key_bytes).decode('utf-8'))
     r.set('certificate', base64.b64encode(certificate_bytes).decode('utf-8'))
 
     return private_key_bytes, certificate_bytes
-
-def load_private_key(pem_data):
-    try:
-        # Load the private key from PEM data
-        private_key = serialization.load_pem_private_key(
-            pem_data,  # Ensure it's already in bytes, no need to encode
-            password=None,  # If the private key is not password-protected
-            backend=default_backend()  # Use the default backend for cryptography
-        )
-        return private_key
-    except Exception as e:
-        print(f"Error loading private key: {e}")
-        return None
-
-def load_certificate(cert_pem_data):
-    try:
-        # Load the certificate from PEM data
-        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
-        return certificate
-    except Exception as e:
-        print(f"Error loading certificate: {e}")
-        return None
 
 #**************************************#
 #**********session management**********#
@@ -268,14 +247,20 @@ def userHomePage():
 def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
     private_key_b64 = r.get('private_key')
-    certificate_b64 = r.get('certificate')  # This was missing in your code, now it's defined.
+    certificate_b64 = r.get('certificate')
 
     # Check if both the private key and certificate are available in session
-    if private_key_b64 and certificate_b64:  # Fix the variable name here
+    if private_key_b64 and certificate_b64:
         try:
             # Decode the private key from base64
             private_key = base64.b64decode(private_key_b64)
-            certificate = base64.b64decode(certificate_b64)  # Now using the correct variable
+            certificate = base64.b64decode(certificate_b64)
+
+            # Debugging: Print the beginning and end of both the private key and certificate
+            print("Private key start: ", private_key[:30])  # Print the first 30 bytes
+            print("Private key end: ", private_key[-30:])  # Print the last 30 bytes
+            print("Certificate start: ", certificate[:30])  # Print the first 30 bytes
+            print("Certificate end: ", certificate[-30:])  # Print the last 30 bytes
 
             # Verify the private key and certificate format if necessary
             if not private_key.startswith(b'-----BEGIN PRIVATE KEY-----') or not private_key.endswith(b'-----END PRIVATE KEY-----'):
@@ -291,7 +276,7 @@ def download_keys_zip():
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 # Add private key to zip
                 zip_file.writestr('private_key.pem', private_key)
-                # Add certificate (public key) to zip
+                # Add certificate to zip
                 zip_file.writestr('public_key.pem', certificate)
 
             zip_buffer.seek(0)  # Reset pointer to the start of the zip buffer
@@ -312,6 +297,7 @@ def download_keys_zip():
     else:
         flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
         return redirect(url_for('userHomePage'))
+
 
 
 
