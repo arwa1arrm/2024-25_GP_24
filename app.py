@@ -268,17 +268,15 @@ def userHomePage():
 def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
     private_key_b64 = r.get('private_key')
-    certificate = r.get('certificate')
+    certificate_b64 = r.get('certificate')  # This was missing in your code, now it's defined.
 
-   
     # Check if both the private key and certificate are available in session
-    if private_key_b64 and certificate:
+    if private_key_b64 and certificate_b64:  # Fix the variable name here
         try:
             # Decode the private key from base64
             private_key = base64.b64decode(private_key_b64)
-            certificate = base64.b64decode(certificate_b64)
+            certificate = base64.b64decode(certificate_b64)  # Now using the correct variable
 
-            
             # Verify the private key and certificate format if necessary
             if not private_key.startswith(b'-----BEGIN PRIVATE KEY-----') or not private_key.endswith(b'-----END PRIVATE KEY-----'):
                 flash("Error: The private key is not in the correct PEM format.", "danger")
@@ -314,6 +312,7 @@ def download_keys_zip():
     else:
         flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
         return redirect(url_for('userHomePage'))
+
 
 
 #**********************************************************#
