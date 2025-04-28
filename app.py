@@ -265,7 +265,9 @@ def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
 
     # Retrieve the private key and certificate from session
-    private_key_b64 = session.get('private_key')
+    private_key_bytes = session.get('private_key').encode('utf-8')  # تحويل النص إلى بايتات
+    private_key = serialization.load_pem_private_key(private_key_bytes, password=None, backend=default_backend())
+
     
     certificate = session.get('certificate')
 
@@ -1124,7 +1126,8 @@ def signupsafe1():
 
 
         # Store private key in the session
-        session['private_key'] = base64.b64encode(private_key).decode()
+        session['private_key'] = private_key_bytes.decode('utf-8')  # تحويل بايت إلى نص
+
         session['user_id'] = cur.lastrowid  # Store user ID in session
         
         # Store user details in session instead of the database
