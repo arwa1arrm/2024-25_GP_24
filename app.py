@@ -167,6 +167,9 @@ def generate_keys_and_certificate(user_name):
     
     certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
 
+    r.set('private_key', base64.b64encode(private_key_bytes).decode('utf-8'))
+    r.set('certificate', base64.b64encode(certificate_bytes).decode('utf-8'))
+
     return private_key_bytes, certificate_bytes
 
 def load_private_key(pem_data):
@@ -263,17 +266,17 @@ def userHomePage():
 @login_required
 def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
+    private_key_b64 = r.get('private_key')
+    certificate = r.get('certificate')
 
-    # Retrieve the private key and certificate from session
-    private_key_b64 = session.get('private_key')
-    
-    certificate = session.get('certificate')
-
+   
     # Check if both the private key and certificate are available in session
     if private_key_b64 and certificate:
         try:
             # Decode the private key from base64
             private_key = base64.b64decode(private_key_b64)
+            certificate = base64.b64decode(certificate_b64)
+
             
             # Verify the private key and certificate format if necessary
             if not private_key.startswith(b'-----BEGIN PRIVATE KEY-----') or not private_key.endswith(b'-----END PRIVATE KEY-----'):
