@@ -1097,7 +1097,9 @@ def encryptionPage():
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 #Handle user resistration
 def signupsafe1():
-    
+    con = get_db_connection()
+    cur = con.cursor()
+
     if request.method == "POST":
         user_name = request.form['user_name']
         email = request.form['email']
