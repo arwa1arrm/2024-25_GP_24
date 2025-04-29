@@ -433,30 +433,21 @@ def encrypt_and_hide():
             flash("The receiver's email is not registered.", "danger")
             return redirect(url_for("encryptionPage"))
 
-        # إصلاح تنسيق الشهادة
+    
+        receiver_id, receiver_certificate_pem = receiver_data
         if "\\n" in receiver_certificate_pem:
             receiver_certificate_pem = receiver_certificate_pem.encode('utf-8').decode('unicode_escape')
         receiver_certificate_pem = receiver_certificate_pem.strip()
-
-        receiver_certificate = x509.load_pem_x509_certificate(
-            receiver_certificate_pem.encode('utf-8'), default_backend()
-        )
+        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode('utf-8'), default_backend())
         receiver_public_key = receiver_certificate.public_key()
-
-       
-
 
         # Retrieve sender details
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
         sender_certificate_pem = cur.fetchone()[0]
-         # إصلاح تنسيق الشهادة
-        if "\\n" in sender_certificate_pem:
+         if "\\n" in sender_certificate_pem:
             sender_certificate_pem = sender_certificate_pem.encode('utf-8').decode('unicode_escape')
         sender_certificate_pem = sender_certificate_pem.strip()
-
-        sender_certificate = x509.load_pem_x509_certificate(
-            sender_certificate_pem.encode('utf-8'), default_backend()
-        )
+        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode('utf-8'), default_backend())
         sender_public_key = sender_certificate.public_key()
 
         # Step 1: Encrypt the message with AES symmetric encryption
