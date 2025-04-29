@@ -41,7 +41,7 @@ import hashlib
 from werkzeug.utils import quote
 from urllib.parse import urlparse
 from flask_session import Session
-#import redis
+import redis
 
 
 def parse_database_url(url):
@@ -52,19 +52,18 @@ def parse_database_url(url):
 # Initialize Flask app  and MySQL
 app = Flask(__name__)
 
-
-#app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
 #Redis
-#app.config['SESSION_TYPE'] = 'redis'
-#app.config['SESSION_PERMANENT'] = False  
-#app.config['SESSION_USE_SIGNER'] = True 
-#app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  
-#app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False  
+app.config['SESSION_USE_SIGNER'] = True 
+app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
 
-#app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))
+app.config['SESSION_REDIS'] = redis.from_url(os.getenv('UPSTASH_REDIS_URL'))
 
 # 
-#Session(app)
+Session(app)
 
 
 #*********************** Configure your Flask-Mail****************************#
@@ -1307,7 +1306,6 @@ def verify_otp():
             session.pop("otp_resend_count", None)
 
             return render_template("registration_confirmation.html")
-            
         else:
             # Increment attempt count
             session["otp_attempts"] += 1
