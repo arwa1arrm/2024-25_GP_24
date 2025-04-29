@@ -239,53 +239,51 @@ def userHomePage():
 @login_required
 def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
+    private_key_b64 = session.pop('private_key', None)
+    certificate_b64 = session.pop('certificate', None)
 
-
-    # Retrieve the private key and certificate from session
-    private_key_b64 = session.get('private_key')
-    certificate = session.get('certificate')
-
-    # Check if both the private key and certificate are available in session
-    if private_key_b64 and certificate:
+    if private_key_b64 and certificate_b64:
         try:
-            # Decode the private key from base64
             private_key = base64.b64decode(private_key_b64)
-            
-            # Verify the private key and certificate format if necessary
-            if not private_key.startswith(b'-----BEGIN RSA PRIVATE KEY-----') or not private_key.endswith(b'-----END RSA PRIVATE KEY-----'):
-                flash("Error: The private key is not in the correct PEM format.", "danger")
-                return redirect(url_for('signupsafe1'))
+            certificate = base64.b64decode(certificate_b64)
 
-            if not certificate.startswith(b'-----BEGIN CERTIFICATE-----') or not certificate.endswith(b'-----END CERTIFICATE-----'):
-                flash("Error: The certificate is not in the correct PEM format.", "danger")
-                return redirect(url_for('homwpage'))
+            # Validate private key format
+            try:
+                serialization.load_pem_private_key(private_key, password=None, backend=default_backend())
+            except Exception as e:
+                flash(f"Invalid private key format: {str(e)}", "danger")
+                return redirect(url_for('userHomePage'))
 
-            # Create a ZIP file in memory
+            # Validate certificate format
+            try:
+                x509.load_pem_x509_certificate(certificate, backend=default_backend())
+            except Exception as e:
+                flash(f"Invalid certificate format: {str(e)}", "danger")
+                return redirect(url_for('userHomePage'))
+
+            # Create ZIP
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                # Add private key to zip
                 zip_file.writestr('private_key.pem', private_key)
-                # Add certificate (public key) to zip
                 zip_file.writestr('public_key.pem', certificate)
 
-            zip_buffer.seek(0)  # Reset pointer to the start of the zip buffer
+            zip_buffer.seek(0)
 
-            # Send the zip file to the user
             return send_file(
                 zip_buffer,
                 as_attachment=True,
-                download_name='keys.zip',  # Use download_name instead of attachment_filename
+                download_name='keys.zip',
                 mimetype='application/zip'
             )
 
         except Exception as e:
-            # Catch any errors during the process
-            flash(f"An error occurred while preparing your download: {str(e)}", "danger")
+            flash(f"Error during zip creation: {str(e)}", "danger")
             return redirect(url_for('userHomePage'))
 
     else:
-        flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
+        flash("Private key or certificate missing. Please generate them again.", "danger")
         return redirect(url_for('userHomePage'))
+
 
 
 #**********************************************************#
