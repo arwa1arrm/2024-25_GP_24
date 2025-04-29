@@ -239,12 +239,13 @@ def download_keys_zip():
 
     # Retrieve the private key and certificate from session
     private_key_b64 = session.get('private_key')
-    
     certificate = session.get('certificate')
 
     # Check if both the private key and certificate are available in session
     if private_key_b64 and certificate:
-        
+        try:
+            # Decode the private key from base64
+            private_key = base64.b64decode(private_key_b64)
 
             # Create a ZIP file in memory
             zip_buffer = io.BytesIO()
@@ -263,7 +264,11 @@ def download_keys_zip():
                 download_name='keys.zip',  # Use download_name instead of attachment_filename
                 mimetype='application/zip'
             )
-
+        except Exception as e:
+            # Log error and return a friendly message
+            app.logger.error(f"Error generating the zip file: {e}")
+            flash('There was an issue while generating your keys download. Please try again later.', 'danger')
+            return redirect(url_for('userHomePage'))
 
     else:
         flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
