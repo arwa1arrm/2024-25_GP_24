@@ -798,7 +798,11 @@ def get_unread_messages_count():
     WHERE RecipientID = %s AND IsRead = 0
     """
     cur.execute(query, (user_id,))
-    unread_count = cur.fetchone()[0]  # Fetch the count
+    row = cur.fetchone()
+    if row:
+        unread_count = row[0]  # لو فيه بيانات
+    else:
+        unread_count = 0       # ما فيه رسائل غير مقروءة
 
     cur.close()
     con.close()
@@ -1311,6 +1315,7 @@ def verify_otp():
             cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
                         (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
             con.commit()
+            
 
             # Store the user ID in the session
             session['user_id'] = cur.lastrowid
