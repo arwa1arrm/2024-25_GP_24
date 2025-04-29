@@ -431,6 +431,7 @@ def encrypt_and_hide():
             return redirect(url_for("encryptionPage"))
 
         receiver_id, receiver_certificate_pem = receiver_data
+        certificate_str = certificate_str.replace(r'\n','\n')
         receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
         receiver_public_key = receiver_certificate.public_key()
 
