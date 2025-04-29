@@ -255,7 +255,7 @@ def download_keys_zip():
 
             if not certificate.startswith(b'-----BEGIN CERTIFICATE-----') or not certificate.endswith(b'-----END CERTIFICATE-----'):
                 flash("Error: The certificate is not in the correct PEM format.", "danger")
-                return redirect(url_for('signupsafe'))
+                return redirect(url_for('signupsafe1'))
 
             # Create a ZIP file in memory
             zip_buffer = io.BytesIO()
@@ -1242,10 +1242,7 @@ def verify_login_otp():
     return render_template("verify_login_otp.html")
 
 
-@app.route('/remove_user_id', methods=['POST'])
-def remove_user_id():
-    session.pop('user_id', None)
-    return jsonify({'status': 'success'})
+
 
 #**********************************************************#
 #**********************verify_otp route*******************#
