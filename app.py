@@ -1349,7 +1349,6 @@ INITIAL_COOLDOWN_PERIOD = 1
 COOLDOWN_INCREMENT = 2       
 
 @app.route("/verify_otp", methods=["GET", "POST"])
-#Hnadle OTP verification for registration
 def verify_otp():
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
@@ -1369,7 +1368,6 @@ def verify_otp():
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
         if datetime.datetime.utcnow() < block_until:
-            # Calculate current block duration based on multiplier (only for verification, not resend)
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
             flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             return render_template("verify_otp.html")
@@ -1390,26 +1388,32 @@ def verify_otp():
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
 
-            # Insert the user data into the database
-            cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
+            # Insert user into database
+            cur.execute(
+                "INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
+                (
+                    session['user_name'],
+                    session['email'],
+                    hashed_password.decode('utf-8'),
+                    session['certificate'].decode()
+                )
+            )
             con.commit()
-            
 
-            # Store the user ID in the session
+            # Store user ID in session
             session['user_id'] = cur.lastrowid
 
+            # Check for private key in session
             if 'private_key' in session:
-                    # We don't need to modify the key, just ensure the session is saved
-                    session.modified = True
-                    app.logger.info("Private key persisted in session after OTP verification")
-                else:
-                    app.logger.error("Private key not found in session during OTP verification")
-                    flash('There was an issue with your key generation. Please try registering again.', 'danger')
-                    return redirect(url_for('signupsafe1'))
+                session.modified = True
+                app.logger.info("Private key persisted in session after OTP verification")
                 flash('Account created successfully!', 'success')
+            else:
+                app.logger.error("Private key not found in session during OTP verification")
+                flash('There was an issue with your key generation. Please try registering again.', 'danger')
+                return redirect(url_for('signupsafe1'))
 
-                    
+            # Clear OTP-related session data
             session.pop("otp", None)
             session.pop("otp_attempts", None)
             session.pop("otp_block_until", None)
@@ -1417,34 +1421,30 @@ def verify_otp():
             session.pop("otp_resend_count", None)
 
             return render_template("registration_confirmation.html")
+
         else:
             # Increment attempt count
             session["otp_attempts"] += 1
 
-            # Check if the max attempts have been reached
             if session["otp_attempts"] >= MAX_OTP_ATTEMPTS:
-                # Increment cooldown multiplier and calculate block duration
                 session["cooldown_multiplier"] += 1
                 block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
                 session["otp_block_until"] = datetime.datetime.utcnow() + timedelta(minutes=block_duration)
 
                 flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
-
             else:
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
                 flash(f"<span style='color:red;'>Invalid OTP. You have {remaining_attempts} attempts left.</span>", "warning")
 
-
     return render_template("verify_otp.html")
 
-
-
-Add the helper function definition
+# Helper function
 def store_private_key_in_session(private_key_bytes):
     """Properly store private key in session and force session to be saved"""
     session['private_key'] = base64.b64encode(private_key_bytes).decode()
     session.modified = True
     app.logger.info("Private key stored in session and session marked as modified")
+
 #**********************************************************#
 #*********************resend_otp route*******************#
 #**********************************************************#    
