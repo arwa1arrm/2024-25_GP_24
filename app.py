@@ -444,7 +444,7 @@ def encrypt_and_hide():
         # Retrieve sender details
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
         sender_certificate_pem = cur.fetchone()[0]
-         if "\\n" in sender_certificate_pem:
+        if "\\n" in sender_certificate_pem:
             sender_certificate_pem = sender_certificate_pem.encode('utf-8').decode('unicode_escape')
         sender_certificate_pem = sender_certificate_pem.strip()
         sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode('utf-8'), default_backend())
