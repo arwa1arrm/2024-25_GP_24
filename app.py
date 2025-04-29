@@ -249,7 +249,7 @@ def download_keys_zip():
             private_key = base64.b64decode(private_key_b64)
             
             # Verify the private key and certificate format if necessary
-            if not private_key.startswith(b'-----BEGIN PRIVATE KEY-----') or not private_key.endswith(b'-----END PRIVATE KEY-----'):
+                if not private_key.startswith(b'-----BEGIN RSA PRIVATE KEY-----') or not private_key.endswith(b'-----END RSA PRIVATE KEY-----'):
                 flash("Error: The private key is not in the correct PEM format.", "danger")
                 return redirect(url_for('userHomePage'))
 
