@@ -55,7 +55,7 @@ app = Flask(__name__)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
 #Redis
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = False  
+app.config['SESSION_PERMANENT'] = True  
 app.config['SESSION_USE_SIGNER'] = True 
 app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
@@ -426,12 +426,9 @@ def encrypt_and_hide():
         # Retrieve receiver details
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
         receiver_data = cur.fetchone()
-        
         if not receiver_data:
             flash("The receiver's email is not registered.", "danger")
             return redirect(url_for("encryptionPage"))
-        
-        certificate = session.get('certificate')   
 
         receiver_id, receiver_certificate_pem = receiver_data
         receiver_certificate_pem = receiver_certificate_pem.replace('\\n', '\n')
@@ -439,10 +436,11 @@ def encrypt_and_hide():
         receiver_public_key = receiver_certificate.public_key()
 
         # Retrieve sender details
-        cur.execute("SELECT  FROM users WHERE user_id = %s", (sender_id,))
-        certificate = cur.fetchone()[0]
-        certificate = certificate.replace("\\n", "\n").strip()
-        sender_certificate = x509.load_pem_x509_certificate(certificate.encode('utf-8'),default_backend() )
+        cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
+        sender_certificate_pem = cur.fetchone()[0]
+        sender_certificate_pem = sender_certificate_pem.replace("\\n", "\n").strip()
+        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode('utf-8'),default_backend() )
+
         sender_public_key = sender_certificate.public_key()
 
         # Step 1: Encrypt the message with AES symmetric encryption
