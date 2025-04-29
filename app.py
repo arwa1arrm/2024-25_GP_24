@@ -1306,6 +1306,7 @@ def verify_otp():
             session.pop("otp_resend_count", None)
 
             return render_template("registration_confirmation.html")
+            session.pop("user_id", None)
         else:
             # Increment attempt count
             session["otp_attempts"] += 1
