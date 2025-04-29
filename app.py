@@ -158,7 +158,7 @@ def generate_keys_and_certificate(user_name):
     )
     
     certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
-s   ession['private_key'] = base64.b64encode(private_key_bytes).decode('utf-8')
+    session['private_key'] = base64.b64encode(private_key_bytes).decode('utf-8')
     session['certificate'] = base64.b64encode(certificate_bytes).decode('utf-8')
 
     return private_key_bytes, certificate_bytes
