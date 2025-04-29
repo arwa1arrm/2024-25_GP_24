@@ -413,6 +413,10 @@ def encrypt_and_hide():
     receiver_email = request.form.get("receiverEmail")
     plaintext_message = request.form.get("message")
     uploaded_file = request.files.get("mediaFile")
+    
+    # Add detailed logging to track session state
+    app.logger.info(f"Session keys: {list(session.keys())}")
+    app.logger.info(f"User ID in session: {sender_id}")
 
     # Basic validation
     if not receiver_email or not plaintext_message:
@@ -423,25 +427,122 @@ def encrypt_and_hide():
     cur = con.cursor()
 
     try:
-        # Retrieve receiver details
+        # Retrieve receiver details with better error handling
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
         receiver_data = cur.fetchone()
+        
         if not receiver_data:
             flash("The receiver's email is not registered.", "danger")
             return redirect(url_for("encryptionPage"))
-
+        
         receiver_id, receiver_certificate_pem = receiver_data
+        
+        # Log certificate type for debugging
+        app.logger.info(f"Receiver certificate type: {type(receiver_certificate_pem)}")
+        
+        # Normalize certificate format - handle both string and bytes
+        if isinstance(receiver_certificate_pem, bytes):
+            receiver_certificate_pem = receiver_certificate_pem.decode('utf-8')
+        
+        # Normalize newlines in certificate PEM
         receiver_certificate_pem = receiver_certificate_pem.replace('\\n', '\n')
-        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
-        receiver_public_key = receiver_certificate.public_key()
+        
+        # Validate certificate format
+        if "-----BEGIN CERTIFICATE-----" not in receiver_certificate_pem:
+            app.logger.error("Invalid receiver certificate format")
+            flash("The receiver's certificate appears to be in an invalid format.", "danger")
+            return redirect(url_for("encryptionPage"))
+        
+        try:
+            # Load certificate with proper encoding
+            receiver_certificate = x509.load_pem_x509_certificate(
+                receiver_certificate_pem.encode('utf-8'), 
+                default_backend()
+            )
+            receiver_public_key = receiver_certificate.public_key()
+        except Exception as e:
+            app.logger.error(f"Error loading receiver certificate: {e}")
+            flash("Could not process the receiver's certificate.", "danger")
+            return redirect(url_for("encryptionPage"))
 
-        # Retrieve sender details
+        # Retrieve sender's certificate with better error handling
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
-        sender_certificate_pem = cur.fetchone()[0]
-        sender_certificate_pem = sender_certificate_pem.replace("\\n", "\n").strip()
-        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode('utf-8'),default_backend() )
+        sender_data = cur.fetchone()
+        
+        if not sender_data or not sender_data[0]:
+            app.logger.error(f"No certificate found for user ID: {sender_id}")
+            flash("Your certificate couldn't be found in our system.", "danger")
+            return redirect(url_for("encryptionPage"))
+            
+        sender_certificate_pem = sender_data[0]
+        
+        # Log sender certificate for debugging
+        app.logger.info(f"Sender certificate type: {type(sender_certificate_pem)}")
+        
+        # Normalize certificate format - handle both string and bytes
+        if isinstance(sender_certificate_pem, bytes):
+            sender_certificate_pem = sender_certificate_pem.decode('utf-8')
+        
+        # Normalize newlines in certificate PEM
+        sender_certificate_pem = sender_certificate_pem.replace('\\n', '\n').strip()
+        
+        # Validate certificate format
+        if "-----BEGIN CERTIFICATE-----" not in sender_certificate_pem:
+            app.logger.error("Invalid sender certificate format")
+            flash("Your certificate appears to be in an invalid format.", "danger")
+            return redirect(url_for("encryptionPage"))
+        
+        try:
+            # Load certificate with proper encoding
+            sender_certificate = x509.load_pem_x509_certificate(
+                sender_certificate_pem.encode('utf-8'), 
+                default_backend()
+            )
+            sender_public_key = sender_certificate.public_key()
+        except Exception as e:
+            app.logger.error(f"Error loading sender certificate: {e}")
+            flash("Could not process your certificate.", "danger")
+            return redirect(url_for("encryptionPage"))
 
-        sender_public_key = sender_certificate.public_key()
+        # Get private key from session with clear error messaging
+        private_key_b64 = session.get('private_key')
+        
+        if not private_key_b64:
+            app.logger.error("Private key not found in session")
+            flash("Your private key is not available in your current session.", "danger")
+            return redirect(url_for("encryptionPage"))
+            
+        try:
+            # Decode and load private key
+            private_key_bytes = base64.b64decode(private_key_b64)
+            
+            # Validate PEM format
+            if b"-----BEGIN PRIVATE KEY-----" not in private_key_bytes and b"-----BEGIN RSA PRIVATE KEY-----" not in private_key_bytes:
+                app.logger.error("Invalid private key format")
+                flash("Your private key appears to be in an invalid format.", "danger")
+                return redirect(url_for("encryptionPage"))
+                
+            # Load the private key
+            private_key = serialization.load_pem_private_key(
+                private_key_bytes,
+                password=None,
+                backend=default_backend()
+            )
+        except base64.binascii.Error:
+            app.logger.error("Base64 decoding error for private key")
+            flash("Your private key couldn't be decoded properly.", "danger")
+            return redirect(url_for("encryptionPage"))
+        except ValueError as e:
+            app.logger.error(f"Value error loading private key: {e}")
+            flash("Your private key is invalid or corrupted.", "danger")
+            return redirect(url_for("encryptionPage"))
+        except Exception as e:
+            app.logger.error(f"Unexpected error loading private key: {e}")
+            flash(f"Error loading your private key: {str(e)}", "danger")
+            return redirect(url_for("encryptionPage"))
+
+        # Successfully loaded all keys, proceed with encryption
+        app.logger.info("All keys loaded successfully, proceeding with encryption")
 
         # Step 1: Encrypt the message with AES symmetric encryption
         symmetric_key = os.urandom(32)
@@ -1089,6 +1190,8 @@ def signupsafe1():
         # Generate keys and certificate
         private_key, certificate = generate_keys_and_certificate(user_name)
 
+        store_private_key_in_session(private_key)
+
         # Hash the password using bcrypt
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
 
@@ -1295,6 +1398,18 @@ def verify_otp():
 
             # Store the user ID in the session
             session['user_id'] = cur.lastrowid
+
+            if 'private_key' in session:
+                    # We don't need to modify the key, just ensure the session is saved
+                    session.modified = True
+                    app.logger.info("Private key persisted in session after OTP verification")
+                else:
+                    app.logger.error("Private key not found in session during OTP verification")
+                    flash('There was an issue with your key generation. Please try registering again.', 'danger')
+                    return redirect(url_for('signupsafe1'))
+                flash('Account created successfully!', 'success')
+
+                    
             session.pop("otp", None)
             session.pop("otp_attempts", None)
             session.pop("otp_block_until", None)
@@ -1323,6 +1438,13 @@ def verify_otp():
     return render_template("verify_otp.html")
 
 
+
+Add the helper function definition
+def store_private_key_in_session(private_key_bytes):
+    """Properly store private key in session and force session to be saved"""
+    session['private_key'] = base64.b64encode(private_key_bytes).decode()
+    session.modified = True
+    app.logger.info("Private key stored in session and session marked as modified")
 #**********************************************************#
 #*********************resend_otp route*******************#
 #**********************************************************#    
