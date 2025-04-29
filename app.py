@@ -249,13 +249,13 @@ def download_keys_zip():
             private_key = base64.b64decode(private_key_b64)
             
             # Verify the private key and certificate format if necessary
-                if not private_key.startswith(b'-----BEGIN RSA PRIVATE KEY-----') or not private_key.endswith(b'-----END RSA PRIVATE KEY-----'):
+            if not private_key.startswith(b'-----BEGIN RSA PRIVATE KEY-----') or not private_key.endswith(b'-----END RSA PRIVATE KEY-----'):
                 flash("Error: The private key is not in the correct PEM format.", "danger")
-                return redirect(url_for('userHomePage'))
+                return redirect(url_for('signupsafe1'))
 
             if not certificate.startswith(b'-----BEGIN CERTIFICATE-----') or not certificate.endswith(b'-----END CERTIFICATE-----'):
                 flash("Error: The certificate is not in the correct PEM format.", "danger")
-                return redirect(url_for('userHomePage'))
+                return redirect(url_for('signupsafe'))
 
             # Create a ZIP file in memory
             zip_buffer = io.BytesIO()
