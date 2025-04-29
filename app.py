@@ -1241,6 +1241,12 @@ def verify_login_otp():
 
     return render_template("verify_login_otp.html")
 
+
+@app.route('/remove_user_id', methods=['POST'])
+def remove_user_id():
+    session.pop('user_id', None)
+    return jsonify({'status': 'success'})
+
 #**********************************************************#
 #**********************verify_otp route*******************#
 #**********************************************************#    
@@ -1306,7 +1312,6 @@ def verify_otp():
             session.pop("otp_resend_count", None)
 
             return render_template("registration_confirmation.html")
-            session.pop("user_id", None)
         else:
             # Increment attempt count
             session["otp_attempts"] += 1

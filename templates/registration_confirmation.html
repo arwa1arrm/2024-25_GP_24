@@ -70,6 +70,18 @@
             </div>
         </div>
     </footer>
-
+    <script>
+        window.onload = function() {
+          fetch('/remove_user_id', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+              console.log('User ID removed:', data);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        }
+      </script>
+      
 </body>
 </html>
