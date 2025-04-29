@@ -161,27 +161,7 @@ def generate_keys_and_certificate(user_name):
 
     return private_key_bytes, certificate_bytes
 
-def load_private_key(pem_data):
-    try:
-        # Load the private key from PEM data
-        private_key = serialization.load_pem_private_key(
-            pem_data,  # Ensure it's already in bytes, no need to encode
-            password=None,  # If the private key is not password-protected
-            backend=default_backend()  # Use the default backend for cryptography
-        )
-        return private_key
-    except Exception as e:
-        print(f"Error loading private key: {e}")
-        return None
 
-def load_certificate(cert_pem_data):
-    try:
-        # Load the certificate from PEM data
-        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
-        return certificate
-    except Exception as e:
-        print(f"Error loading certificate: {e}")
-        return None
 
 #**************************************#
 #**********session management**********#
