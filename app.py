@@ -160,6 +160,9 @@ def generate_keys_and_certificate(user_name):
     certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
 
     return private_key_bytes, certificate_bytes
+    # Store base64-encoded keys in session
+    session['private_key'] = base64.b64encode(private_key_bytes).decode('utf-8')
+    session['certificate'] = base64.b64encode(certificate_bytes).decode('utf-8')
 
 
 
@@ -237,9 +240,9 @@ def userHomePage():
 def download_keys_zip():
     """Allow users to download both their private key and certificate in a zip file."""
 
+
     # Retrieve the private key and certificate from session
     private_key_b64 = session.get('private_key')
-    
     certificate = session.get('certificate')
 
     # Check if both the private key and certificate are available in session
@@ -255,7 +258,7 @@ def download_keys_zip():
 
             if not certificate.startswith(b'-----BEGIN CERTIFICATE-----') or not certificate.endswith(b'-----END CERTIFICATE-----'):
                 flash("Error: The certificate is not in the correct PEM format.", "danger")
-                return redirect(url_for('signupsafe1'))
+                return redirect(url_for('homwpage'))
 
             # Create a ZIP file in memory
             zip_buffer = io.BytesIO()
