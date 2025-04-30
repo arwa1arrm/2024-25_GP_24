@@ -475,7 +475,6 @@ def encrypt_and_hide():
             app.logger.error(f"Error processing sender certificate: {e}")
             flash(f"Problem with your certificate: {str(e)}", "danger")
             return redirect(url_for("encryptionPage"))
-
         # Get private key from session with clear error messaging
         private_key_b64 = session.get('private_key')
         
@@ -488,19 +487,33 @@ def encrypt_and_hide():
             # Decode and load private key
             private_key_bytes = base64.b64decode(private_key_b64)
             
-          
+            # Validate PEM format
+            if b"-----BEGIN PRIVATE KEY-----" not in private_key_bytes and b"-----BEGIN RSA PRIVATE KEY-----" not in private_key_bytes:
+                app.logger.error("Invalid private key format")
+                flash("Your private key appears to be in an invalid format.", "danger")
+                return redirect(url_for("encryptionPage"))
+                
             # Load the private key
             private_key = serialization.load_pem_private_key(
                 private_key_bytes,
                 password=None,
                 backend=default_backend()
             )
-            app.logger.info("Successfully loaded private key from session")
-       
+        except base64.binascii.Error:
+            app.logger.error("Base64 decoding error for private key")
+            flash("Your private key couldn't be decoded properly.", "danger")
+            return redirect(url_for("encryptionPage"))
+        except ValueError as e:
+            app.logger.error(f"Value error loading private key: {e}")
+            flash("Your private key is invalid or corrupted.", "danger")
+            return redirect(url_for("encryptionPage"))
         except Exception as e:
             app.logger.error(f"Unexpected error loading private key: {e}")
             flash(f"Error loading your private key: {str(e)}", "danger")
             return redirect(url_for("encryptionPage"))
+
+        # Successfully loaded all keys, proceed with encryption
+        app.logger.info("All keys loaded successfully, proceeding with encryption")
 
         # Step 1: Encrypt the message with AES symmetric encryption
         symmetric_key = os.urandom(32)
@@ -1403,6 +1416,7 @@ def store_private_key_in_session(private_key_bytes):
     session.modified = True
     app.logger.info("Private key stored in session and session marked as modified")
 
+
 #**********************************************************#
 #*********************resend_otp route*******************#
 #**********************************************************#    
@@ -1616,21 +1630,18 @@ def debug_certificate(email):
             return f"No user found with email: {email}", 404
             
         cert_data = result[0]
-        app.logger.debug(f"Raw certificate from DB:\n{cert_data}")
-        
-        # إضافة السطر هنا لعرض الشهادة بعد فك الترميز
-        decoded_cert = cert_data.encode('utf-8').decode('unicode_escape')
-        app.logger.debug(f"Decoded cert:\n{decoded_cert}")
-        
         cert_type = type(cert_data).__name__
         cert_length = len(cert_data) if cert_data else 0
         
         # Check basic certificate format
-        contains_begin = "-----BEGIN CERTIFICATE-----" in str(decoded_cert)
-        contains_end = "-----END CERTIFICATE-----" in str(decoded_cert)
+        contains_begin = "-----BEGIN CERTIFICATE-----" in str(cert_data)
+        contains_end = "-----END CERTIFICATE-----" in str(cert_data)
         
         # Prepare sample of certificate data
-        sample = str(decoded_cert)[:100] + "..." if decoded_cert and len(decoded_cert) > 100 else str(decoded_cert)
+        if cert_data and len(cert_data) > 100:
+            sample = str(cert_data)[:100] + "..."
+        else:
+            sample = str(cert_data)
             
         response = {
             "email": email,
@@ -1648,6 +1659,69 @@ def debug_certificate(email):
         cur.close()
         con.close()
 
+# Improved certificate processing function you can use in your code
+def process_certificate(certificate_data):
+    """
+    Process and normalize certificate data regardless of input format.
+    Returns the certificate object or raises detailed exceptions.
+    """
+    app.logger.info(f"Processing certificate of type: {type(certificate_data)}")
+    
+    # If None or empty, handle gracefully
+    if not certificate_data:
+        raise ValueError("Certificate data is empty")
+    
+    # Convert to string if bytes
+    if isinstance(certificate_data, bytes):
+        certificate_pem = certificate_data.decode('utf-8')
+    else:
+        certificate_pem = str(certificate_data)
+    
+    # Clean up the certificate data
+    certificate_pem = certificate_pem.replace('\\n', '\n').strip()
+    
+    # Check if the certificate has proper PEM markers
+    if "-----BEGIN CERTIFICATE-----" not in certificate_pem:
+        # If no BEGIN marker, try to fix the format
+        if "BEGIN CERTIFICATE" in certificate_pem:
+            # Attempt to fix misformatted markers
+            certificate_pem = certificate_pem.replace("BEGIN CERTIFICATE", "-----BEGIN CERTIFICATE-----")
+            certificate_pem = certificate_pem.replace("END CERTIFICATE", "-----END CERTIFICATE-----")
+        else:
+            # Log the problematic certificate for debugging
+            app.logger.error(f"Invalid certificate format: {certificate_pem[:100]}...")
+            raise ValueError("Certificate does not contain proper BEGIN marker")
+    
+    if "-----END CERTIFICATE-----" not in certificate_pem:
+        raise ValueError("Certificate does not contain proper END marker")
+    
+    # Ensure proper PEM format with newlines
+    lines = certificate_pem.splitlines()
+    formatted_pem = []
+    
+    for i, line in enumerate(lines):
+        line = line.strip()
+        if "-----BEGIN CERTIFICATE-----" in line:
+            formatted_pem.append("-----BEGIN CERTIFICATE-----")
+        elif "-----END CERTIFICATE-----" in line:
+            formatted_pem.append("-----END CERTIFICATE-----")
+        elif line:  # Skip empty lines
+            # Add base64 encoded content lines
+            formatted_pem.append(line)
+    
+    # Reconstruct with proper newlines
+    formatted_certificate = "\n".join(formatted_pem)
+    
+    # Try to load the certificate
+    try:
+        cert_obj = x509.load_pem_x509_certificate(
+            formatted_certificate.encode('utf-8'),
+            default_backend()
+        )
+        return cert_obj
+    except Exception as e:
+        app.logger.error(f"Error loading certificate: {e}")
+        raise ValueError(f"Failed to load certificate: {str(e)}")
 
 #**********************************************************#
 #**********************logout route************************#
