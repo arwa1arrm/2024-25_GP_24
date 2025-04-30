@@ -1616,6 +1616,7 @@ def debug_certificate(email):
             return f"No user found with email: {email}", 404
             
         cert_data = result[0]
+        app.logger.debug(f"Raw certificate from DB:\n{cert_data}")
         cert_type = type(cert_data).__name__
         cert_length = len(cert_data) if cert_data else 0
         
@@ -1666,24 +1667,15 @@ def process_certificate(certificate_data):
     # Clean up the certificate data
     certificate_pem = certificate_pem.replace('\\n', '\n').strip()
     
-    # Check if the certificate has proper PEM markers
-    if "-----BEGIN CERTIFICATE-----" not in certificate_pem:
-        # If no BEGIN marker, try to fix the format
-        if "BEGIN CERTIFICATE" in certificate_pem:
-            # Attempt to fix misformatted markers
-            certificate_pem = certificate_pem.replace("BEGIN CERTIFICATE", "-----BEGIN CERTIFICATE-----")
-            certificate_pem = certificate_pem.replace("END CERTIFICATE", "-----END CERTIFICATE-----")
-        else:
-            # Log the problematic certificate for debugging
-            app.logger.error(f"Invalid certificate format: {certificate_pem[:100]}...")
-            raise ValueError("Certificate does not contain proper BEGIN marker")
+   Problem with receiver's certificate: Certificate does not contain proper BEGIN marker
+
     
-    if "-----END CERTIFICATE-----" not in certificate_pem:
-        raise ValueError("Certificate does not contain proper END marker")
-    
+
     # Ensure proper PEM format with newlines
     lines = certificate_pem.splitlines()
     formatted_pem = []
+
+    
     
     for i, line in enumerate(lines):
         line = line.strip()
