@@ -1625,10 +1625,7 @@ def debug_certificate(email):
         contains_end = "-----END CERTIFICATE-----" in str(cert_data)
         
         # Prepare sample of certificate data
-        if cert_data and len(cert_data) > 100:
-            sample = str(cert_data)[:100] + "..."
-        else:
-            sample = str(cert_data)
+        sample = str(cert_data)[:100] + "..." if cert_data and len(cert_data) > 100 else str(cert_data)
             
         response = {
             "email": email,
@@ -1646,54 +1643,57 @@ def debug_certificate(email):
         cur.close()
         con.close()
 
-# Improved certificate processing function you can use in your code
 def process_certificate(certificate_data):
     """
     Process and normalize certificate data regardless of input format.
     Returns the certificate object or raises detailed exceptions.
     """
     app.logger.info(f"Processing certificate of type: {type(certificate_data)}")
-    
-    # If None or empty, handle gracefully
+
     if not certificate_data:
         raise ValueError("Certificate data is empty")
     
-    # Convert to string if bytes
+    # Decode bytes to string if necessary
     if isinstance(certificate_data, bytes):
-        certificate_pem = certificate_data.decode('utf-8')
+        certificate_pem = certificate_data.decode("utf-8")
     else:
         certificate_pem = str(certificate_data)
     
-    # Clean up the certificate data
-    certificate_pem = certificate_pem.replace('\\n', '\n').strip()
+    # Replace escaped newlines with real newlines
+    certificate_pem = certificate_pem.replace("\\n", "\n").replace("\r", "").strip()
     
-   Problem with receiver's certificate: Certificate does not contain proper BEGIN marker
-
+    if "-----BEGIN CERTIFICATE-----" not in certificate_pem or "-----END CERTIFICATE-----" not in certificate_pem:
+        raise ValueError("Certificate does not contain proper BEGIN/END markers")
     
-
-    # Ensure proper PEM format with newlines
+    # Normalize the base64 content: remove empty lines and excess whitespace
     lines = certificate_pem.splitlines()
-    formatted_pem = []
-
+    cleaned_lines = []
     
-    
-    for i, line in enumerate(lines):
+    for line in lines:
         line = line.strip()
-        if "-----BEGIN CERTIFICATE-----" in line:
-            formatted_pem.append("-----BEGIN CERTIFICATE-----")
-        elif "-----END CERTIFICATE-----" in line:
-            formatted_pem.append("-----END CERTIFICATE-----")
-        elif line:  # Skip empty lines
-            # Add base64 encoded content lines
-            formatted_pem.append(line)
+        if line:
+            cleaned_lines.append(line)
     
-    # Reconstruct with proper newlines
-    formatted_certificate = "\n".join(formatted_pem)
+    # Extract header, footer, and body
+    try:
+        begin_index = cleaned_lines.index("-----BEGIN CERTIFICATE-----")
+        end_index = cleaned_lines.index("-----END CERTIFICATE-----")
+    except ValueError:
+        raise ValueError("Certificate markers not found properly")
+
+    header = cleaned_lines[begin_index]
+    footer = cleaned_lines[end_index]
+    body = ''.join(cleaned_lines[begin_index + 1:end_index])
+
+    # Wrap body to 64-character lines as per PEM standard
+    import textwrap
+    wrapped_body = textwrap.wrap(body, 64)
     
-    # Try to load the certificate
+    formatted_certificate = "\n".join([header] + wrapped_body + [footer])
+
     try:
         cert_obj = x509.load_pem_x509_certificate(
-            formatted_certificate.encode('utf-8'),
+            formatted_certificate.encode("utf-8"),
             default_backend()
         )
         return cert_obj
