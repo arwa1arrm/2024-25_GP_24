@@ -1617,15 +1617,20 @@ def debug_certificate(email):
             
         cert_data = result[0]
         app.logger.debug(f"Raw certificate from DB:\n{cert_data}")
+        
+        # إضافة السطر هنا لعرض الشهادة بعد فك الترميز
+        decoded_cert = cert_data.encode('utf-8').decode('unicode_escape')
+        app.logger.debug(f"Decoded cert:\n{decoded_cert}")
+        
         cert_type = type(cert_data).__name__
         cert_length = len(cert_data) if cert_data else 0
         
         # Check basic certificate format
-        contains_begin = "-----BEGIN CERTIFICATE-----" in str(cert_data)
-        contains_end = "-----END CERTIFICATE-----" in str(cert_data)
+        contains_begin = "-----BEGIN CERTIFICATE-----" in str(decoded_cert)
+        contains_end = "-----END CERTIFICATE-----" in str(decoded_cert)
         
         # Prepare sample of certificate data
-        sample = str(cert_data)[:100] + "..." if cert_data and len(cert_data) > 100 else str(cert_data)
+        sample = str(decoded_cert)[:100] + "..." if decoded_cert and len(decoded_cert) > 100 else str(decoded_cert)
             
         response = {
             "email": email,
@@ -1643,63 +1648,6 @@ def debug_certificate(email):
         cur.close()
         con.close()
 
-def process_certificate(certificate_data):
-    """
-    Process and normalize certificate data regardless of input format.
-    Returns the certificate object or raises detailed exceptions.
-    """
-    app.logger.info(f"Processing certificate of type: {type(certificate_data)}")
-
-    if not certificate_data:
-        raise ValueError("Certificate data is empty")
-    
-    # Decode bytes to string if necessary
-    if isinstance(certificate_data, bytes):
-        certificate_pem = certificate_data.decode("utf-8")
-    else:
-        certificate_pem = str(certificate_data)
-    
-    # Replace escaped newlines with real newlines
-    certificate_pem = certificate_pem.replace("\\n", "\n").replace("\r", "").strip()
-    
-    if "-----BEGIN CERTIFICATE-----" not in certificate_pem or "-----END CERTIFICATE-----" not in certificate_pem:
-        raise ValueError("Certificate does not contain proper BEGIN/END markers")
-    
-    # Normalize the base64 content: remove empty lines and excess whitespace
-    lines = certificate_pem.splitlines()
-    cleaned_lines = []
-    
-    for line in lines:
-        line = line.strip()
-        if line:
-            cleaned_lines.append(line)
-    
-    # Extract header, footer, and body
-    try:
-        begin_index = cleaned_lines.index("-----BEGIN CERTIFICATE-----")
-        end_index = cleaned_lines.index("-----END CERTIFICATE-----")
-    except ValueError:
-        raise ValueError("Certificate markers not found properly")
-
-    header = cleaned_lines[begin_index]
-    footer = cleaned_lines[end_index]
-    body = ''.join(cleaned_lines[begin_index + 1:end_index])
-
-    # Wrap body to 64-character lines as per PEM standard
-    import textwrap
-    wrapped_body = textwrap.wrap(body, 64)
-    
-    formatted_certificate = "\n".join([header] + wrapped_body + [footer])
-
-    try:
-        cert_obj = x509.load_pem_x509_certificate(
-            formatted_certificate.encode("utf-8"),
-            default_backend()
-        )
-        return cert_obj
-    except Exception as e:
-        app.logger.error(f"Error loading certificate: {e}")
-        raise ValueError(f"Failed to load certificate: {str(e)}")
 
 #**********************************************************#
 #**********************logout route************************#
