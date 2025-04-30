@@ -8,7 +8,8 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 import datetime  # For datetime.datetime.utcnow()
-from datetime import timedelta  # For timedelta
+#from datetime import timedelta  # For timedelta
+from datetime import datetime
 import io
 import pymysql  # Correct import of PyMySQL
 import base64
@@ -1250,7 +1251,7 @@ def verify_login_otp():
     # Check if the user is currently blocked due to multiple failed OTP attempts
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
-        if datetime.datetime.utcnow() < block_until:
+        if datetime.utcnow() < block_until:
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
             flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             #return render_template("verify_otp.html")
@@ -1325,7 +1326,9 @@ def verify_otp():
     # Check if the user is currently blocked
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
-        if datetime.datetime.utcnow() < block_until:
+    
+        if datetime.utcnow() < block_until:
+
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
             flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             return render_template("verify_otp.html")
