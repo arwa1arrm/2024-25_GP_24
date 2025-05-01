@@ -210,6 +210,7 @@ def add_no_cache_headers(response):
 from cryptography import x509
 
 def process_certificate(certificate_pem: str):
+    
     """Convert a PEM-encoded certificate string into an x509 certificate object."""
     if isinstance(certificate_pem, str):
         certificate_pem = certificate_pem.encode('utf-8')
@@ -443,11 +444,18 @@ def encrypt_and_hide():
         receiver_id, receiver_certificate_pem = receiver_data
 
         if isinstance(receiver_certificate_pem, bytes):
+            # Convert bytes to string if the certificate is in bytes
             receiver_certificate_pem = receiver_certificate_pem.decode('utf-8')
 
-        receiver_certificate_pem = receiver_certificate_pem.replace('\\n', '\n')
+            # Clean up the PEM format (replace '\n' literals with actual newline characters)
+        receiver_certificate_pem = receiver_certificate_pem.replace("\\n", "\n").strip()
 
-        receiver_certificate = process_certificate(receiver_certificate_pem)
+            # Load the certificate using the cleaned-up PEM string
+        receiver_certificate = x509.load_pem_x509_certificate(
+        receiver_certificate_pem.encode('utf-8'), backend=default_backend()
+        )
+
+        # Extract the public key from the loaded certificate
         receiver_public_key = receiver_certificate.public_key()
 
         # 2. Get sender's certificate (to extract the public key only)
