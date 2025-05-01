@@ -273,6 +273,8 @@ def download_keys_zip():
                 download_name='keys.zip',  # Use download_name instead of attachment_filename
                 mimetype='application/zip'
             )
+            print(f"Certificate PEM: {certificate}")
+
         except Exception as e:
             # Log error and return a friendly message
             app.logger.error(f"Error generating the zip file: {e}")
@@ -452,8 +454,7 @@ def encrypt_and_hide():
 
             # Load the certificate using the cleaned-up PEM string
         receiver_certificate = x509.load_pem_x509_certificate(
-        receiver_certificate_pem.encode('utf-8'), backend=default_backend()
-        )
+        receiver_certificate_pem.encode('utf-8'))
 
         # Extract the public key from the loaded certificate
         receiver_public_key = receiver_certificate.public_key()
