@@ -792,10 +792,10 @@ def get_unread_messages_count():
     """
     cur.execute(query, (user_id,))
     row = cur.fetchone()
-    if row:
-        unread_count = row[0]  # لو فيه بيانات
+    if row and len(row) > 0:
+        unread_count = row[0]  # If there is data, get the first element (count)
     else:
-        unread_count = 0       # ما فيه رسائل غير مقروءة
+        unread_count = 0  # If no data, set unread_count to 0
 
     cur.close()
     con.close()
