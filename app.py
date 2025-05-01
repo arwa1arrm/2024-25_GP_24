@@ -9,7 +9,6 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 import datetime  # For datetime.datetime.utcnow()
 from datetime import timedelta  # For timedelta
-#from datetime import datetime
 import io
 import pymysql  # Correct import of PyMySQL
 import base64
@@ -56,7 +55,7 @@ app = Flask(__name__)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  #
 #Redis
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = True  
+app.config['SESSION_PERMANENT'] = False  
 app.config['SESSION_USE_SIGNER'] = True 
 app.config['SESSION_KEY_PREFIX'] = 'concealsafe_'  
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'g5$8^bG*dfK4&2e3yH!Q6j@z')
@@ -133,6 +132,14 @@ SESSION_TIMEOUT = 900
 #**************************************************************#
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.x509 import *
+from cryptography.hazmat.backends import default_backend
+import datetime
+
 def generate_keys_and_certificate(user_name):
     """Generate RSA keys and self-signed certificate for the user."""
     private_key = rsa.generate_private_key(
@@ -162,7 +169,27 @@ def generate_keys_and_certificate(user_name):
 
     return private_key_bytes, certificate_bytes
 
+def load_private_key(pem_data):
+    try:
+        # Load the private key from PEM data
+        private_key = serialization.load_pem_private_key(
+            pem_data,  # Ensure it's already in bytes, no need to encode
+            password=None,  # If the private key is not password-protected
+            backend=default_backend()  # Use the default backend for cryptography
+        )
+        return private_key
+    except Exception as e:
+        print(f"Error loading private key: {e}")
+        return None
 
+def load_certificate(cert_pem_data):
+    try:
+        # Load the certificate from PEM data
+        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
+        return certificate
+    except Exception as e:
+        print(f"Error loading certificate: {e}")
+        return None
 
 #**************************************#
 #**********session management**********#
@@ -202,19 +229,10 @@ def add_no_cache_headers(response):
     response.headers["Expires"] = "0"
     return response
 
-
 #**********************************************************#
 #**********************routes******************************#
 #**********************************************************#
 
-from cryptography import x509
-
-def process_certificate(certificate_pem: str):
-    
-    """Convert a PEM-encoded certificate string into an x509 certificate object."""
-    if isinstance(certificate_pem, str):
-        certificate_pem = certificate_pem.encode('utf-8')
-    return x509.load_pem_x509_certificate(certificate_pem)
 
 #**********************************************************#
 #**********************Homepage route**********************#
@@ -248,6 +266,7 @@ def download_keys_zip():
 
     # Retrieve the private key and certificate from session
     private_key_b64 = session.get('private_key')
+    
     certificate = session.get('certificate')
 
     # Check if both the private key and certificate are available in session
@@ -255,7 +274,7 @@ def download_keys_zip():
         try:
             # Decode the private key from base64
             private_key = base64.b64decode(private_key_b64)
-
+            
             # Create a ZIP file in memory
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
@@ -273,12 +292,10 @@ def download_keys_zip():
                 download_name='keys.zip',  # Use download_name instead of attachment_filename
                 mimetype='application/zip'
             )
-            print(f"Certificate PEM: {certificate}")
 
         except Exception as e:
-            # Log error and return a friendly message
-            app.logger.error(f"Error generating the zip file: {e}")
-            flash('There was an issue while generating your keys download. Please try again later.', 'danger')
+            # Catch any errors during the process
+            flash(f"An error occurred while preparing your download: {str(e)}", "danger")
             return redirect(url_for('userHomePage'))
 
     else:
@@ -425,8 +442,7 @@ def encrypt_and_hide():
     plaintext_message = request.form.get("message")
     uploaded_file = request.files.get("mediaFile")
 
-    app.logger.info(f"Encrypting message for receiver: {receiver_email}")
-
+    # Basic validation
     if not receiver_email or not plaintext_message:
         flash("Receiver email and message are required.", "danger")
         return redirect(url_for("encryptionPage"))
@@ -435,65 +451,53 @@ def encrypt_and_hide():
     cur = con.cursor()
 
     try:
-        # 1. Get receiver's certificate
+        # Retrieve receiver details
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (receiver_email,))
         receiver_data = cur.fetchone()
-
         if not receiver_data:
             flash("The receiver's email is not registered.", "danger")
             return redirect(url_for("encryptionPage"))
 
         receiver_id, receiver_certificate_pem = receiver_data
-
-        if isinstance(receiver_certificate_pem, bytes):
-            # Convert bytes to string if the certificate is in bytes
-            receiver_certificate_pem = receiver_certificate_pem.decode('utf-8')
-
-            # Clean up the PEM format (replace '\n' literals with actual newline characters)
-        receiver_certificate_pem = receiver_certificate_pem.replace("\\n", "\n").strip()
-
-            # Load the certificate using the cleaned-up PEM string
-        receiver_certificate = x509.load_pem_x509_certificate(
-        receiver_certificate_pem.encode('utf-8'))
-
-        # Extract the public key from the loaded certificate
+        receiver_certificate = x509.load_pem_x509_certificate(receiver_certificate_pem.encode(), default_backend())
         receiver_public_key = receiver_certificate.public_key()
 
-        # 2. Get sender's certificate (to extract the public key only)
+        # Retrieve sender details
         cur.execute("SELECT certificate FROM users WHERE user_id = %s", (sender_id,))
-        sender_data = cur.fetchone()
-
-        if not sender_data or not sender_data[0]:
-            flash("Your certificate couldn't be found in our system.", "danger")
-            return redirect(url_for("encryptionPage"))
-
-        sender_certificate_pem = sender_data[0]
-
-        sender_certificate = process_certificate(sender_certificate_pem)
+        sender_certificate_pem = cur.fetchone()[0]
+        sender_certificate = x509.load_pem_x509_certificate(sender_certificate_pem.encode(), default_backend())
         sender_public_key = sender_certificate.public_key()
 
-        # 3. Encrypt message using symmetric key (AES)
+        # Step 1: Encrypt the message with AES symmetric encryption
         symmetric_key = os.urandom(32)
         iv = os.urandom(16)
         cipher = Cipher(algorithms.AES(symmetric_key), modes.CFB(iv))
         encryptor = cipher.encryptor()
         ciphertext = encryptor.update(plaintext_message.encode()) + encryptor.finalize()
+        # Prepend IV to ciphertext and base64 encode the result.
         encrypted_message = base64.b64encode(iv + ciphertext).decode()
 
-        # 4. Encrypt the symmetric key using both public keys
+        # Step 2: Encrypt the symmetric key using both receiver's and sender's public keys
         encrypted_key_receiver = base64.b64encode(receiver_public_key.encrypt(
             symmetric_key,
-            padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None)
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
         )).decode()
 
         encrypted_key_sender = base64.b64encode(sender_public_key.encrypt(
             symmetric_key,
-            padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None)
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
         )).decode()
 
-        # 5. Handle media file if present (optional)
         hidden_filename = None
-        hidden_path = Non
+        hidden_path = None
 
         # Step 3: Handle file embedding if a file is uploaded
         if uploaded_file and uploaded_file.filename:
@@ -792,11 +796,7 @@ def get_unread_messages_count():
     WHERE RecipientID = %s AND IsRead = 0
     """
     cur.execute(query, (user_id,))
-    row = cur.fetchone()
-    if row and len(row) > 0:
-        unread_count = row[0]  # If there is data, get the first element (count)
-    else:
-        unread_count = 0  # If no data, set unread_count to 0
+    unread_count = cur.fetchone()[0]  # Fetch the count
 
     cur.close()
     con.close()
@@ -1110,8 +1110,6 @@ def signupsafe1():
         # Generate keys and certificate
         private_key, certificate = generate_keys_and_certificate(user_name)
 
-        store_private_key_in_session(private_key)
-
         # Hash the password using bcrypt
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()) #Many hashing algorithms, including bcrypt, require the input to be in byte format, so encoding is necessary.
 
@@ -1124,7 +1122,8 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = certificate.decode('utf-8')  
+        session['certificate'] = base64.b64encode(certificate).decode('utf-8')
+
         
         # Generate and send OTP
         otp = generate_otp()
@@ -1212,7 +1211,7 @@ def verify_login_otp():
     # Check if the user is currently blocked due to multiple failed OTP attempts
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
-        if datetime.utcnow() < block_until:
+        if datetime.datetime.utcnow() < block_until:
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
             flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             #return render_template("verify_otp.html")
@@ -1257,9 +1256,6 @@ def verify_login_otp():
 
     return render_template("verify_login_otp.html")
 
-
-
-
 #**********************************************************#
 #**********************verify_otp route*******************#
 #**********************************************************#    
@@ -1269,6 +1265,7 @@ INITIAL_COOLDOWN_PERIOD = 1
 COOLDOWN_INCREMENT = 2       
 
 @app.route("/verify_otp", methods=["GET", "POST"])
+#Hnadle OTP verification for registration
 def verify_otp():
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
@@ -1287,9 +1284,8 @@ def verify_otp():
     # Check if the user is currently blocked
     if session["otp_block_until"]:
         block_until = session["otp_block_until"]
-    
-        if datetime.utcnow() < block_until:
-
+        if datetime.datetime.utcnow() < block_until:
+            # Calculate current block duration based on multiplier (only for verification, not resend)
             block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
             flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
             return render_template("verify_otp.html")
@@ -1309,35 +1305,14 @@ def verify_otp():
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
-            session['certificate'] = certificate.decode('utf-8')  # Convert to string (ensure it's a valid PEM string)
 
-
-            # Insert user into database
-            cur.execute(
-                "INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
-                (
-                    session['user_name'],
-                    session['email'],
-                    hashed_password.decode('utf-8'),
-                    session['certificate'].decode()
-                )
-            )
+            # Insert the user data into the database
+            cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
+                        (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
             con.commit()
 
-            # Store user ID in session
+            # Store the user ID in the session
             session['user_id'] = cur.lastrowid
-
-            # Check for private key in session
-            if 'private_key' in session:
-                session.modified = True
-                app.logger.info("Private key persisted in session after OTP verification")
-                flash('Account created successfully!', 'success')
-            else:
-                app.logger.error("Private key not found in session during OTP verification")
-                flash('There was an issue with your key generation. Please try registering again.', 'danger')
-                return redirect(url_for('signupsafe1'))
-
-            # Clear OTP-related session data
             session.pop("otp", None)
             session.pop("otp_attempts", None)
             session.pop("otp_block_until", None)
@@ -1345,65 +1320,26 @@ def verify_otp():
             session.pop("otp_resend_count", None)
 
             return render_template("registration_confirmation.html")
-
         else:
             # Increment attempt count
             session["otp_attempts"] += 1
 
+            # Check if the max attempts have been reached
             if session["otp_attempts"] >= MAX_OTP_ATTEMPTS:
+                # Increment cooldown multiplier and calculate block duration
                 session["cooldown_multiplier"] += 1
                 block_duration = INITIAL_COOLDOWN_PERIOD + (COOLDOWN_INCREMENT * session["cooldown_multiplier"] - 1)
                 session["otp_block_until"] = datetime.datetime.utcnow() + timedelta(minutes=block_duration)
 
                 flash(f"Too many attempts! Please wait {block_duration} minutes, then click on the link '<span style='color:red;'>RESEND HERE</span>' below to try again.", "danger")
+
             else:
                 remaining_attempts = MAX_OTP_ATTEMPTS - session["otp_attempts"]
                 flash(f"<span style='color:red;'>Invalid OTP. You have {remaining_attempts} attempts left.</span>", "warning")
 
+
     return render_template("verify_otp.html")
 
-# Helper function
-def store_private_key_in_session(private_key_bytes):
-    """Properly store private key in session and force session to be saved"""
-    session['private_key'] = base64.b64encode(private_key_bytes).decode()
-    session.modified = True
-    app.logger.info("Private key stored in session and session marked as modified")
-
-
-@app.route("/view_certificate")
-@login_required
-def view_certificate():
-    """Render the certificate stored in the session to the webpage."""
-    certificate = session.get('certificate')  # Retrieve certificate from the session
-
-    if not certificate:
-        flash("Certificate not found. Please ensure you have registered or generated it.", "danger")
-        return redirect(url_for('userHomePage'))
-
-    # Render certificate on the webpage
-    return render_template("view_certificate.html", certificate=certificate)
-
-
-@app.route("/user_certificate")
-@login_required
-def user_certificate():
-    """Retrieve and display the certificate for the logged-in user."""
-    user_id = session.get('user_id')
-
-    # Fetch certificate from the database
-    con = get_db_connection()
-    cur = con.cursor()
-    cur.execute("SELECT certificate FROM users WHERE user_id = %s", (user_id,))
-    result = cur.fetchone()
-    cur.close()
-    con.close()
-
-    if result:
-        certificate = result['certificate']
-        return render_template("view_certificate.html", certificate=certificate)
-    else:
-        flash("Certificate not found in database.", "danger")
-        return redirect(url_for('userHomePage'))
 
 #**********************************************************#
 #*********************resend_otp route*******************#
@@ -1600,56 +1536,6 @@ def edit_password(user_id):
 
 
 
-@app.route("/debug_certificate/<email>")
-@login_required
-def debug_certificate(email):
-    """Debug route to examine certificate format - remove in production"""
-    if not email:
-        return "No email provided", 400
-        
-    con = get_db_connection()
-    cur = con.cursor()
-    
-    try:
-        cur.execute("SELECT certificate FROM users WHERE email = %s", (email,))
-        result = cur.fetchone()
-        
-        if not result:
-            return f"No user found with email: {email}", 404
-            
-        cert_data = result[0]
-        app.logger.debug(f"Raw certificate from DB:\n{cert_data}")
-        
-        # إضافة السطر هنا لعرض الشهادة بعد فك الترميز
-        decoded_cert = cert_data.encode('utf-8').decode('unicode_escape')
-        app.logger.debug(f"Decoded cert:\n{decoded_cert}")
-        
-        cert_type = type(cert_data).__name__
-        cert_length = len(cert_data) if cert_data else 0
-        
-        # Check basic certificate format
-        contains_begin = "-----BEGIN CERTIFICATE-----" in str(decoded_cert)
-        contains_end = "-----END CERTIFICATE-----" in str(decoded_cert)
-        
-        # Prepare sample of certificate data
-        sample = str(decoded_cert)[:100] + "..." if decoded_cert and len(decoded_cert) > 100 else str(decoded_cert)
-            
-        response = {
-            "email": email,
-            "cert_type": cert_type,
-            "cert_length": cert_length,
-            "contains_begin_marker": contains_begin,
-            "contains_end_marker": contains_end,
-            "sample": sample
-        }
-        
-        return jsonify(response)
-    except Exception as e:
-        return f"Error: {str(e)}", 500
-    finally:
-        cur.close()
-        con.close()
-
 
 #**********************************************************#
 #**********************logout route************************#
@@ -1660,5 +1546,13 @@ def logout():
     session.clear()  # Clear all session data
     flash('You have been logged out.', 'info')
     return redirect(url_for('loginsafe'))
+
+
+
+
+# Run the application
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 
