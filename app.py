@@ -1124,7 +1124,7 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = certificate
+        session['certificate'] = certificate.decode('utf-8')  
         
         # Generate and send OTP
         otp = generate_otp()
@@ -1309,6 +1309,8 @@ def verify_otp():
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
+            session['certificate'] = certificate.decode('utf-8')  # Convert to string (ensure it's a valid PEM string)
+
 
             # Insert user into database
             cur.execute(
