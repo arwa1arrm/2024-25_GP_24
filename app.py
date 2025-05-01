@@ -1310,7 +1310,6 @@ def verify_otp():
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
-            session['certificate'] = certificate.decode('utf-8')  # Convert to string (ensure it's a valid PEM string)
 
 
             # Insert user into database
