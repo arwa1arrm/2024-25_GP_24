@@ -136,32 +136,31 @@ SESSION_TIMEOUT = 900
 def generate_keys_and_certificate(user_name):
     """Generate RSA keys and self-signed certificate for the user."""
     private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
+        public_exponent=65537,  # commonly used
+        key_size=2048,  # considered safe
         backend=default_backend()
     )
-
+    
     public_key = private_key.public_key()  # Public Key Extraction
-    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])
-
+    subject = issuer = x509.Name([x509.NameAttribute(x509.NameOID.COMMON_NAME, user_name)])  # Certificate Subject and Issuer
+    
     certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
         datetime.datetime.utcnow()
     ).not_valid_after(
         datetime.datetime.utcnow() + datetime.timedelta(days=365)
     ).serial_number(
-        x509.random_serial_number()
-    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())
-
+        x509.random_serial_number()  # Assigns a unique serial number to the certificate
+    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend())  # Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
+    
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.NoEncryption()  # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
     )
-
-    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)
+    
+    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM)  # Similarly, converts the certificate into PEM-encoded bytes
 
     return private_key_bytes, certificate_bytes
-
 
 
 
@@ -1118,7 +1117,7 @@ def signupsafe1():
 
 
         # Store private key in the session
-        session['private_key'] = base64.b64encode(private_key).decode('utf-8')
+        session['private_key'] = base64.b64encode(private_key).decode()
         session['user_id'] = cur.lastrowid  # Store user ID in session
         
         # Store user details in session instead of the database
@@ -1310,6 +1309,7 @@ def verify_otp():
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
+            session['certificate'] = certificate.decode('utf-8')  # Convert to string (ensure it's a valid PEM string)
 
 
             # Insert user into database
@@ -1319,7 +1319,7 @@ def verify_otp():
                     session['user_name'],
                     session['email'],
                     hashed_password.decode('utf-8'),
-                    session['certificate'].decode('utf-8')
+                    session['certificate'].decode()
                 )
             )
             con.commit()
@@ -1374,14 +1374,14 @@ def store_private_key_in_session(private_key_bytes):
 @login_required
 def view_certificate():
     """Render the certificate stored in the session to the webpage."""
-    certificate = session.get('certificate')
+    certificate = session.get('certificate')  # Retrieve certificate from the session
 
     if not certificate:
         flash("Certificate not found. Please ensure you have registered or generated it.", "danger")
         return redirect(url_for('userHomePage'))
 
+    # Render certificate on the webpage
     return render_template("view_certificate.html", certificate=certificate)
-
 
 
 @app.route("/user_certificate")
