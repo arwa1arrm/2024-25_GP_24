@@ -1,0 +1,23 @@
+<!-- view_certificate.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Certificate</title>
+</head>
+<body>
+
+    <h1>Your Certificate</h1>
+
+    <!-- Display certificate content in a preformatted block -->
+    <pre style="white-space: pre-wrap; word-wrap: break-word;">
+        {{ certificate }}
+    </pre>
+
+    <!-- Add a back button to the previous page -->
+    <a href="{{ url_for('userHomePage') }}">Back to Home</a>
+
+</body>
+</html>

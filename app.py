@@ -1367,6 +1367,42 @@ def store_private_key_in_session(private_key_bytes):
     session.modified = True
     app.logger.info("Private key stored in session and session marked as modified")
 
+
+@app.route("/view_certificate")
+@login_required
+def view_certificate():
+    """Render the certificate stored in the session to the webpage."""
+    certificate = session.get('certificate')  # Retrieve certificate from the session
+
+    if not certificate:
+        flash("Certificate not found. Please ensure you have registered or generated it.", "danger")
+        return redirect(url_for('userHomePage'))
+
+    # Render certificate on the webpage
+    return render_template("view_certificate.html", certificate=certificate)
+
+
+@app.route("/user_certificate")
+@login_required
+def user_certificate():
+    """Retrieve and display the certificate for the logged-in user."""
+    user_id = session.get('user_id')
+
+    # Fetch certificate from the database
+    con = get_db_connection()
+    cur = con.cursor()
+    cur.execute("SELECT certificate FROM users WHERE user_id = %s", (user_id,))
+    result = cur.fetchone()
+    cur.close()
+    con.close()
+
+    if result:
+        certificate = result['certificate']
+        return render_template("view_certificate.html", certificate=certificate)
+    else:
+        flash("Certificate not found in database.", "danger")
+        return redirect(url_for('userHomePage'))
+
 #**********************************************************#
 #*********************resend_otp route*******************#
 #**********************************************************#    
