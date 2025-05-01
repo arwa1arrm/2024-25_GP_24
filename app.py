@@ -1612,6 +1612,56 @@ def debug_certificate(email):
         con.close()
 
 
+@app.route("/debug_certificate/<email>")
+@login_required
+def debug_certificate(email):
+    """Debug route to examine certificate format - remove in production"""
+    if not email:
+        return "No email provided", 400
+        
+    con = get_db_connection()
+    cur = con.cursor()
+    
+    try:
+        # استرجاع الشهادة من قاعدة البيانات
+        cur.execute("SELECT certificate FROM users WHERE email = %s", (email,))
+        result = cur.fetchone()
+        
+        if not result:
+            return f"No user found with email: {email}", 404
+            
+        cert_data = result[0]
+        app.logger.debug(f"Raw certificate from DB:\n{cert_data}")
+        
+        # فك الشهادة باستخدام تنسيق صحيح
+        decoded_cert = cert_data.encode('utf-8').decode('unicode_escape')
+        app.logger.debug(f"Decoded cert:\n{decoded_cert}")
+        
+        cert_type = type(cert_data).__name__
+        cert_length = len(cert_data) if cert_data else 0
+        
+        # تحقق من الشهادة إذا كانت تحتوي على الترويسة الصحيحة
+        contains_begin = "-----BEGIN CERTIFICATE-----" in str(decoded_cert)
+        contains_end = "-----END CERTIFICATE-----" in str(decoded_cert)
+        
+        # عرض جزء من الشهادة
+        response = {
+            "email": email,
+            "cert_type": cert_type,
+            "cert_length": cert_length,
+            "contains_begin_marker": contains_begin,
+            "contains_end_marker": contains_end,
+            "sample": str(decoded_cert)[:100] + "..." if len(decoded_cert) > 100 else decoded_cert
+        }
+        
+        return jsonify(response)
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+    finally:
+        cur.close()
+        con.close()
+
+
 #**********************************************************#
 #**********************logout route************************#
 #**********************************************************#    
