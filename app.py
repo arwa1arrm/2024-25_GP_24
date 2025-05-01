@@ -207,6 +207,13 @@ def add_no_cache_headers(response):
 #**********************routes******************************#
 #**********************************************************#
 
+from cryptography import x509
+
+def process_certificate(certificate_pem: str):
+    """Convert a PEM-encoded certificate string into an x509 certificate object."""
+    if isinstance(certificate_pem, str):
+        certificate_pem = certificate_pem.encode('utf-8')
+    return x509.load_pem_x509_certificate(certificate_pem)
 
 #**********************************************************#
 #**********************Homepage route**********************#
