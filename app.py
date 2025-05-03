@@ -78,11 +78,12 @@ def send_otp_email(to_email, otp):
 
 
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'  # Make sure this is the correct password
-app.config['MYSQL_DB'] = 'concealsafe'  # Your database name
-app.config['MYSQL_PORT'] = 3307  # Ensure you're using the correct port (3307 for MAMP)
+app.config['MYSQL_HOST'] = 'concealsafe.mysql.pythonanywhere-services.com'  # اسم المضيف الصحيح في PythonAnywhere
+app.config['MYSQL_USER'] = 'concealsafe'  # أو اسم المستخدم الذي قمت بإعداده
+app.config['MYSQL_PASSWORD'] = 'Arwa2002'  # تأكد من إدخال كلمة المرور الصحيحة
+app.config['MYSQL_DB'] = 'concealsafe$default'  # اسم قاعدة البيانات الخاصة بك
+app.config['MYSQL_PORT'] = 3306  # استخدم البورت الصحيح في PythonAnywhere
+
 
 # Function to connect to the database using PyMySQL
 def get_db_connection():
