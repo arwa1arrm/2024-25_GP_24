@@ -2,6 +2,8 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
+#from flaskext.mysql import MySQL
+import pymysql
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
@@ -10,7 +12,6 @@ from cryptography.x509.oid import NameOID
 import datetime  # For datetime.datetime.utcnow()
 from datetime import timedelta  # For timedelta
 import io
-import pymysql  # Correct import of PyMySQL
 import base64
 import bcrypt
 from functools import wraps
@@ -38,19 +39,15 @@ from pydub.utils import which
 import numpy as np
 import subprocess
 import hashlib
-from werkzeug.utils import quote
-from urllib.parse import urlparse
-from flask_session import Session
 
 
-def parse_database_url(url):
-    result = urlparse(url)
-    return result.username, result.password, result.hostname, result.path[1:]
 
-
-# Initialize Flask app  and MySQL
+# Initialize Flask app and MySQL
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)  # This generates a random 24-byte secret key.
+
+# Configure the secret key for session management
+app.secret_key = 'g5$8^bG*dfK4&2e3yH!Q6j@z'  # Change this before deploying
+
 
 
 #*********************** Configure your Flask-Mail****************************#
@@ -80,39 +77,23 @@ def send_otp_email(to_email, otp):
     mail.send(msg)
 
 
-def get_database_config():
-    """Get database configuration from environment variables or fallback to default."""
-    DATABASE_URL = os.environ.get('JAWSDB_URL')
-    if DATABASE_URL:
-        result = urlparse(DATABASE_URL)
-        return {
-            'MYSQL_HOST': result.hostname,
-            'MYSQL_USER': result.username,
-            'MYSQL_PASSWORD': result.password,
-            'MYSQL_DB': result.path[1:]  # Removing leading '/' from database name
-        }
-    return {
-        'MYSQL_HOST': 'localhost',
-        'MYSQL_USER': 'root',
-        'MYSQL_PASSWORD': 'root',
-        'MYSQL_DB': 'concealsafe'
-    }
 
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'  # Make sure this is the correct password
+app.config['MYSQL_DB'] = 'concealsafe'  # Your database name
+app.config['MYSQL_PORT'] = 3307  # Ensure you're using the correct port (3307 for MAMP)
+
+# Function to connect to the database using PyMySQL
 def get_db_connection():
-    """Function to connect to the MySQL database using PyMySQL."""
-    try:
-        connection = pymysql.connect(
-            host=app.config['MYSQL_HOST'],
-            user=app.config['MYSQL_USER'],
-            password=app.config['MYSQL_PASSWORD'],
-            database=app.config['MYSQL_DB'],
-            cursorclass=pymysql.cursors.DictCursor  # This ensures that results are returned as dictionaries
-        )
-        logging.debug("Database connection established successfully.")
-        return connection
-    except pymysql.MySQLError as e:
-        logging.error(f"Error connecting to MySQL: {e}")
-        return None
+    return pymysql.connect(
+        host=app.config['MYSQL_HOST'],
+        user=app.config['MYSQL_USER'],
+        password=app.config['MYSQL_PASSWORD'],
+        database=app.config['MYSQL_DB'],
+        port=app.config['MYSQL_PORT']
+    )
+
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
 
@@ -122,36 +103,36 @@ SESSION_TIMEOUT = 900
 #*********************CERTIFICATE GENERATION*******************#
 #**************************************************************#
 
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
-from cryptography.x509 import *
-from cryptography.hazmat.backends import default_backend
-import datetime
+def generate_keys_and_certificate(user_name):
+    """Generate RSA keys and self-signed certificate for the user."""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537, #commonly used
+        key_size=2048, #considered safe
+        backend=default_backend()
+    )
+    
+    public_key = private_key.public_key() #Public Key Extraction
+    subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, user_name)]) #Certificate Subject and Issuer
+    
+    certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
+        datetime.datetime.utcnow()
+    ).not_valid_after(
+        datetime.datetime.utcnow() + datetime.timedelta(days=365)
+    ).serial_number(
+        x509.random_serial_number() #Assigns a unique serial number to the certificate
+    ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend()) #Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
+    
+    private_key_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption() # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
+        # no encryption is applied to the private key
+    )
+    
+    certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM) # Similarly, converts the certificate into PEM-encoded bytes
 
+    return private_key_bytes, certificate_bytes
 
-
-def load_private_key(pem_data):
-    try:
-        # Load the private key from PEM data
-        private_key = serialization.load_pem_private_key(
-            pem_data,  # Ensure it's already in bytes, no need to encode
-            password=None,  # If the private key is not password-protected
-            backend=default_backend()  # Use the default backend for cryptography
-        )
-        return private_key
-    except Exception as e:
-        print(f"Error loading private key: {e}")
-        return None
-
-def load_certificate(cert_pem_data):
-    try:
-        # Load the certificate from PEM data
-        certificate = x509.load_pem_x509_certificate(cert_pem_data, default_backend())
-        return certificate
-    except Exception as e:
-        print(f"Error loading certificate: {e}")
-        return None
 
 #**************************************#
 #**********session management**********#
@@ -228,42 +209,30 @@ def download_keys_zip():
 
     # Retrieve the private key and certificate from session
     private_key_b64 = session.get('private_key')
-    
     certificate = session.get('certificate')
 
-    # Check if both the private key and certificate are available in session
     if private_key_b64 and certificate:
-        try:
-            # Decode the private key from base64
-            private_key = base64.b64decode(private_key_b64)
-            
-            # Create a ZIP file in memory
-            zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                # Add private key to zip
-                zip_file.writestr('private_key.pem', private_key)
-                # Add certificate (public key) to zip
-                zip_file.writestr('public_key.pem', certificate)
+        # Decode the private key from base64
+        private_key = base64.b64decode(private_key_b64)
 
-            zip_buffer.seek(0)  # Reset pointer to the start of the zip buffer
+        # Create a ZIP file in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # Add private key to zip
+            zip_file.writestr('private_key.pem', private_key)
+            # Add certificate (public key) to zip
+            zip_file.writestr('public_key.pem', certificate)
 
-            # Send the zip file to the user
-            return send_file(
-                zip_buffer,
-                as_attachment=True,
-                download_name='keys.zip',  # Use download_name instead of attachment_filename
-                mimetype='application/zip'
-            )
-
-        except Exception as e:
-            # Catch any errors during the process
-            flash(f"An error occurred while preparing your download: {str(e)}", "danger")
-            return redirect(url_for('userHomePage'))
-
+        zip_buffer.seek(0)
+        return send_file(
+            zip_buffer,
+            as_attachment=True,
+            attachment_filename='keys.zip',  # Change this line
+            mimetype='application/zip'
+        )
     else:
         flash('One or both keys are not found in your session. Please register again or contact support.', 'danger')
         return redirect(url_for('userHomePage'))
-
 
 #**********************************************************#
 #**********************ForgotPassword route****************#
@@ -286,12 +255,11 @@ def viewprofile():
     """Render the user profile view."""
     user_id = session.get('user_id')  # Get the user_id from the session
     
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
     cur.execute("SELECT user_name, email FROM users WHERE user_id=%s", (user_id,))
     user_data = cur.fetchone()
-    cur.close()
-    con.close()
+    connection.close()
     
     if user_data:
         user_name, email = user_data
@@ -318,10 +286,10 @@ def update_username():
 
     try:
         # Update the username in the database
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
         cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
-        con.commit()
+        connection.commit()
         
         # Check if the update was successful
         if cur.rowcount > 0:  # `rowcount` indicates the number of rows affected
@@ -332,7 +300,8 @@ def update_username():
             flash("No changes were made. Please try again.", "warning")
         
         cur.close()
-        con.close()
+        connection.close()
+        
 
     except Exception as e:
         # Handle database errors
@@ -376,12 +345,6 @@ def embed_message_in_metadata(video_path, encrypted_message, hidden_path):
     ]
     subprocess.run(command, check=True)
     return hidden_path
-#************************************************************#
-#*****************calculate_file_hash ***********************#
-#************************************************************#
-#********validate If any changes happened in the file********#
-#************************************************************#
-
 
 #calculate_file_has to validate If any changes happened in the file
 def calculate_file_hash(file_path):
@@ -409,8 +372,9 @@ def encrypt_and_hide():
         flash("Receiver email and message are required.", "danger")
         return redirect(url_for("encryptionPage"))
 
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
 
     try:
         # Retrieve receiver details
@@ -604,7 +568,7 @@ def encrypt_and_hide():
             hidden_filename,
             file_hash
         ))
-        con.commit()
+        connection.commit()
 
         flash("Message encrypted, hidden, and sent successfully.", "success")
         if hidden_filename:
@@ -619,7 +583,7 @@ def encrypt_and_hide():
         return redirect(url_for("encryptionPage"))
     finally:
         cur.close()
-        con.close()
+        connection.close()
 
 
 #**************************************************************#
@@ -633,8 +597,9 @@ def sent_messages():
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")  # Default sorting by date descending
 
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
 
     
     query = """
@@ -694,7 +659,7 @@ def sent_messages():
     ]
 
     cur.close()
-    con.close()
+    connection.close()
 
     return render_template("sent_messages.html", messages=messages_list, search_email=search_email, sort_by=sort_by)
 
@@ -707,12 +672,13 @@ def delete_message(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
     
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
-    con.commit()
+    connection.commit()
     cur.close()
-    con.close()
+    connection.close()
     
     flash("Message deleted successfully", "success")
     return redirect(url_for("sent_messages"))
@@ -727,12 +693,13 @@ def delete_message_rec(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
     
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
-    con.commit()
+    connection.commit()
     cur.close()
-    con.close()
+    connection.close()
     
     flash("Message deleted successfully", "success")
     return redirect(url_for("messages"))
@@ -748,8 +715,9 @@ def delete_message_rec(message_id):
 def get_unread_messages_count():
     user_id = session.get("user_id")  
 
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
 
     # Query to count unread messages
     query = """
@@ -761,7 +729,7 @@ def get_unread_messages_count():
     unread_count = cur.fetchone()[0]  # Fetch the count
 
     cur.close()
-    con.close()
+    connection.close()
 
     return jsonify({"unread_count": unread_count})
 
@@ -775,8 +743,9 @@ def messages():
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")
 
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
 
     # Base query
     query = """
@@ -839,7 +808,7 @@ def messages():
     ]
 
     cur.close()
-    con.close()
+    connection.close()
 
     return render_template('messages.html', messages=messages_list, search_email=search_email, sort_by=sort_by)
 
@@ -912,12 +881,13 @@ def extract_and_decrypt():
             return redirect(url_for("decrypt", message_id=message_id))
 
         # Fetch the filename, encrypted shared key, and encrypted message from the database
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
+
         cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, Content FROM message WHERE MessageID = %s", (message_id,))
         result = cur.fetchone()
         cur.close()
-        con.close()
+        connection.close()
 
         if not result:
             flash("Message not found in the database.", "danger")
@@ -948,12 +918,13 @@ def extract_and_decrypt():
         plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
         # *** Mark the message as read (seen) in the database ***
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
+
         cur.execute("UPDATE message SET IsRead = TRUE WHERE MessageID = %s", (message_id,))
-        con.commit()
+        connection.commit()
         cur.close()
-        con.close()
+        connection.close()
 
         # Display the decrypted message to the user
         flash("Message decrypted successfully.", "success")
@@ -1011,12 +982,13 @@ def encryptionPage():
 
 
         # Retrieve the recipient's user ID from the database
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
+
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (recipient_email,))
         recipient_data = cur.fetchone()
         cur.close()
-        con.close()
+        connection.close()
 
         if recipient_data:
             recipient_id = recipient_data[0]  # Get recipient's user ID
@@ -1030,15 +1002,16 @@ def encryptionPage():
             encrypted_symmetric_key = encrypt_with_public_key(key, recipient_public_key)
 
             # Store the encrypted message in the database
-            con = get_db_connection()
-            cur = con.cursor()
+            connection = get_db_connection()
+            cur = connection.cursor()
+
             cur.execute(
                 "INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",
                 (encrypted_symmetric_key, encrypted_message, sender_id, recipient_id)
             )
-            con.commit()
+            connection.commit()
             cur.close()
-            con.close()
+            connection.close()
 
             flash('Message sent successfully!', 'success')
             return redirect(url_for('userHomePage')) 
@@ -1053,8 +1026,9 @@ def encryptionPage():
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 #Handle user resistration
 def signupsafe1():
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
 
     if request.method == "POST":
         user_name = request.form['user_name']
@@ -1084,8 +1058,7 @@ def signupsafe1():
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
-        session['certificate'] = base64.b64encode(certificate).decode('utf-8')
-
+        session['certificate'] = certificate
         
         # Generate and send OTP
         otp = generate_otp()
@@ -1097,57 +1070,50 @@ def signupsafe1():
         return redirect(url_for('verify_otp'))
 
     cur.close()
-    con.close()
+    connection.close()
     return render_template('signupsafe1.html')
 #**********************************************************#
 #**********************loginsafe route*******************#
 #**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
+    connection = get_db_connection()
+    cur = connection.cursor()
+
+
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
 
-        try:
-            # Get the database connection using pymysql
-            con = get_db_connection()
-            cur = con.cursor()
-            
-            # Check if the user exists in the database
-            cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-            user = cur.fetchone()
+        # Check if the user exists in the database
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        user = cur.fetchone()
 
-            if user:
-                stored_hashed_password = user['password']  # the password is stored in the 'password' column
+        if user:
+            stored_hashed_password = user[3]  #the password is stored in the 3rd column (index 3)
 
-                # Check if the hashed password matches the entered password
-                if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                    session['user_id'] = user['user_id']
-                    session['user_name'] = user['user_name']
-                    
-                    # Generate and send OTP
-                    otp = generate_otp()
-                    send_otp_email(email, otp)
-                    session['otp'] = otp
-                    session['email'] = email
-                    
-                    flash('OTP has been sent to your email. Please verify to log in.', 'info')
-                    return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
-                else:
-                    flash('Invalid email or password.', 'danger')
-
+            # Check if the hashed password matches the entered password
+            if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
+                session['user_id'] = user[0]  
+                session['user_name'] = user[1]  
+                
+                # Generate and send OTP
+                otp = generate_otp()
+                send_otp_email(email, otp)
+                session['otp'] = otp 
+                session['email'] = email  
+                
+                flash('OTP has been sent to your email. Please verify to log in.', 'info')
+                return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
             else:
                 flash('Invalid email or password.', 'danger')
 
-            cur.close()
-            con.close()  # Close the connection
+        else:
+            flash('Invalid email or password.', 'danger')
 
-        except Exception as e:
-            app.logger.error(f"Database error: {e}")
-            flash('An error occurred while accessing the database. Please try again later.', 'danger')
-
+    cur.close()
+    connection.close()
     return render_template('loginsafe.html')
-
 
 #**********************************************************#
 #*****************verify_login_otp route*******************#
@@ -1262,8 +1228,9 @@ def verify_otp():
 
         if otp_entered == session["otp"]:
             # OTP is correct, now store the user data in the database
-            con = get_db_connection()
-            cur = con.cursor()
+            connection = get_db_connection()
+            cur = connection.cursor()
+
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
@@ -1271,7 +1238,7 @@ def verify_otp():
             # Insert the user data into the database
             cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
                         (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
-            con.commit()
+            connection.commit()
 
             # Store the user ID in the session
             session['user_id'] = cur.lastrowid
@@ -1389,8 +1356,9 @@ def request_reset():
     email = request.form["email"]
 
     # Check if the user exists
-    con = get_db_connection()
-    cur = con.cursor()
+    connection = get_db_connection()
+    cur = connection.cursor()
+
     cur.execute("SELECT user_id FROM users WHERE email=%s", (email,))
     user = cur.fetchone()
 
@@ -1418,13 +1386,13 @@ def request_reset():
 
         flash("We have sent a password reset link to your email. Please check your inbox.", "info")
         cur.close()
-        con.close()
+        connection.close()
         return redirect(url_for("loginsafe"))
     else:
         # Redirect to signup if the account doesn't exist
         flash("No account found with this email. Please sign up.", "warning")
         cur.close()
-        con.close()
+        connection.close()
         return redirect(url_for("signupsafe1"))
 
 
@@ -1448,12 +1416,13 @@ def reset_password(user_id):
         # Hash and update the password
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
+
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
-        con.commit()
+        connection.commit()
         cur.close()
-        con.close()
+        connection.close()
 
         flash("Password has been updated successfully!", "success")
         return redirect(url_for("loginsafe"))
@@ -1470,8 +1439,9 @@ def edit_password(user_id):
         confirm_password = request.form["confirm_password"]
 
         # Validate the current password by checking it against the stored one
-        con = get_db_connection()
-        cur = con.cursor()
+        connection = get_db_connection()
+        cur = connection.cursor()
+
         cur.execute("SELECT password FROM users WHERE user_id=%s", (user_id,))
         stored_password = cur.fetchone()
 
@@ -1487,9 +1457,9 @@ def edit_password(user_id):
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
-        con.commit()
+        connection.commit()
         cur.close()
-        con.close()
+        connection.close()
 
         flash("Password has been updated successfully!", "success")
         return redirect(url_for("viewprofile"))
@@ -1515,6 +1485,3 @@ def logout():
 # Run the application
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
