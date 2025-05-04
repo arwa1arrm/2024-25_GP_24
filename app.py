@@ -77,23 +77,27 @@ def send_otp_email(to_email, otp):
     mail.send(msg)
 
 
-from urllib.parse import urlparse
-
 DATABASE_URL = os.environ.get('JAWSDB_URL')
 if DATABASE_URL:
+    # If using JawsDB (remote database), parse the DATABASE_URL from the environment variable
     result = urlparse(DATABASE_URL)
     app.config['MYSQL_DATABASE_HOST'] = result.hostname
     app.config['MYSQL_DATABASE_USER'] = result.username
     app.config['MYSQL_DATABASE_PASSWORD'] = result.password
-    app.config['MYSQL_DATABASE_DB'] = result.path[1:]
+    app.config['MYSQL_DATABASE_DB'] = result.path[1:]  # Strip the leading '/' from the DB name
 else:
-    # Local dev settings
+    # Local development configuration (if no JAWSDB_URL is set)
     app.config['MYSQL_DATABASE_HOST'] = 'localhost'
     app.config['MYSQL_DATABASE_USER'] = 'root'
     app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
     app.config['MYSQL_DATABASE_DB'] = 'concealsafe'
 
+# Initialize MySQL with the app's configuration
 mysql.init_app(app)
+
+# Set the timeout period in seconds (15 minutes)
+SESSION_TIMEOUT = 900
+
 
 
 #**************************************************************#
@@ -224,7 +228,7 @@ def download_keys_zip():
         return send_file(
             zip_buffer,
             as_attachment=True,
-            attachment_filename='keys.zip',  # Change this line
+            download_name='keys.zip',  # Change this line
             mimetype='application/zip'
         )
     else:
