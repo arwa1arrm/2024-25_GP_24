@@ -1106,12 +1106,12 @@ def loginsafe():
         user = cur.fetchone()
 
         if user:
-            stored_hashed_password = user[3]  #the password is stored in the 3rd column (index 3)
+            stored_hashed_password = user['password']  #the password is stored in the 3rd column (index 3)
 
             # Check if the hashed password matches the entered password
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                session['user_id'] = user[0]  
-                session['user_name'] = user[1]  
+                session['user_id'] = user['user_id']  
+                session['user_name'] = user['user_name']  
                 
                 # Generate and send OTP
                 otp = generate_otp()
