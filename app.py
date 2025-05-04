@@ -79,22 +79,37 @@ def send_otp_email(to_email, otp):
 
 
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'  # Make sure this is the correct password
-app.config['MYSQL_DB'] = 'concealsafe'  # Your database name
-app.config['MYSQL_PORT'] = 3306  # Ensure you're using the correct port (3307 for MAMP)
+def get_database_config():
+    """Get database configuration from environment variables or fallback to default."""
+    DATABASE_URL = os.environ.get('JAWSDB_URL')
+    if DATABASE_URL:
+        result = urlparse(DATABASE_URL)
+        return {
+            'MYSQL_HOST': result.hostname,
+            'MYSQL_USER': result.username,
+            'MYSQL_PASSWORD': result.password,
+            'MYSQL_DB': result.path[1:]  # Removing leading '/' from database name
+        }
+    return {
+        'MYSQL_HOST': 'localhost',
+        'MYSQL_USER': 'root',
+        'MYSQL_PASSWORD': 'root',
+        'MYSQL_DB': 'concealsafe'
+    }
 
-# Function to connect to the database using PyMySQL
+# Configure the MySQL connection settings for the app
+app.config.update(get_database_config())
+
 def get_db_connection():
-    return pymysql.connect(
+    """Function to connect to the MySQL database using PyMySQL."""
+    connection = pymysql.connect(
         host=app.config['MYSQL_HOST'],
         user=app.config['MYSQL_USER'],
         password=app.config['MYSQL_PASSWORD'],
         database=app.config['MYSQL_DB'],
-        port=app.config['MYSQL_PORT']
+        cursorclass=pymysql.cursors.DictCursor  # This ensures that results are returned as dictionaries
     )
-
+    return connection
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
 
