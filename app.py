@@ -2,7 +2,8 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-from flaskext.mysql import MySQL
+#from flaskext.mysql import MySQL
+from flask_mysql import MySQL
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
