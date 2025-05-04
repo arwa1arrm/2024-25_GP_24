@@ -92,8 +92,7 @@ def get_db_connection():
         port=app.config['MYSQL_PORT']
     )
 
-# Set the timeout period in seconds (15 minutes)
-SESSION_TIMEOUT = 900
+
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
