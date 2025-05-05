@@ -81,12 +81,15 @@ def send_otp_email(to_email, otp):
 
 
 
-# Configure MySQL with Flask app 
-app.config['MYSQL_DATABASE_USER'] = 'nwhazdrp7hdpd4a4.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'c9q4ryabzpusia3y'
-app.config['MYSQL_DATABASE_DB'] = 'dtrqo2npjnal12vl'
-app.config['MYSQL_DATABASE_HOST'] = 'p9prwattomm16p3g'
-app.config['MYSQL_PORT']=3306
+url = urlparse.urlparse("mysql://p9prwattomm16p3g:c9q4ryabzpusia3y@nwhazdrp7hdpd4a4.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/dtrqo2npjnal12vl")
+
+app.config['MYSQL_DATABASE_HOST'] = url.hostname
+app.config['MYSQL_DATABASE_USER'] = url.username
+app.config['MYSQL_DATABASE_PASSWORD'] = url.password
+app.config['MYSQL_DATABASE_DB'] = url.path[1:]  # remove leading '/'
+app.config['MYSQL_DATABASE_PORT'] = url.port or 3306
+
+
 mysql.init_app(app)
 
 # Set the timeout period in seconds (15 minutes)
