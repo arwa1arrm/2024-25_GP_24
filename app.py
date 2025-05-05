@@ -876,7 +876,7 @@ def extract_and_decrypt():
         # Fetch the filename, encrypted shared key, and encrypted message from the database
         con = mysql.connect()
         cur = con.cursor()
-        cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, Content FROM message WHERE MessageID = %s", (message_id,))
+        cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, EncryptedSharedKeySender, SenderID, RecipientID, Content FROM message WHERE MessageID = %s", (message_id,))
         result = cur.fetchone()
         cur.close()
         con.close()
@@ -885,7 +885,16 @@ def extract_and_decrypt():
             flash("Message not found in the database.", "danger")
             return redirect(url_for("decrypt", message_id=message_id))
 
-        expected_filename, encrypted_shared_key, encrypted_message = result
+        expected_filename, encrypted_key_receiver, encrypted_key_sender, sender_id, recipient_id, encrypted_message = result
+        
+        current_user_id = session.get("user_id")
+        if current_user_id == recipient_id:
+            encrypted_shared_key = encrypted_key_receiver
+        elif current_user_id == sender_id:
+            encrypted_shared_key = encrypted_key_sender
+        else:
+            flash("You are not authorized to decrypt this message.", "danger")
+            return redirect(url_for("decrypt", message_id=message_id))
 
         # Decrypt the symmetric key using the provided private key
         private_key = serialization.load_pem_private_key(
