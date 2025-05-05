@@ -2,8 +2,7 @@ import re  # Regular expressions
 import time
 import zipfile
 from flask import Flask, render_template, session, url_for, request, redirect, send_file, flash, jsonify
-#from flaskext.mysql import MySQL
-import pymysql
+from flaskext.mysql import MySQL
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization, hashes
@@ -43,22 +42,26 @@ import hashlib
 
 
 # Initialize Flask app and MySQL
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
+mysql = MySQL()
 
 # Configure the secret key for session management
 app.secret_key = 'g5$8^bG*dfK4&2e3yH!Q6j@z'  # Change this before deploying
 
 
-
+def parse_database_url(url):
+    result = urlparse(url)
+    return result.username, result.password, result.hostname, result.path[1:]
+    
 #*********************** Configure your Flask-Mail****************************#
 #************* we used TLC, which is a cryptographic protocol designed to provide secure *******************#
 # ******************* communication over a computer network ******************* #
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com' 
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'concealsafe@gmail.com'
+app.config['MAIL_USERNAME'] = 'concealsafe@gmail.com' 
 app.config['MAIL_PASSWORD'] = 'logqznxrmktpxtva'
-app.config['MAIL_DEFAULT_SENDER'] = 'concealsafe@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'concealsafe@gmail.com'  
 mail = Mail(app)
 
 
@@ -76,23 +79,15 @@ def send_otp_email(to_email, otp):
     msg.body = f'Your OTP code is: {otp}'
     mail.send(msg)
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'  # Make sure this is the correct password
-app.config['MYSQL_DB'] = 'concealsafe'  # Your database name
-app.config['MYSQL_PORT'] = 3306  # Ensure you're using the correct port (3307 for MAMP)
-
-# Function to connect to the database using PyMySQL
-def get_db_connection():
-    return pymysql.connect(
-        host=app.config['MYSQL_HOST'],
-        user=app.config['MYSQL_USER'],
-        password=app.config['MYSQL_PASSWORD'],
-        database=app.config['MYSQL_DB'],
-        port=app.config['MYSQL_PORT']
-    )
 
 
+# Configure MySQL with Flask app 
+app.config['MYSQL_DATABASE_USER'] = 'nwhazdrp7hdpd4a4.cbetxkdyhwsb.us-east-1.rds.amazonaws.com'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'c9q4ryabzpusia3y'
+app.config['MYSQL_DATABASE_DB'] = 'dtrqo2npjnal12vl'
+app.config['MYSQL_DATABASE_HOST'] = 'p9prwattomm16p3g'
+app.config['MYSQL_PORT']=3306
+mysql.init_app(app)
 
 # Set the timeout period in seconds (15 minutes)
 SESSION_TIMEOUT = 900
@@ -110,10 +105,10 @@ def generate_keys_and_certificate(user_name):
         key_size=2048, #considered safe
         backend=default_backend()
     )
-
+    
     public_key = private_key.public_key() #Public Key Extraction
     subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, user_name)]) #Certificate Subject and Issuer
-
+    
     certificate = x509.CertificateBuilder().subject_name(subject).issuer_name(issuer).not_valid_before(
         datetime.datetime.utcnow()
     ).not_valid_after(
@@ -121,14 +116,14 @@ def generate_keys_and_certificate(user_name):
     ).serial_number(
         x509.random_serial_number() #Assigns a unique serial number to the certificate
     ).public_key(public_key).sign(private_key, hashes.SHA256(), default_backend()) #Adds the public key to the certificate and signs it using the SHA-256 hashing algorithm with the private key
-
+    
     private_key_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,
         encryption_algorithm=serialization.NoEncryption() # Converts the private key into a byte format (PEM), which can be easily saved or transmitted.
         # no encryption is applied to the private key
     )
-
+    
     certificate_bytes = certificate.public_bytes(serialization.Encoding.PEM) # Similarly, converts the certificate into PEM-encoded bytes
 
     return private_key_bytes, certificate_bytes
@@ -254,13 +249,14 @@ def ForgotPassword():
 def viewprofile():
     """Render the user profile view."""
     user_id = session.get('user_id')  # Get the user_id from the session
-
-    connection = get_db_connection()
-    cur = connection.cursor()
+    
+    con = mysql.connect()
+    cur = con.cursor()
     cur.execute("SELECT user_name, email FROM users WHERE user_id=%s", (user_id,))
     user_data = cur.fetchone()
-    connection.close()
-
+    cur.close()
+    con.close()
+    
     if user_data:
         user_name, email = user_data
         return render_template('viewprofile.html', user_name=user_name, email=email)
@@ -286,11 +282,11 @@ def update_username():
 
     try:
         # Update the username in the database
-        connection = get_db_connection()
-        cur = connection.cursor()
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("UPDATE users SET user_name=%s WHERE user_id=%s", (new_username, user_id))
-        connection.commit()
-
+        con.commit()
+        
         # Check if the update was successful
         if cur.rowcount > 0:  # `rowcount` indicates the number of rows affected
             # Update the session with the new username
@@ -298,10 +294,9 @@ def update_username():
             flash("Your name updated successfully!", "success")
         else:
             flash("No changes were made. Please try again.", "warning")
-
+        
         cur.close()
-        connection.close()
-
+        con.close()
 
     except Exception as e:
         # Handle database errors
@@ -339,8 +334,8 @@ def decode_with_zero_width(encoded_text):
 def embed_message_in_metadata(video_path, encrypted_message, hidden_path):
     """Embed a hidden message into video metadata."""
     command = [
-        "ffmpeg", "-i", video_path, "-c", "copy",
-        "-metadata", f"title={base64.b64encode(encrypted_message.encode()).decode()}",
+        "ffmpeg", "-i", video_path, "-c", "copy", 
+        "-metadata", f"title={base64.b64encode(encrypted_message.encode()).decode()}", 
         hidden_path
     ]
     subprocess.run(command, check=True)
@@ -372,9 +367,8 @@ def encrypt_and_hide():
         flash("Receiver email and message are required.", "danger")
         return redirect(url_for("encryptionPage"))
 
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
 
     try:
         # Retrieve receiver details
@@ -447,11 +441,11 @@ def encrypt_and_hide():
             if file_extension == '.txt':
                 with open(media_file_path, "r", encoding="utf-8") as text_file:
                     text_content = text_file.read()
-
+                
                 # Encode message using zero-width characters (this is a placeholder function)
                 zero_width_message = encode_with_zero_width(encrypted_message)
                 hidden_text_content = text_content + zero_width_message
-
+                
                 hidden_filename = f"hidden_{uploaded_file.filename}"
                 hidden_path = os.path.join(UPLOAD_FOLDER, hidden_filename)
                 with open(hidden_path, "w", encoding="utf-8") as hidden_file:
@@ -555,7 +549,7 @@ def encrypt_and_hide():
 
         # Save the encrypted message and keys into the database
         cur.execute("""
-            INSERT INTO message
+            INSERT INTO message 
             (EncryptedSharedKeyReceiver, EncryptedSharedKeySender, Content, MediaFile, SenderID, RecipientID, Filename, FileHash)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
@@ -568,7 +562,7 @@ def encrypt_and_hide():
             hidden_filename,
             file_hash
         ))
-        connection.commit()
+        con.commit()
 
         flash("Message encrypted, hidden, and sent successfully.", "success")
         if hidden_filename:
@@ -583,7 +577,7 @@ def encrypt_and_hide():
         return redirect(url_for("encryptionPage"))
     finally:
         cur.close()
-        connection.close()
+        con.close()
 
 
 #**************************************************************#
@@ -593,30 +587,29 @@ def encrypt_and_hide():
 @login_required
 def sent_messages():
     """Display the messages sent by the user with sorting and delete option."""
-    sender_id = session.get("user_id")
+    sender_id = session.get("user_id")  
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")  # Default sorting by date descending
 
-    connection = get_db_connection()
-    cur = connection.cursor()
+    con = mysql.connect()
+    cur = con.cursor()
 
-
-
+    
     query = """
-    SELECT
+    SELECT 
         m.MessageID,
         m.Content AS EncryptedMessage,
         u.email AS ReceiverEmail,
         m.Filename,
         m.sent_date,
         m.IsRead  -- Make sure you include IsRead here
-    FROM
+    FROM 
         message m
-    JOIN
-        users u
-    ON
+    JOIN 
+        users u 
+    ON 
         m.RecipientID = u.user_id
-    WHERE
+    WHERE 
         m.SenderID = %s
     """
 
@@ -652,14 +645,14 @@ def sent_messages():
             "ReceiverEmail": message[2],
             "Filename": message[3],
             "SentDate": message[4].strftime("%Y-%m-%d %H:%M:%S") if message[4] else None,
-            "IsRead": message[5]
+            "IsRead": message[5]  
 
         }
         for message in messages
     ]
 
     cur.close()
-    connection.close()
+    con.close()
 
     return render_template("sent_messages.html", messages=messages_list, search_email=search_email, sort_by=sort_by)
 
@@ -671,15 +664,14 @@ def sent_messages():
 def delete_message(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
-
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    
+    con = mysql.connect()
+    cur = con.cursor()
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
-    connection.commit()
+    con.commit()
     cur.close()
-    connection.close()
-
+    con.close()
+    
     flash("Message deleted successfully", "success")
     return redirect(url_for("sent_messages"))
 
@@ -692,15 +684,14 @@ def delete_message(message_id):
 def delete_message_rec(message_id):
     """Delete a sent message."""
     sender_id = session.get("user_id")
-
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    
+    con = mysql.connect()
+    cur = con.cursor()
     cur.execute("DELETE FROM message WHERE MessageID = %s AND SenderID = %s", (message_id, sender_id))
-    connection.commit()
+    con.commit()
     cur.close()
-    connection.close()
-
+    con.close()
+    
     flash("Message deleted successfully", "success")
     return redirect(url_for("messages"))
 
@@ -713,23 +704,22 @@ def delete_message_rec(message_id):
 @app.route('/get_unread_messages_count')
 @login_required
 def get_unread_messages_count():
-    user_id = session.get("user_id")
+    user_id = session.get("user_id")  
 
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
 
     # Query to count unread messages
     query = """
-    SELECT COUNT(*)
-    FROM message
+    SELECT COUNT(*) 
+    FROM message 
     WHERE RecipientID = %s AND IsRead = 0
     """
     cur.execute(query, (user_id,))
     unread_count = cur.fetchone()[0]  # Fetch the count
 
     cur.close()
-    connection.close()
+    con.close()
 
     return jsonify({"unread_count": unread_count})
 
@@ -739,17 +729,16 @@ def get_unread_messages_count():
 @app.route('/messages', methods=["GET", "POST"])
 @login_required
 def messages():
-    user_id = session.get('user_id')
+    user_id = session.get('user_id')  
     search_email = request.form.get("search_email", "").strip()
     sort_by = request.args.get("sort_by", "date_desc")
 
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
 
     # Base query
     query = """
-    SELECT
+    SELECT 
         m.MessageID,
         m.EncryptedSharedKeyReceiver,
         m.Content AS EncryptedMessage,
@@ -757,13 +746,13 @@ def messages():
         m.Filename,
         m.sent_date,
         m.IsRead
-    FROM
+    FROM 
         message m
-    JOIN
-        users u
-    ON
+    JOIN 
+        users u 
+    ON 
         m.SenderID = u.user_id
-    WHERE
+    WHERE 
         m.RecipientID = %s
     """
     params = [user_id]
@@ -808,7 +797,7 @@ def messages():
     ]
 
     cur.close()
-    connection.close()
+    con.close()
 
     return render_template('messages.html', messages=messages_list, search_email=search_email, sort_by=sort_by)
 
@@ -842,9 +831,9 @@ def extract_message_from_metadata(video_path):
     """Extract a hidden message from video metadata."""
     command = ["ffprobe", "-v", "quiet", "-show_entries", "format_tags=title", "-of", "default=noprint_wrappers=1:nokey=1", video_path]
     result = subprocess.run(command, capture_output=True, text=True, check=True)
-
+    
     extracted_message = result.stdout.strip()
-
+    
     # DEBUGGING: Print extracted message
     print(f"Extracted metadata message: {extracted_message}")
 
@@ -881,13 +870,12 @@ def extract_and_decrypt():
             return redirect(url_for("decrypt", message_id=message_id))
 
         # Fetch the filename, encrypted shared key, and encrypted message from the database
-        connection = get_db_connection()
-        cur = connection.cursor()
-
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("SELECT Filename, EncryptedSharedKeyReceiver, Content FROM message WHERE MessageID = %s", (message_id,))
         result = cur.fetchone()
         cur.close()
-        connection.close()
+        con.close()
 
         if not result:
             flash("Message not found in the database.", "danger")
@@ -918,13 +906,12 @@ def extract_and_decrypt():
         plaintext_message = decryptor.update(ciphertext) + decryptor.finalize()
 
         # *** Mark the message as read (seen) in the database ***
-        connection = get_db_connection()
-        cur = connection.cursor()
-
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("UPDATE message SET IsRead = TRUE WHERE MessageID = %s", (message_id,))
-        connection.commit()
+        con.commit()
         cur.close()
-        connection.close()
+        con.close()
 
         # Display the decrypted message to the user
         flash("Message decrypted successfully.", "success")
@@ -973,7 +960,7 @@ def decrypt():
 @login_required
 # Render the encryption page and handle message encryption
 def encryptionPage():
-    sender_id = session.get('user_id')
+    sender_id = session.get('user_id')  
     key = session.get('symmetric_key')  # Retrieve the symmetric key from the session (or generate it if not available)
 
     if request.method == 'POST':
@@ -982,17 +969,16 @@ def encryptionPage():
 
 
         # Retrieve the recipient's user ID from the database
-        connection = get_db_connection()
-        cur = connection.cursor()
-
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("SELECT user_id, certificate FROM users WHERE email = %s", (recipient_email,))
         recipient_data = cur.fetchone()
         cur.close()
-        connection.close()
+        con.close()
 
         if recipient_data:
             recipient_id = recipient_data[0]  # Get recipient's user ID
-            recipient_public_key = recipient_data[4]
+            recipient_public_key = recipient_data[4]  
 
 
             # Encrypt the message using the symmetric key
@@ -1002,23 +988,22 @@ def encryptionPage():
             encrypted_symmetric_key = encrypt_with_public_key(key, recipient_public_key)
 
             # Store the encrypted message in the database
-            connection = get_db_connection()
-            cur = connection.cursor()
-
+            con = mysql.connect()
+            cur = con.cursor()
             cur.execute(
                 "INSERT INTO message (EncryptedSharedKey, Content, SenderID, RecipientID) VALUES (%s, %s, %s, %s)",
                 (encrypted_symmetric_key, encrypted_message, sender_id, recipient_id)
             )
-            connection.commit()
+            con.commit()
             cur.close()
-            connection.close()
+            con.close()
 
             flash('Message sent successfully!', 'success')
-            return redirect(url_for('userHomePage'))
+            return redirect(url_for('userHomePage')) 
         else:
             flash('Recipient not found. Please check the email.', 'danger')
 
-    return render_template('encryptionPage.html')
+    return render_template('encryptionPage.html')  
 
 #**********************************************************#
 #**********************Signup route************************#
@@ -1026,9 +1011,8 @@ def encryptionPage():
 @app.route("/signupsafe1", methods=['GET', 'POST'])
 #Handle user resistration
 def signupsafe1():
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
 
     if request.method == "POST":
         user_name = request.form['user_name']
@@ -1053,13 +1037,13 @@ def signupsafe1():
         # Store private key in the session
         session['private_key'] = base64.b64encode(private_key).decode()
         session['user_id'] = cur.lastrowid  # Store user ID in session
-
+        
         # Store user details in session instead of the database
         session['user_name'] = user_name
         session['email'] = email
         session['password'] = password
         session['certificate'] = certificate
-
+        
         # Generate and send OTP
         otp = generate_otp()
         session['otp'] = otp  # Store OTP in session
@@ -1070,16 +1054,15 @@ def signupsafe1():
         return redirect(url_for('verify_otp'))
 
     cur.close()
-    connection.close()
+    con.close()
     return render_template('signupsafe1.html')
 #**********************************************************#
 #**********************loginsafe route*******************#
-#**********************************************************#
+#**********************************************************#    
 @app.route("/loginsafe", methods=['GET', 'POST'])
 def loginsafe():
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
 
     if request.method == "POST":
         email = request.form['email']
@@ -1094,15 +1077,15 @@ def loginsafe():
 
             # Check if the hashed password matches the entered password
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
-                session['user_id'] = user[0]
-                session['user_name'] = user[1]
-
+                session['user_id'] = user[0]  
+                session['user_name'] = user[1]  
+                
                 # Generate and send OTP
                 otp = generate_otp()
                 send_otp_email(email, otp)
-                session['otp'] = otp
-                session['email'] = email
-
+                session['otp'] = otp 
+                session['email'] = email  
+                
                 flash('OTP has been sent to your email. Please verify to log in.', 'info')
                 return redirect(url_for('verify_login_otp'))  # Redirect to OTP verification page
             else:
@@ -1112,20 +1095,20 @@ def loginsafe():
             flash('Invalid email or password.', 'danger')
 
     cur.close()
-    connection.close()
+    con.close()
     return render_template('loginsafe.html')
 
 #**********************************************************#
 #*****************verify_login_otp route*******************#
-#**********************************************************#
+#**********************************************************#    
 @app.route("/verify_login_otp", methods=["GET", "POST"])
 #Hnadle OTP verification for login
 def verify_login_otp():
     # Check if OTP exists in session for login; if not, redirect to login page
     if "otp" not in session:
         flash("<span style='color:red;'>No OTP found. Please register again.</span>", "warning")
-        return redirect(url_for("loginsafe"))
-
+        return redirect(url_for("loginsafe"))  
+    
     # Initialize session variables for login
     if "otp_attempts" not in session:
         session["otp_attempts"] = 0
@@ -1157,14 +1140,14 @@ def verify_login_otp():
         if otp_entered == session["otp"]:
             # OTP is correct, proceed with login logic
 
-
+           
             user_id = session.get("user_id")
             if user_id:
-                return redirect(url_for("userHomePage"))
+                return redirect(url_for("userHomePage"))  
 
             else:
                 flash("Session expired. Please try logging in again.", "warning")
-                return redirect(url_for("loginsafe"))
+                return redirect(url_for("loginsafe")) 
 
         else:
             # Increment OTP attempt count
@@ -1186,11 +1169,11 @@ def verify_login_otp():
 
 #**********************************************************#
 #**********************verify_otp route*******************#
-#**********************************************************#
+#**********************************************************#    
 # Constants
 MAX_OTP_ATTEMPTS = 3
-INITIAL_COOLDOWN_PERIOD = 1
-COOLDOWN_INCREMENT = 2
+INITIAL_COOLDOWN_PERIOD = 1 
+COOLDOWN_INCREMENT = 2       
 
 @app.route("/verify_otp", methods=["GET", "POST"])
 #Hnadle OTP verification for registration
@@ -1228,9 +1211,8 @@ def verify_otp():
 
         if otp_entered == session["otp"]:
             # OTP is correct, now store the user data in the database
-            connection = get_db_connection()
-            cur = connection.cursor()
-
+            con = mysql.connect()
+            cur = con.cursor()
 
             # Hash the password
             hashed_password = bcrypt.hashpw(session['password'].encode('utf-8'), bcrypt.gensalt())
@@ -1238,7 +1220,7 @@ def verify_otp():
             # Insert the user data into the database
             cur.execute("INSERT INTO `users`(`user_name`, `email`, `password`, `certificate`) VALUES (%s, %s, %s, %s)",
                         (session['user_name'], session['email'], hashed_password.decode('utf-8'), session['certificate'].decode()))
-            connection.commit()
+            con.commit()
 
             # Store the user ID in the session
             session['user_id'] = cur.lastrowid
@@ -1272,7 +1254,7 @@ def verify_otp():
 
 #**********************************************************#
 #*********************resend_otp route*******************#
-#**********************************************************#
+#**********************************************************#    
 @app.route("/resend_login_otp")
 #Handle OTP resend requests for login verification.
 def resend_login_otp():
@@ -1302,15 +1284,15 @@ def resend_login_otp():
         flash("A new OTP has been sent to your email.", 'info')
     else:
         flash("Error: Email not found. Please try logging in again.", 'danger')
-        return redirect(url_for('loginsafe'))
-
+        return redirect(url_for('loginsafe'))  
+    
     return redirect(url_for('verify_login_otp'))
 
 
 
 #**********************************************************#
 #*********************resend_otp route*********************#
-#**********************************************************#
+#**********************************************************#  
 @app.route("/resend_registration_otp")
 #Handle OTP resend requests for registration verification.
 def resend_registration_otp():
@@ -1342,7 +1324,7 @@ def resend_registration_otp():
         flash("A new OTP has been sent to your email.", 'info')
     else:
         flash("Error: Email not found. Please try registering again.", 'danger')
-        return redirect(url_for('signupsafe1'))
+        return redirect(url_for('signupsafe1'))  
 
     return redirect(url_for('verify_otp'))
 
@@ -1350,15 +1332,14 @@ def resend_registration_otp():
 
 #**********************************************************#
 #***********request_reset_password route*******************#
-#**********************************************************#
+#**********************************************************#    
 @app.route("/request_reset", methods=["POST"])
 def request_reset():
     email = request.form["email"]
 
     # Check if the user exists
-    connection = get_db_connection()
-    cur = connection.cursor()
-
+    con = mysql.connect()
+    cur = con.cursor()
     cur.execute("SELECT user_id FROM users WHERE email=%s", (email,))
     user = cur.fetchone()
 
@@ -1386,20 +1367,20 @@ def request_reset():
 
         flash("We have sent a password reset link to your email. Please check your inbox.", "info")
         cur.close()
-        connection.close()
+        con.close()
         return redirect(url_for("loginsafe"))
     else:
         # Redirect to signup if the account doesn't exist
         flash("No account found with this email. Please sign up.", "warning")
         cur.close()
-        connection.close()
+        con.close()
         return redirect(url_for("signupsafe1"))
 
 
 
 #**********************************************************#
 #********************reset_password route*******************#
-#**********************************************************#
+#**********************************************************#  
 @app.route("/reset_password/<int:user_id>", methods=["GET", "POST"])
 #Reset user password.
 def reset_password(user_id):
@@ -1416,13 +1397,12 @@ def reset_password(user_id):
         # Hash and update the password
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        connection = get_db_connection()
-        cur = connection.cursor()
-
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
-        connection.commit()
+        con.commit()
         cur.close()
-        connection.close()
+        con.close()
 
         flash("Password has been updated successfully!", "success")
         return redirect(url_for("loginsafe"))
@@ -1439,9 +1419,8 @@ def edit_password(user_id):
         confirm_password = request.form["confirm_password"]
 
         # Validate the current password by checking it against the stored one
-        connection = get_db_connection()
-        cur = connection.cursor()
-
+        con = mysql.connect()
+        cur = con.cursor()
         cur.execute("SELECT password FROM users WHERE user_id=%s", (user_id,))
         stored_password = cur.fetchone()
 
@@ -1457,9 +1436,9 @@ def edit_password(user_id):
         hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
         cur.execute("UPDATE users SET password=%s WHERE user_id=%s", (hashed_password, user_id))
-        connection.commit()
+        con.commit()
         cur.close()
-        connection.close()
+        con.close()
 
         flash("Password has been updated successfully!", "success")
         return redirect(url_for("viewprofile"))
@@ -1471,7 +1450,7 @@ def edit_password(user_id):
 
 #**********************************************************#
 #**********************logout route************************#
-#**********************************************************#
+#**********************************************************#    
 @app.route("/logout")
 def logout():
     """Handle user logout."""
