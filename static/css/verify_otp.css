@@ -307,16 +307,19 @@ h2 {
       background-color: #7b4e26;
     }
   
-    
     .container {
-      width: 100%;
-      max-width: 600px; /* Keep it readable */
-      padding: 0 20px;   /* Add left/right spacing */
-      margin: 20px auto; /* Center it vertically + horizontally */
+      width: 90%;
+      padding: 20px;
+      padding-top: 10%;
+      margin-top: 20px;
+      margin-left: 20%;
+      margin-right: 20%;
+      margin-bottom: 20px;
+
       border-radius: 15px;
-      line-height: 1.6;
-      box-sizing: border-box;
+      line-height: 1.6; /* Fix overlapping lines */
     }
+    
   
     h2 {
       font-size: 1.5rem;
@@ -374,6 +377,10 @@ h2 {
     header a:hover {
       text-decoration: underline;
       transform: translateY(-2px); /* Slight lift on hover */
+    }
+    footer .footer-section {
+      width: 100%;
+      margin-bottom: 20px;
     }
   }
   
