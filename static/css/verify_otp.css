@@ -311,10 +311,8 @@ h2 {
       width: 90%;
       padding: 20px;
       padding-top: 10%;
-      margin-top: 20px;
-      margin-left: 5%;
-      margin-bottom: 20px;
-
+      margin: 20px ;
+     
       border-radius: 15px;
       line-height: 1.6; /* Fix overlapping lines */
     }
