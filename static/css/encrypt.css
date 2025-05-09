@@ -188,16 +188,29 @@ button:hover {
         margin-bottom:10%;
     }
 
-    input[type="email"] {
-        padding: 8px;
-        font-size: 0.9rem;
+    .container {
+        padding: 15px;
+        overflow: hidden;
+      }
+    
+      form {
+        flex-direction: column;
+      }
+    
+      input[type="email"] {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
       }
 
-      .profile {
-        /* Ensure the profile icon is visible and clickable */
-        display: block;
+      .profile-icon {
         position: relative;
         z-index: 10;
+      }
+    
+      .header, .navbar, .menu {
+        z-index: 5; /* Make sure nothing else covers the icon */
       }
 
 }
