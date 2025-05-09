@@ -327,23 +327,13 @@ background-color: #b1001215; /* Light red for unread messages
 .search-container button {
   background-color: #26367B;
   color: white;
-  padding: 5px 10px;
-  font-size: 10px;
+  padding: 10px 13px;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 3%;
   transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  .sortby{
-    background-color: #ffffff; /* Default yellow */
-    border: none;
-    color: #26367B; /* White text */
-    padding: 15px 15px;
-    margin-top: 0px;
-    margin-right: 42%;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease; 
-    }
 }

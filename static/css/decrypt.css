@@ -272,11 +272,10 @@ input[type="file"] {
         margin-bottom: 10%;
     }
 
-    input[type="file"] {
-        display: block; /* Ensures it behaves like a block element */
-        margin: 0; /* Removes any default margins */
-        max-width: 100%; /* Ensures it doesn't exceed the container width */
-        padding: 0; /* Remove any extra padding */
-        margin-right: 10%;
-    }
+    label[for="privateKey"]:hover {
+        background-color: #f4b942; /* Yellow background */
+        color: #26367B; /* Blue text */
+        margin-right: 3%;
+      }
+    
 }
