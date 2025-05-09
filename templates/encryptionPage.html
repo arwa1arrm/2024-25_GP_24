@@ -46,6 +46,17 @@
         </div>
       </div>
     </nav>
+
+        <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <span class="closeLogout">&times;</span>
+        <h2>Confirm logout</h2>
+        <p>Are you sure you want to sign out?</p>
+        <button id="confirmLogoutBtn">Yes</button>
+        <button id="cancelLogoutBtn">No</button>
+      </div>
+    </div>
   </header>
 
   <!-- Encryption and Hiding Form -->
@@ -173,6 +184,44 @@
   // Call the function when the page loads
   document.addEventListener("DOMContentLoaded", fetchUnreadMessages);
 </script>
+<script>
+   
+  // Get the logout modal and logout link
+  var logoutModal = document.getElementById("logoutModal");
+  var logoutLink = document.getElementById("logoutlink");
+  
+  // Get the buttons inside the logout modal
+  var confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
+  var cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+  
+  var closeLogoutSpan = document.getElementsByClassName("closeLogout")[0];
+  
+  logoutLink.onclick = function(event) {
+    event.preventDefault(); 
+    logoutModal.style.display = "block";
+  }
+  
+  //  clicks  "Yes" 
+  confirmLogoutBtn.onclick = function() {
+    window.location.href = logoutLink.href; 
+  }
+  
+  // clicks "No" modal
+  cancelLogoutBtn.onclick = function() {
+    logoutModal.style.display = "none"; 
+  }
+  
+  // clicks "No" span
+  closeLogoutSpan.onclick = function() {
+    logoutModal.style.display = "none"; 
+  }
+  
+  window.onclick = function(event) {
+    if (event.target == logoutModal) {
+      logoutModal.style.display = "none"; 
+    }
+  }
+    </script>
   
 </body>
 </html>
