@@ -325,6 +325,25 @@ footer .social-icons a:hover {
     width: 80%;
   }
 
+  .intro {
+    flex-direction: column;
+    padding: 80px 20px;
+    text-align: center;
+  }
+  
+  .intro .logo {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  
+  .intro .logo img {
+    width: 150px;
+  }
+  
+  .intro .content {
+    width: 100%;
+  }
+  
 
 
 body{
@@ -341,6 +360,90 @@ footer .footer-section {
 
 footer .social-icons a {
   font-size: 18px;
+}
+
+.sec .section {
+  flex-direction: column;
+  align-items: center;
+}
+
+.sec .section div {
+  width: 90%;
+  margin-bottom: 30px;
+}
+/* Responsive styles for .sec section */
+.sec {
+  padding: 90px 100px;
+  
+}
+
+.sec h2 {
+  font-size: 36px;
+}
+
+.sec .section {
+  flex-direction: column;
+  align-items: center;
+}
+
+.sec .section div {
+  width: 90%;
+  margin-bottom: 30px;
+}
+
+/* Responsive styles for .how-it-works */
+.how-it-works {
+  padding: 40px 20px;
+}
+
+.how-it-works h2 {
+  font-size: 36px;
+}
+
+.how-it-works .content {
+  flex-direction: column;
+  padding: 0;
+}
+
+.how-it-works .content img {
+  width: 100%;
+  left: 0;
+  transform: none;
+  margin-bottom: 20px;
+}
+
+/* Responsive styles for .publications section */
+.publications {
+  padding: 40px 20px;
+}
+
+.publications h2 {
+  font-size: 32px;
+}
+
+.publications .pub-section {
+  flex-direction: column;
+  align-items: center;
+}
+
+.publications .pub-section div {
+  width: 90%;
+  margin-bottom: 30px;
+}
+
+.sec .section div img {
+  width: 20%;
+  border-radius: 10px;
+  transition: transform 0.6s ease;
+}
+
+.sec .section div img:hover {
+  transform: rotate(5deg) scale(1.05); /* Slight rotation and scale on hover */
+}
+
+.title{
+  font-size: large;
+  margin-left: -10%;
 }
 }
 
@@ -376,6 +479,14 @@ footer .social-icons a {
     font-size: 120%;
     left: 8px;
   }
+  .sec {
+    padding: 40px 20px;
+  }
+  
+  .sec h2 {
+    font-size: 36px;
+  }
+  
 
   .profile-icon {
     font-size: 110%;
