@@ -309,5 +309,17 @@ background-color: #b1001215; /* Light red for unread messages
 
   .messages-container  {
     margin: 40% 10%;
-    padding: 10px;     }
+    padding: 10px;  
+     }
+
+    .search-container input[type="text"] {
+      width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        margin-left: -2.5%;
+        overflow: hidden;
+
+      }   
+
 }

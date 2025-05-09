@@ -202,8 +202,20 @@ button:hover {
         max-width: 100%;
         padding: 10px;
         box-sizing: border-box;
-        margin-left: -8%;
+        margin-left: -2.5%;
       }
+
+      .overlay,
+  .mobile-menu,
+  .drawer {
+    display: none !important; /* Force it to be gone */
+    pointer-events: none;
+  }
+
+  .profile-icon {
+    z-index: 9999 !important;
+    position: relative;
+  }
 
       .profile-icon {
         position: relative;
