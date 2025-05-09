@@ -342,6 +342,7 @@ footer .social-icons a:hover {
   
   .intro .content {
     width: 100%;
+    font-size: medium;
   }
   
 
@@ -443,7 +444,7 @@ footer .social-icons a {
 
 .title{
   font-size: medium;
-  margin-left: -8%;
+  margin-left: -13%;
 
 }
 }
@@ -517,7 +518,8 @@ footer .social-icons a {
   }
   .title{
     font-size: medium;
-    margin-left: -8%;
+    margin-left: -13%;
+    
   }
 }
 
