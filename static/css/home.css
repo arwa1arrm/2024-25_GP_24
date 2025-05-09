@@ -514,4 +514,9 @@ footer .social-icons a {
     font-size: 0.7rem;
     text-align: center;
   }
+  .title{
+    font-size: large;
+    margin-left: -10%;
+  }
 }
+
