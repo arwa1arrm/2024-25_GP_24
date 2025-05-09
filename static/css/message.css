@@ -319,7 +319,31 @@ background-color: #b1001215; /* Light red for unread messages
         box-sizing: border-box;
         margin-left: -2.5%;
         overflow: hidden;
+        margin-bottom: 2%;
 
       }   
 
+      /* Search button */
+.search-container button {
+  background-color: #26367B;
+  color: white;
+  padding: 5px 10px;
+  font-size: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .sortby{
+    background-color: #ffffff; /* Default yellow */
+    border: none;
+    color: #26367B; /* White text */
+    padding: 15px 15px;
+    margin-top: 0px;
+    margin-right: 42%;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; 
+    }
 }
