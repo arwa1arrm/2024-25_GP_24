@@ -373,5 +373,24 @@ footer .footer-section {
 footer .social-icons a {
   font-size: 18px;
 }
+
+header {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+header nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+header a {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
 }
 
