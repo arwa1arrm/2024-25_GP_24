@@ -414,7 +414,7 @@ header a:hover {
 
 .hero .logo {
   position: relative;
-  width: 100px; /* Width reduced for logo */
+  width: 150px; /* Width reduced for logo */
   margin: 0 auto; /* Centering the logo */
 }
 
