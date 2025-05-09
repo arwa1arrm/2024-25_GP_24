@@ -345,7 +345,9 @@ footer .social-icons a:hover {
   line-height: 1.5; /* Improves spacing for multi-line text */
   word-wrap: break-word; /* Ensures long text wraps properly */
 }
-
+.mobile-break {
+  display: none;
+}
 @media (max-width: 768px) {
   .hero {
     padding: 20% 10%;
@@ -427,4 +429,7 @@ footer .social-icons a:hover {
     text-align: left;
   }
   
+  .mobile-break {
+    display: inline;
+  }    
 }
