@@ -189,7 +189,7 @@ button:hover {
     }
 
     .container {
-        padding: 15px;
+        padding: 10px;
         overflow: hidden;
       }
     
@@ -200,7 +200,7 @@ button:hover {
       input[type="email"] {
         width: 100%;
         max-width: 100%;
-        padding: 10px;
+        padding: 5px;
         box-sizing: border-box;
       }
 
