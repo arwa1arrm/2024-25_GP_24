@@ -58,8 +58,12 @@
       <button type="submit" id="submitBtn" class="btn-solid">Verify OTP</button>
     </form>
     <br>
-    <p class="did-not-recieve-text">If you didn’t receive the OTP click, <a href="{{ url_for('resend_registration_otp') }}">RESEND HERE</a>.</p>
-    <br>
+    <p class="did-not-recieve-text">
+      If you didn’t receive the OTP click, 
+      <br class="mobile-break">
+      <a href="{{ url_for('resend_registration_otp') }}">RESEND HERE</a>.
+    </p>
+        <br>
   </div>
 
   <!-- Footer -->
