@@ -443,6 +443,8 @@ footer .social-icons a {
 
 .title{
   font-size: medium;
+  margin-left: -8%;
+
 }
 }
 
@@ -515,6 +517,7 @@ footer .social-icons a {
   }
   .title{
     font-size: medium;
+    margin-left: -8%;
   }
 }
 
