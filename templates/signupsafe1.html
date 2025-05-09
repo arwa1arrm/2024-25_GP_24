@@ -89,8 +89,13 @@
       <button type="submit" id="submitBtn" class="btn-solid" disabled>Create account</button>
 
       <!-- Link to Login Page -->
-      <p class="already-account-text"> Already have an account? <br class="mobile-break"><a href="{{ url_for('loginsafe') }}">Log in here</a>.</p>
-
+      <p class="already-account-text">
+        Already have an account?
+        <br class="mobile-break">
+        <br class="mobile-break">
+        <a href="{{ url_for('loginsafe') }}">Log in here</a>.
+      </p>
+      
       <br>
       {% if error %}
       <div class="error-message" style="text-align: center">{{ error }}</div>

@@ -430,6 +430,5 @@ footer .social-icons a:hover {
   }
   
   .mobile-break {
-    display: inline;
-  }    
+    display: block;  }    
 }
