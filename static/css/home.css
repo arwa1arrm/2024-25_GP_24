@@ -442,7 +442,7 @@ footer .social-icons a {
 }
 
 .title{
-  font-size: large;
+  font-size: medium;
   margin-left: -10%;
 }
 }
@@ -515,7 +515,7 @@ footer .social-icons a {
     text-align: center;
   }
   .title{
-    font-size: large;
+    font-size: medium;
     margin-left: -10%;
   }
 }
