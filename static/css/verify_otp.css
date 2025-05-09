@@ -310,9 +310,8 @@ h2 {
     .container {
       width: 90%;
       padding: 20px;
-      padding-top: 10%;
-      margin: 20px ;
-     
+      padding-top: 10px;
+      margin: 20px auto;
       border-radius: 15px;
       line-height: 1.6; /* Fix overlapping lines */
     }
@@ -329,6 +328,7 @@ h2 {
       margin: 10px auto;
       text-align: center;
     }
+    
   
     .btn-solid {
       padding: 12px;

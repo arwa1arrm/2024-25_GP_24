@@ -115,6 +115,7 @@ header a:hover {
   margin: 0 auto; /* Centering the logo */
 }
 
+
 /* Dotted background behind the logo */
 .hero .logo::before {
   content: '';

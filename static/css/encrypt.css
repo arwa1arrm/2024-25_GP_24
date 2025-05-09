@@ -196,6 +196,7 @@ button:hover {
       form {
         flex-direction: column;
       }
+      
     
       input[type="email"] {
         width: 100%;

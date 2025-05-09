@@ -26,6 +26,7 @@
   transition: background-color 0.3s ease;
 }
 
+
 .welcome button:hover {
   background-color: #26367B;
   color: #f4b942;

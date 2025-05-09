@@ -352,6 +352,7 @@ footer .social-icons a:hover {
     transition: transform 0.3s ease;
   }
   
+  
   header a:hover {
     text-decoration: underline;
     transform: translateY(-2px); /* Slight lift on hover */
