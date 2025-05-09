@@ -20,7 +20,10 @@ label {
     margin-bottom: 10px;
     font-weight: bold;
 }
-
+.profile {
+    position: relative;
+    z-index: 10;
+  }
 /* Input, textarea, and file input styles */
 input[type="text"], textarea {
     width: 100%; /* Ensure inputs take full width */
@@ -183,11 +186,18 @@ button:hover {
 
     #hideMessageOutput {
         margin-bottom:10%;
-    }}
+    }
 
     input[type="email"] {
         padding: 8px;
         font-size: 0.9rem;
       }
 
-    
+      .profile {
+        /* Ensure the profile icon is visible and clickable */
+        display: block;
+        position: relative;
+        z-index: 10;
+      }
+
+}
