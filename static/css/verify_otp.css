@@ -301,73 +301,56 @@ h2 {
     display: none;
   }
   
-@media (max-width: 768px) {
 
-    .hero {
-      padding: 20% 10%;
+  @media (max-width: 768px) {
+    body {
+      background-color: #7b4e26;
     }
-    .hero .logo {
-      position: relative;
-      width: 150px; /* Width reduced for logo */
-      margin: 0 auto; /* Centering the logo */
-    }
-    
-    
-    .hero .content {
-      width: 80%;
-    }
-    
-    .signn-form {
-      width: 60%;
-      padding: 10%;
-    }
-    
-    label {
-      margin-left: 5%;
-      font-size: 0.9rem;
-    }
-    
-    input {
-      margin-left: 5%;
+  
+    .container {
       width: 90%;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 15px;
+      line-height: 1.6; /* Fix overlapping lines */
     }
-
-    
-body{
-    background-color: #7b4e26;
-  }
-
   
-.btn-solid {
-    margin-left: 10%;
-    padding: 10px 30px;
-    width: 80%;
-    text-align: center;
+    h2 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  
+    label, input, .btn-solid {
+      display: block;
+      width: 90%;
+      margin: 10px auto;
+      text-align: center;
+    }
+  
+    .btn-solid {
+      padding: 12px;
+    }
+  
+    .did-not-recieve-text,
+    .message {
+      font-size: 0.95rem;
+      text-align: center;
+    }
+  
+    .mobile-break {
+      display: block;
+    }
+  
+    .hero .logo {
+      width: 150px;
+    }
+  
+    .hero .content {
+      width: 100%;
+      padding: 0;
+    }
   }
   
-  footer .footer-section {
-    width: 100%;
-    margin-bottom: 20px;
-    margin-right: 25%;
-    margin-left: 10%;
-  }
-  
-  footer .social-icons a {
-    font-size: 18px;
-  }
-
-  .container h2 {
-    font-size: 1.5rem;
-  }
-
-  .container .message,
-  .did-not-recieve-text {
-    font-size: 0.95rem;
-  }
-  .mobile-break {
-    display: block;
-  }
-  }
   
   
   
