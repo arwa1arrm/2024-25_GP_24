@@ -185,4 +185,14 @@ button:hover {
         margin-bottom:10%;
     }}
 
+    input[type="email"] {
+        width: 100%; /* Full width for the input */
+        padding: 10px; /* Inner padding for text */
+        margin-bottom: 20px; 
+        margin-right:20% ;/* Space below the input */
+        border: 1px solid #ccc; /* Light gray border */
+        border-radius: 4px; /* Rounded corners */
+        box-sizing: border-box; /* Proper padding inside input */
+    }
+
     
