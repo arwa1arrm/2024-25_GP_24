@@ -375,21 +375,23 @@ footer .social-icons a {
 }
 
 header {
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  text-align: center;
+  justify-content: space-between;
+  padding: 15px 20px;
 }
 
 header nav {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
+  flex-direction: row;
+  gap: 15px;
+  flex-wrap: nowrap;
 }
 
 header a {
-  margin: 5px 0;
-  font-size: 1rem;
+  white-space: nowrap;
+  font-size: 0.95rem;
 }
 
 }
