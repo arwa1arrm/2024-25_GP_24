@@ -42,7 +42,8 @@ import urllib.parse as urlparse
 
 
 
-# Initialize Flask app and MySQL
+
+#### Initialize Flask app and MySQL
 app = Flask(__name__)
 mysql = MySQL()
 
