@@ -431,4 +431,10 @@ footer .social-icons a:hover {
   
   .mobile-break {
     display: block;  }    
+    
+    .hero .logo {
+      position: relative;
+      width: 200px; /* Width reduced for logo */
+      margin: 0 auto; /* Centering the logo */
+    }
 }

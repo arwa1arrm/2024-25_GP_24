@@ -296,7 +296,9 @@ footer .social-icons a {
 footer .social-icons a:hover {
   color: #f4b942;
 }
-
+.mobile-break {
+  display: none;
+}
 /* ------- Responsive Breakpoints for Smaller Screens ------- */
 
 @media (max-width: 768px) {
@@ -404,6 +406,16 @@ header a:hover {
   font-size: 1rem;
   text-align: center;
   border-radius: 15px;
+}
+
+.mobile-break {
+  display: block;  
+}
+
+.hero .logo {
+  position: relative;
+  width: 100px; /* Width reduced for logo */
+  margin: 0 auto; /* Centering the logo */
 }
 
 }
