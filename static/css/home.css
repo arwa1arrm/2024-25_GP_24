@@ -343,3 +343,64 @@ footer .social-icons a {
   font-size: 18px;
 }
 }
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 25% 5%;
+  }
+
+  .hero .logo {
+    width: 150px;
+  }
+
+  .hero .content {
+    width: 90%;
+  }
+
+  label {
+    margin-left: 3%;
+    font-size: 0.85rem;
+  }
+
+  input {
+    margin-left: 3%;
+    width: 94%;
+  }
+
+  .password-container {
+    width: 90%;
+  }
+
+  .bell-icon {
+    top: 4px;
+    font-size: 120%;
+    left: 8px;
+  }
+
+  .profile-icon {
+    font-size: 110%;
+  }
+
+  .btn-solid {
+    margin-left: 5%;
+    padding: 10px 20px;
+    width: 90%;
+    text-align: center;
+  }
+
+  footer .footer-section {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+
+  footer .social-icons a {
+    font-size: 16px;
+  }
+
+  .already-account-text {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+}
